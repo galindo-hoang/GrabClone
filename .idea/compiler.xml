@@ -10,13 +10,13 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="be" target="17" />
+      <module name="be" target="11" />
       <module name="server-grabclone" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="be" options="-parameters --add-modules java.base" />
+      <module name="be" options="-parameters" />
       <module name="server-grabclone" options="-parameters --add-modules java.base" />
     </option>
   </component>
