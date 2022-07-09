@@ -1,6 +1,8 @@
 package com.example.be.controller;
+import com.example.be.model.dto.UserDto;
 import com.example.be.model.entity.User;
 import com.example.be.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ public class MainController {
     private UserService userService;
     @GetMapping
     public List<User> getStudent() {
+        userService.findAll().stream().forEach(System.out::println);
         return userService.findAll();
     }
 }
