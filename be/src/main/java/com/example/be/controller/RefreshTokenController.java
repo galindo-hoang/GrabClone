@@ -36,8 +36,6 @@ import java.util.stream.Collectors;
 @RestController
 public class RefreshTokenController {
     @Autowired
-    private UserService userService;
-    @Autowired
     private EntityManager em;
     @GetMapping("/refresh-token")
     public void refreshToken(HttpServletRequest httpServletRequest,
