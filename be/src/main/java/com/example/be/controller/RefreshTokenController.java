@@ -6,37 +6,29 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.be.exception.InvalidTokenException;
 import com.example.be.exception.UsernameNotFoundException;
-import com.example.be.model.dto.RoleDto;
-import com.example.be.model.dto.UserDto;
 import com.example.be.model.entity.QRole;
 import com.example.be.model.entity.QUser;
-import com.example.be.model.entity.Role;
 import com.example.be.model.entity.User;
-import com.example.be.service.UserService;
+import com.example.be.service.twilio.OtpService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.querydsl.jpa.impl.JPAQuery;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.mutable.Mutable;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 public class RefreshTokenController {
     @Autowired
     private EntityManager em;
+    @Autowired
+    private OtpService otpService;
+
     @GetMapping("/refresh-token")
     public void refreshToken(HttpServletRequest httpServletRequest,
                              HttpServletResponse httpServletResponse) throws IOException {
@@ -58,7 +50,7 @@ public class RefreshTokenController {
                 }
                 List<String> roles = new ArrayList<>();
                 user.getRoles()
-                        .forEach(role->roles.add(role.getName().toString()));
+                        .forEach(role -> roles.add(role.getName().toString()));
                 String accessToken = com.auth0.jwt.JWT.create()
                         .withSubject(user.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
