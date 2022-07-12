@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "843731154559",
+    "project_id": "grabclone-driver",
+    "storage_bucket": "grabclone-driver.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:843731154559:android:9aa73e94b3e15ec750714a",
+        "android_client_info": {
+          "package_name": "com.example.driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "843731154559-gc0psm1bu1thm6af9flme95cf6isf0f7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnb7GX6Bk0k4EXsznWyjxx-V4VNsxHQDg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "843731154559-gc0psm1bu1thm6af9flme95cf6isf0f7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

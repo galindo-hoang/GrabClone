@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "388261561283",
+    "project_id": "grabclone-user",
+    "storage_bucket": "grabclone-user.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:388261561283:android:fe9de7ed2cfec6aa1db376",
+        "android_client_info": {
+          "package_name": "com.example.user"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "388261561283-4r6g1aetil3o4j2j19m41gefsssaq79r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8MkOQMEm7vRuViNNw0jjogixKl9iqS94"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "388261561283-4r6g1aetil3o4j2j19m41gefsssaq79r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
