@@ -1,6 +1,7 @@
 package com.example.be.utils;
 
 
+import com.example.be.exception.InvalidOTPException;
 import com.example.be.exception.UsernameAlreadyExistException;
 import com.example.be.exception.UsernameNotFoundException;
 import org.slf4j.Logger;
@@ -27,7 +28,12 @@ public class MyControllerAdvice extends ResponseEntityExceptionHandler {
         log.error("UsernameAlreadyExistException: {}", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
-
+    @ExceptionHandler(InvalidOTPException.class)
+    public ResponseEntity<Object> handleInvalidOTPException(InvalidOTPException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(null, ex.getMessage());
+        log.error("InvalidOTPException: {}", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception exception) {
         ErrorResponse errorResponse = new ErrorResponse(null, exception.getMessage());

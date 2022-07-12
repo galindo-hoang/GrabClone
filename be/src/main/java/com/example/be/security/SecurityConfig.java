@@ -44,12 +44,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         customAuthenticationFilter.setFilterProcessesUrl("/login");
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/login/**","/refresh-token/**").permitAll();
+        http.authorizeRequests().antMatchers("/login/**","/refresh-token/**",
+                "/api/otp/register/**",
+                "/api/otp/validate/**").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/users/**")
                 .hasAnyAuthority("ROLE_USER");
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/users/save/**")
                 .hasAnyAuthority("ROLE_ADMIN");
-        http.authorizeRequests().anyRequest().permitAll();
+        http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
         http.addFilterBefore(new CustomeAuthorizationFilter(),
                 UsernamePasswordAuthenticationFilter.class); //intercept every request before before filters
