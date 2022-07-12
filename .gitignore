@@ -65,60 +65,6 @@ yarn-error.log*
 
 
 
-
-
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-
-/captures
-.externalNativeBuild
-.cxx
-local.properties
-
-
-
-
-# User
-/fe/User/*.iml
-/fe/User/.gradle
-/fe/User/local.properties
-/fe/User/.idea/caches
-/fe/User/.idea/libraries
-/fe/User/.idea/modules.xml
-/fe/User/.idea/workspace.xml
-/fe/User/.idea/navEditor.xml
-/fe/User/.idea/assetWizardSettings.xml
-/fe/User/.DS_Store
-/fe/User/build
-/fe/User/captures
-/fe/User/.externalNativeBuild
-/fe/User/.cxx
-/fe/User/local.properties
-
-# Driver
-/fe/driver/*.iml
-/fe/driver/.gradle
-/fe/driver/local.properties
-/fe/driver/.idea/caches
-/fe/driver/.idea/libraries
-/fe/driver/.idea/modules.xml
-/fe/driver/.idea/workspace.xml
-/fe/driver/.idea/navEditor.xml
-/fe/driver/.idea/assetWizardSettings.xml
-/fe/driver/.DS_Store
-/fe/driver/build
-/fe/driver/captures
-/fe/driver/.externalNativeBuild
-/fe/driver/.cxx
-/fe/driver/local.properties
-
-
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
@@ -166,3 +112,41 @@ target
 
 # Angular
 *.spec.ts
+
+
+
+
+# User
+/fe/User/*.iml
+/fe/User/.gradle
+/fe/User/local.properties
+/fe/User/.idea/caches
+/fe/User/.idea/libraries
+/fe/User/.idea/modules.xml
+/fe/User/.idea/workspace.xml
+/fe/User/.idea/navEditor.xml
+/fe/User/.idea/assetWizardSettings.xml
+/fe/User/.DS_Store
+/fe/User/build
+/fe/User/captures
+/fe/User/.externalNativeBuild
+/fe/User/.cxx
+/fe/User/local.properties
+
+# Driver
+/fe/driver/*.iml
+/fe/driver/.gradle
+/fe/driver/local.properties
+/fe/driver/.idea/caches
+/fe/driver/.idea/libraries
+/fe/driver/.idea/modules.xml
+/fe/driver/.idea/workspace.xml
+/fe/driver/.idea/navEditor.xml
+/fe/driver/.idea/assetWizardSettings.xml
+/fe/driver/.DS_Store
+/fe/driver/build
+/fe/driver/captures
+/fe/driver/.externalNativeBuild
+/fe/driver/.cxx
+/fe/driver/local.properties
+
