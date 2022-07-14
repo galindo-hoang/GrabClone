@@ -27,45 +27,39 @@ class SearchingViewModel @Inject constructor(
     val resultPlaceClient get() = _resultPlaceClient
 
     fun searchingCar() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = withContext(Dispatchers.Default) {
-                try {
-                    getRouteNavigationUseCase.invoke(
-                        _origin.value?.geometry?.location.toString() ?: "",
-                        _destination.value?.geometry?.location.toString() ?: "",
-                        "driving"
-                    )
-                }catch (e:Exception){
-                    e.printStackTrace()
-                    null
+        if(_origin.value != null && _destination.value != null){
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = withContext(Dispatchers.Default) {
+                    try {
+                        getRouteNavigationUseCase.invoke(
+                            _origin.value?.geometry?.location.toString() ?: "",
+                            _destination.value?.geometry?.location.toString() ?: "",
+                            "driving"
+                        )
+                    }catch (e:Exception){
+                        e.printStackTrace()
+                        null
+                    }
                 }
-            }
-            if (response != null) {
-                _routes.postValue(response.data)
+                if (response?.data != null && response.data.isNotEmpty()) {
+                    _routes.postValue(response.data)
+                }else{
+                    _routes.postValue(listOf())
+                }
             }
         }
     }
 
     fun getAddress(placeId: String) {
-//        emit(Response.loading(null))
-//        try {
-//            emit(getAddressFromPlaceId.invoke(placeId))
-//        }catch (e: Exception){
-//            e.printStackTrace()
-//        }
         CoroutineScope(Dispatchers.IO).launch {
-            Log.e("+++++++++++",placeId)
             val response = withContext(Dispatchers.Default) {
                 try {
-                    val b = getAddressFromPlaceId.invoke(placeId)
-                    Log.e("=========", b.toString())
-                    b
+                    getAddressFromPlaceId.invoke(placeId)
                 }catch (e:Exception){
                     e.printStackTrace()
                     null
                 }
             }
-            Log.e("----------", response?.data.toString())
             _resultPlaceClient.postValue(response?.data)
         }
     }

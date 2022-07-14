@@ -20,6 +20,7 @@ class RouteNavigationRepositoryImpl @Inject constructor(
         val routeNavigation = RouteNavigation(listOf(),"404")
         try {
             val response = routeNavigationRemoteDataSource.getRoutes(origin, destination, mode)
+            Log.e("3",response.toString())
             routeNavigation.status = response.code().toString()
             if(response.body() != null) routeNavigation.routes = response.body()!!.routes
         } catch (e: Exception){
@@ -33,7 +34,6 @@ class RouteNavigationRepositoryImpl @Inject constructor(
         val placeClient = PlaceClient(status = "404")
         try {
             val response = routeNavigationRemoteDataSource.getAddressFromPlaceId(placeId)
-            Log.e("2",response.toString())
             placeClient.status = response.code().toString()
             if(response.body() != null) placeClient.result = response.body()!!.result
         } catch (e:Exception){

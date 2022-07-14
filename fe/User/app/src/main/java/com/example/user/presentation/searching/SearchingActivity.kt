@@ -2,6 +2,7 @@ package com.example.user.presentation.searching
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import com.example.user.BuildConfig
 import com.example.user.R
 import com.example.user.databinding.ActivitySearchingBinding
 import com.example.user.presentation.BaseActivity
@@ -39,7 +41,8 @@ class SearchingActivity : BaseActivity() {
     private lateinit var placesClient: PlacesClient
     private lateinit var loadPlacesFromGoogleMap: ActivityResultLauncher<Intent>
     private lateinit var binding: ActivitySearchingBinding
-    private var isOrigin = true
+    private var isOrigin: Boolean? = null
+    private lateinit var resultCheck: LatLng
     private lateinit var map: GoogleMap
     private val intentGoogleMap by lazy {
         Autocomplete
@@ -56,7 +59,7 @@ class SearchingActivity : BaseActivity() {
         binding.viewModel = searchingViewModel
 
         if(!Places.isInitialized())
-            Places.initialize(this,"AIzaSyCRYgLcoMV93PbLDBPDWnsG6nTpIdwUmaA")
+            Places.initialize(this,BuildConfig.GOOGLE_MAP_API)
         placesClient = Places.createClient(this)
 
         setupLoadPlaceFromGoogleMap()
@@ -81,45 +84,37 @@ class SearchingActivity : BaseActivity() {
 
     private fun registerObserve(){
         searchingViewModel.resultPlaceClient.observe(this){
-            if(isOrigin) searchingViewModel.origin.postValue(it)
-            else searchingViewModel.destination.postValue(it)
-            searchingViewModel.resultPlaceClient.postValue(null)
+            if(isOrigin == true) searchingViewModel.origin.postValue(it)
+            else if (isOrigin == false) searchingViewModel.destination.postValue(it)
+            isOrigin = null
         }
         searchingViewModel.routes.observe(this){ routes ->
             if(routes.isNotEmpty()){
-                var points: ArrayList<LatLng?>
-                var polylineOptions: PolylineOptions? = null
+                val polylineOptions = PolylineOptions()
+                val points = mutableListOf<LatLng>()
                 routes.forEach { route ->
-                    points = ArrayList()
-                    polylineOptions = PolylineOptions()
                     route.legs.forEach { leg ->
                         leg.steps.forEach { step ->
-                            decodePoly(step.polyline.points).forEach { latlng ->
-                                points.add(LatLng(latlng.latitude, latlng.longitude))
-                            }
+                            points.addAll(decodePoly(step.polyline.points))
                         }
                     }
-
-                    polylineOptions!!.addAll(points)
-                    polylineOptions!!.width(10f)
-                    polylineOptions!!.color(
-                        ContextCompat.getColor(
-                            this@SearchingActivity,
-                            com.example.user.R.color.purple_500
-                        )
-                    )
-                    polylineOptions!!.geodesic(true)
                 }
 
+                polylineOptions.addAll(points)
+                polylineOptions.width(10f)
+                polylineOptions.color(Color.RED)
+                polylineOptions.geodesic(true)
+                polylineOptions.let {
+                    map.addPolyline(it)
+                }
                 val bounds = LatLngBounds.Builder()
-                polylineOptions?.let { map.addPolyline(it) }
                 searchingViewModel.origin.observe(this){ latlng ->
-                    val result = LatLng(latlng.geometry.location.lat, latlng.geometry.location.lng)
+                    resultCheck = LatLng(latlng.geometry.location.lat, latlng.geometry.location.lng)
                     map.addMarker(
-                        MarkerOptions().position(result)
+                        MarkerOptions().position(resultCheck)
                             .title("Marker 1")
                     )
-                    bounds.include(result)
+                    bounds.include(resultCheck)
                 }
                 searchingViewModel.destination.observe(this){ latlng ->
                     val result = LatLng(latlng.geometry.location.lat, latlng.geometry.location.lng)
@@ -132,13 +127,16 @@ class SearchingActivity : BaseActivity() {
                 val point = Point()
                 windowManager.defaultDisplay.getSize(point)
                 map.animateCamera(
-                    CameraUpdateFactory.newLatLngBounds(
-                        bounds.build(),
-                        point.x,
-                        150,
-                        30
-                    )
+                    CameraUpdateFactory
+                        .newLatLngBounds(
+                            bounds.build(),
+                            point.x,
+                            550,
+                            230
+                        )
                 )
+            }else{
+                Log.e("5","hello")
             }
         }
     }
