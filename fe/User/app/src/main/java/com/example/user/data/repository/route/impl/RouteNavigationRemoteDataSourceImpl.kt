@@ -5,6 +5,7 @@ import androidx.core.content.ContextCompat
 import com.example.user.BuildConfig
 import com.example.user.R
 import com.example.user.data.api.RouteNavigationApi
+import com.example.user.data.model.PlaceClient
 import com.example.user.data.model.RouteNavigation
 import com.example.user.data.repository.route.RouteNavigationRemoteDataSource
 import retrofit2.Response
@@ -26,4 +27,8 @@ class RouteNavigationRemoteDataSourceImpl @Inject constructor(
             mode,
             BuildConfig.GOOGLE_MAP_API
         )
+
+    override suspend fun getAddressFromPlaceId(placeId: String): Response<PlaceClient> =
+        routeNavigationApi.getAddressFromPlaceId(placeId,BuildConfig.GOOGLE_MAP_API)
+
 }

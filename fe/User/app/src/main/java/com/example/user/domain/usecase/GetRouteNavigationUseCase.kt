@@ -1,20 +1,8 @@
 package com.example.user.domain.usecase
 
-import android.content.Context
-import android.graphics.Point
-import androidx.core.content.ContextCompat
-import com.example.user.R
 import com.example.user.data.model.Route
 import com.example.user.domain.repository.RouteNavigationRepository
-import com.example.user.utils.Constant.decodePoly
 import com.example.user.utils.Response
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 
