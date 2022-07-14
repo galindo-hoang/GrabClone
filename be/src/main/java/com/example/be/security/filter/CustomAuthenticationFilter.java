@@ -9,6 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -31,6 +32,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String userName = request.getParameter("username");
         String password = request.getParameter("password");
+        System.out.println(userName+" "+password);
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userName, password);
         return authenticationManager.authenticate(token);
     }
@@ -54,6 +56,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
         tokens.put("user",user);
+        System.out.println(tokens);
         response.setContentType("application/json");
         new ObjectMapper().writeValue(response.getOutputStream(), tokens);
     }

@@ -1,12 +1,17 @@
-import { loginApi } from "src/apis/user.api"
+import { loginApi } from "src/apis/login.api"
 import * as actions from "./Login.actions"
+import loginService from "../../service/LoginService";
 
-export const login = (payload: ReqLogin) => dispatch => {
-  dispatch(actions.loginRequested())
-  return loginApi(payload)
+
+
+
+export const login = (payload: ReqLogin) => async dispatch => {
+  dispatch(actions.loginRequested());
+  return await loginService.postLoginForm(payload)
     .then(res => {
+      console.log(res.data)
       localStorage.setItem("token", res.data.access_token)
       return dispatch(actions.loginSuccess(res))
     })
-    .catch(err => Promise.reject(dispatch(actions.loginFailed(err))))
+    .catch(err => {return Promise.reject(dispatch(actions.loginFailed(err)))})
 }

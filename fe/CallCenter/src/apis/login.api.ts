@@ -1,8 +1,12 @@
+import {useEffect, useState} from "react";
+import axios from "axios";
+import LoginService from "../service/LoginService";
+
 export const loginApi = ({
   username,
   password
-}: ReqLogin): Promise<ResLoginApi> =>
-  new Promise((resolve, reject) => {
+}: ReqLogin): Promise<ResLoginApi> => {
+  return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (username === "admin" && password === "123") {
         resolve({
@@ -16,3 +20,4 @@ export const loginApi = ({
       }
     }, 100)
   })
+}
