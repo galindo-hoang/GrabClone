@@ -6,12 +6,13 @@ const config={
   headers:{
     'Content-Type': 'multipart/form-data',
   },
-  crossOrigin:{
+  /*crossOrigin:{
     'Access-Control-Allow-Origin':'*',
-  },
-  mode:{
-    'mode':'cors'
-  }
+    'Access-Control-Allow-Credentials':true
+  },*/
+  mode: 'no-cors',
+  withCredentials: true,
+  credentials: 'same-origin',
 }
 class LoginService {
    postLoginForm({username, password}: ReqLogin) {

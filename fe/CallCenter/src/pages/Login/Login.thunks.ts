@@ -10,7 +10,7 @@ export const login = (payload: ReqLogin) => async dispatch => {
   return await loginService.postLoginForm(payload)
     .then(res => {
       console.log(res.data)
-      localStorage.setItem("token", res.data.access_token)
+      localStorage.setItem("token", res.data.accessToken)
       return dispatch(actions.loginSuccess(res))
     })
     .catch(err => {return Promise.reject(dispatch(actions.loginFailed(err)))})
