@@ -1,7 +1,3 @@
-import {useEffect, useState} from "react";
-import axios from "axios";
-import LoginService from "../service/LoginService";
-
 export const loginApi = ({
   username,
   password

@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom"
 import { PATH } from "src/constants/paths"
 
 const mapStateToProps = state => ({
-  loading: state.loading
+  loading: state.loading,
 })
 
 const mapDispatchToProps = {
@@ -22,7 +22,7 @@ const Login = (props: Props) => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const history = useHistory()
+  const history = useHistory();
   const handleUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value)
   }

@@ -4,8 +4,11 @@ import { logout, toggleSideNav } from "src/App/App.actions"
 import { useHistory } from "react-router-dom"
 import { LogoutIcon } from "./Header.styles"
 import { PATH } from "src/constants/paths"
+import {Toast} from "react-bootstrap";
 
-const mapStateToProps = state => ({})
+const mapStateToProps = state => ({
+  clientInformation:state.login.clientInformation
+})
 
 const mapDispatchToProps = {
   logout,
@@ -17,7 +20,7 @@ const connector = connect(mapStateToProps, mapDispatchToProps)
 interface Props extends ConnectedProps<typeof connector> {}
 
 const Header = (props: Props) => {
-  const { logout, toggleSideNav } = props
+  const { logout, toggleSideNav, clientInformation} = props
   const history = useHistory()
   const handleLogout = () => {
     logout()
@@ -56,6 +59,7 @@ const Header = (props: Props) => {
           </g>
         </svg>
       </button>
+     <p >Xin chào {clientInformation?.data?.user?.username}</p>
       <LogoutIcon onClick={handleLogout} className="btn btn-outline-secondary">
         Logout
       </LogoutIcon>
