@@ -16,7 +16,6 @@ const config = {
 class LoginService {
   postLoginForm({username, password}: ReqLogin) {
     const loginElement = {username, password} as ReqLogin;
-    console.log(loginElement);
     return axios.post(LOGIN_FORM_API_URL, loginElement, config)
   }
 }

@@ -6,12 +6,22 @@ import loginService from "../../service/LoginService";
 
 
 export const login = (payload: ReqLogin) => async dispatch => {
-  dispatch(actions.loginRequested());
+  dispatch(actions.loginRequested(null));
+  let isAdmin:Boolean=false;
   return await loginService.postLoginForm(payload)
     .then(res => {
-      console.log(res.data)
-      localStorage.setItem("token", res.data.access_token)
-      return dispatch(actions.loginSuccess(res))
+      res.data.user.authorities?.forEach(u=>{
+        if(u.authority?.includes("ROLE_ADMIN")){
+          isAdmin=true;
+        }
+      });
+      if(isAdmin){
+        localStorage.setItem("token", res.data.accessToken);
+        return dispatch(actions.loginSuccess(res))
+      }
+      else{
+        return dispatch(actions.loginFailed("Bạn không có quyền đăng nhập"))
+      }
     })
     .catch(err => {return Promise.reject(dispatch(actions.loginFailed(err)))})
 }
