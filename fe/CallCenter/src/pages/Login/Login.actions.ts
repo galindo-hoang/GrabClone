@@ -1,7 +1,8 @@
 import * as types from "./Login.constants"
 
-export const loginRequested = () => ({
-  type: types.LOGIN_REQUESTED
+export const loginRequested = payload => ({
+  type: types.LOGIN_REQUESTED,
+  payload
 })
 
 export const loginSuccess = payload => ({

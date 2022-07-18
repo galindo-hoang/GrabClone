@@ -1,12 +1,27 @@
-import { loginApi } from "src/apis/user.api"
+import { loginApi } from "src/apis/login.api"
 import * as actions from "./Login.actions"
+import loginService from "../../service/LoginService";
 
-export const login = (payload: ReqLogin) => dispatch => {
-  dispatch(actions.loginRequested())
-  return loginApi(payload)
+
+
+
+export const login = (payload: ReqLogin) => async dispatch => {
+  dispatch(actions.loginRequested(null));
+  let isAdmin:Boolean=false;
+  return await loginService.postLoginForm(payload)
     .then(res => {
-      localStorage.setItem("token", res.data.access_token)
-      return dispatch(actions.loginSuccess(res))
+      res.data.user.authorities?.forEach(u=>{
+        if(u.authority?.includes("ROLE_ADMIN")){
+          isAdmin=true;
+        }
+      });
+      if(isAdmin){
+        localStorage.setItem("token", res.data.accessToken);
+        return dispatch(actions.loginSuccess(res))
+      }
+      else{
+        return dispatch(actions.loginFailed("Bạn không có quyền đăng nhập"))
+      }
     })
-    .catch(err => Promise.reject(dispatch(actions.loginFailed(err))))
+    .catch(err => {return Promise.reject(dispatch(actions.loginFailed(err)))})
 }
