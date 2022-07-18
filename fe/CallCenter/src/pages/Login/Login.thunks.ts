@@ -1,9 +1,6 @@
-import { loginApi } from "src/apis/login.api"
 import * as actions from "./Login.actions"
 import loginService from "../../service/LoginService";
-
-
-
+import {ReqLogin} from "../../@types/login";
 
 export const login = (payload: ReqLogin) => async dispatch => {
   dispatch(actions.loginRequested(null));
@@ -23,5 +20,5 @@ export const login = (payload: ReqLogin) => async dispatch => {
         return dispatch(actions.loginFailed("Bạn không có quyền đăng nhập"))
       }
     })
-    .catch(err => {return Promise.reject(dispatch(actions.loginFailed(err)))})
+    .catch(err => {return Promise.reject(dispatch(actions.loginFailed("Tài khoản hoặc mật khẩu bị sai")))})
 }
