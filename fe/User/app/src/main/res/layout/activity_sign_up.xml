@@ -103,6 +103,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="20dp"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -110,7 +111,7 @@
                     android:id="@+id/et_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter your name"
+                    android:hint="Fill your name"
                     android:text="@={viewModel.name}"
                     android:inputType="textPassword"
                     android:textColor="@color/black"
@@ -130,9 +131,9 @@
                     android:id="@+id/et_phone_number"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter your phone number"
+                    android:hint="Fill your phone number"
                     android:text="@={viewModel.phoneNumber}"
-                    android:inputType="textPassword"
+                    android:inputType="number"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
             </com.google.android.material.textfield.TextInputLayout>

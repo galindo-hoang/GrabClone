@@ -1,8 +1,8 @@
 package com.example.user.data.repository.route
 
 import android.util.Log
-import com.example.user.data.model.PlaceClient
-import com.example.user.data.model.RouteNavigation
+import com.example.user.data.model.googlemap.PlaceClient
+import com.example.user.data.model.googlemap.RouteNavigation
 import com.example.user.domain.repository.RouteNavigationRepository
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -20,6 +20,7 @@ public class OTPController {
 
     @PostMapping("/register")
     public ResponseEntity<OtpResponseDto> sendOTP(@RequestBody OtpRequestDto otpRequestDto) {
+        System.out.println(otpRequestDto);
         OtpResponseDto otpResponseDto = otpService.sendOTPForPasswordReset(otpRequestDto);
         if (otpResponseDto.getStatus().equals(OTPStatus.DELIVERED))
             return ResponseEntity.ok(otpResponseDto);

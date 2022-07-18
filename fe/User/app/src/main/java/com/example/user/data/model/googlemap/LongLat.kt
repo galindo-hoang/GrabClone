@@ -1,4 +1,4 @@
-package com.example.user.data.model
+package com.example.user.data.model.googlemap
 
 data class LongLat(
     val lat: Double,
