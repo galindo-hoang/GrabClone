@@ -20,6 +20,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 @Configuration
@@ -42,6 +46,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 authenticationManagerBean()
         );
         customAuthenticationFilter.setFilterProcessesUrl("/login");
+
+        http.cors().configurationSource(request-> {
+            CorsConfiguration configuration = new CorsConfiguration();
+            configuration.setAllowedOrigins(List.of("http://localhost:3000","http://192.168.1.255:8080"));
+            configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
+            configuration.setAllowedHeaders(List.of("*"));
+            return configuration;
+        });
+
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers("/login/**","/refresh-token/**",

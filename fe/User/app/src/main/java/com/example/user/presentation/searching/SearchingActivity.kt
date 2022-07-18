@@ -8,10 +8,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import com.example.user.BuildConfig
 import com.example.user.R
+import com.example.user.data.api.AuthenticationApi
 import com.example.user.databinding.ActivitySearchingBinding
 import com.example.user.presentation.BaseActivity
 import com.example.user.utils.Constant.decodePoly
@@ -22,7 +21,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
-import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
@@ -37,6 +35,8 @@ class SearchingActivity : BaseActivity() {
 
     @Inject
     lateinit var searchingViewModel: SearchingViewModel
+    @Inject
+    lateinit var authenticationApi: AuthenticationApi
 
     private lateinit var placesClient: PlacesClient
     private lateinit var loadPlacesFromGoogleMap: ActivityResultLauncher<Intent>
@@ -58,13 +58,28 @@ class SearchingActivity : BaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = searchingViewModel
 
-        if(!Places.isInitialized())
-            Places.initialize(this,BuildConfig.GOOGLE_MAP_API)
-        placesClient = Places.createClient(this)
+//        val da = Gson().toJson(PostValidateRegister(12345,"+84906892676"))
 
-        setupLoadPlaceFromGoogleMap()
-        setupHandleEventListener()
-        registerObserve()
+//        CoroutineScope(Dispatchers.IO).launch {
+//            val data = async {
+//                backendApi.getResponseValidateRegister(PostValidateRegister(476443,"+84906892676"))
+//            }
+//            val data1 = async {
+//                backendApi.getResponseRegister(PostValidateRegister(476443,"+84906892676"))
+//            }
+//            val a = data1.await()
+//            Log.e("-----",a.headers().toString())
+//            Log.e("-----", a.toString())
+//            Log.e("-----", a.body().toString())
+//        }
+
+//        if(!Places.isInitialized())
+//            Places.initialize(this,BuildConfig.GOOGLE_MAP_API)
+//        placesClient = Places.createClient(this)
+//
+//        setupLoadPlaceFromGoogleMap()
+//        setupHandleEventListener()
+//        registerObserve()
     }
 
     private fun setupHandleEventListener() {

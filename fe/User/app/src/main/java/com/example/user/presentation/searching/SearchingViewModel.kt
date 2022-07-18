@@ -1,13 +1,10 @@
 package com.example.user.presentation.searching
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
-import com.example.user.data.model.ResultPlaceClient
-import com.example.user.data.model.Route
+import com.example.user.data.model.googlemap.ResultPlaceClient
+import com.example.user.data.model.googlemap.Route
 import com.example.user.domain.usecase.GetAddressFromPlaceId
 import com.example.user.domain.usecase.GetRouteNavigationUseCase
-import com.example.user.utils.Response
 import kotlinx.coroutines.*
 import javax.inject.Inject
 
