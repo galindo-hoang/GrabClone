@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
 import com.example.user.R
 import com.example.user.data.api.AuthenticationApi
+import com.example.user.data.model.authentication.PostValidateRegister
 import com.example.user.databinding.ActivitySearchingBinding
 import com.example.user.presentation.BaseActivity
 import com.example.user.utils.Constant.decodePoly
@@ -27,6 +28,10 @@ import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -60,18 +65,19 @@ class SearchingActivity : BaseActivity() {
 
 //        val da = Gson().toJson(PostValidateRegister(12345,"+84906892676"))
 
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val data = async {
-//                backendApi.getResponseValidateRegister(PostValidateRegister(476443,"+84906892676"))
-//            }
-//            val data1 = async {
-//                backendApi.getResponseRegister(PostValidateRegister(476443,"+84906892676"))
-//            }
-//            val a = data1.await()
-//            Log.e("-----",a.headers().toString())
+        CoroutineScope(Dispatchers.IO).launch {
+            val data = async {
+                authenticationApi.getResponseValidateRegister(PostValidateRegister(476443,"+84906892676"))
+            }
+            val data1 = async {
+                authenticationApi.getResponseRegister(PostValidateRegister(476443,"+84906892676"))
+            }
+            val a = data1.await()
+            val b = data.await()
 //            Log.e("-----", a.toString())
-//            Log.e("-----", a.body().toString())
-//        }
+            Log.e("-----", a.body().toString())
+            Log.e("-----", b.body().toString())
+        }
 
 //        if(!Places.isInitialized())
 //            Places.initialize(this,BuildConfig.GOOGLE_MAP_API)
