@@ -5,5 +5,6 @@ import com.example.user.data.model.authentication.ResponseRegister
 
 interface AuthenticationRepository {
     suspend fun registerAccount(postValidateRegister: PostValidateRegister): ResponseRegister
-    suspend fun loginAccount(postValidateRegister: PostValidateRegister): Resp
+    suspend fun validateAccount()
+    suspend fun loginAccount(postValidateRegister: PostValidateRegister)
 }

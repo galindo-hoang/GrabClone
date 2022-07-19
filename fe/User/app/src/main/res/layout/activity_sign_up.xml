@@ -50,7 +50,7 @@
                     android:id="@+id/et_user_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Fill your username"
+                    android:hint="Username"
                     android:text="@={viewModel.userName}"
                     android:inputType="text"
                     android:textColor="@color/black"
@@ -67,10 +67,10 @@
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/et_write_password"
+                    android:id="@+id/et_new_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Password"
+                    android:hint="New password"
                     android:text="@={viewModel.password}"
                     android:inputType="textPassword"
                     android:textColor="@color/black"
@@ -87,40 +87,53 @@
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/et_rewrite_password"
+                    android:id="@+id/et_confirm_new_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Re-write Password"
-                    android:text="@={viewModel.rePassword}"
+                    android:hint="Confirm new password"
+                    android:text="@={viewModel.confirmPassword}"
                     android:inputType="textPassword"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til4"
-                app:layout_constraintTop_toBottomOf="@id/til3"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_check_confirm_new_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:paddingHorizontal="10dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="20dp"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/et_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Fill your name"
-                    android:text="@={viewModel.name}"
-                    android:inputType="textPassword"
-                    android:textColor="@color/black"
-                    android:textSize="18sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                app:layout_constraintTop_toBottomOf="@id/til3"
+                android:text="Passwords do not match"
+                android:textColor="@color/red"
+                android:visibility="gone"/>
+
+<!--            <com.google.android.material.textfield.TextInputLayout-->
+<!--                android:id="@+id/til4"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/til3"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                android:layout_marginTop="20dp"-->
+<!--                android:visibility="gone"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">-->
+<!--                <androidx.appcompat.widget.AppCompatEditText-->
+<!--                    android:id="@+id/et_name"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:hint="Fill your name"-->
+<!--                    android:text="@={viewModel.name}"-->
+<!--                    android:inputType="textPassword"-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:textSize="18sp" />-->
+<!--            </com.google.android.material.textfield.TextInputLayout>-->
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til5"
-                app:layout_constraintTop_toBottomOf="@id/til4"
+                app:layout_constraintTop_toBottomOf="@id/tv_check_confirm_new_password"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="20dp"
@@ -131,16 +144,29 @@
                     android:id="@+id/et_phone_number"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Fill your phone number"
+                    android:hint="Phone number"
                     android:text="@={viewModel.phoneNumber}"
                     android:inputType="number"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_check_phone_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/til5"
+                android:textColor="@color/red"
+                android:layout_marginTop="5dp"
+                android:paddingHorizontal="10dp"
+                android:visibility="gone"
+                android:text="Phone number is invalid"/>
+
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_log_in"
-                app:layout_constraintTop_toBottomOf="@id/til5"
+                app:layout_constraintTop_toBottomOf="@+id/tv_check_phone_number"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_width="match_parent"

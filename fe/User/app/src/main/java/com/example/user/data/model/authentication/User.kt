@@ -3,6 +3,7 @@ package com.example.user.data.model.authentication
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 
 @Entity
 data class User(
@@ -16,5 +17,6 @@ data class User(
     val enabled: Boolean,
     val password: String,
     val username: String,
+    @SerializedName("phonenumber")
     val phoneNumber: String,
 )

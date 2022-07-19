@@ -58,7 +58,8 @@ class ApplicationModule {
             return Retrofit
                 .Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://192.168.1.5:8080")
+//                .baseUrl("http://192.168.1.5:8080")
+                .baseUrl("http://192.168.223.107:8080")
                 .client(xclient.build())
                 .build()
                 .create(AuthenticationApi::class.java)
