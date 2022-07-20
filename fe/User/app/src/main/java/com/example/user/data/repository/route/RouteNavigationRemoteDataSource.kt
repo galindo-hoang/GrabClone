@@ -1,6 +1,7 @@
 package com.example.user.data.repository.route
 
-import com.example.user.data.model.RouteNavigation
+import com.example.user.data.model.googlemap.PlaceClient
+import com.example.user.data.model.googlemap.RouteNavigation
 import retrofit2.Response
 
 interface RouteNavigationRemoteDataSource {
@@ -8,4 +9,6 @@ interface RouteNavigationRemoteDataSource {
         origin: String,
         destination: String,
         mode: String): Response<RouteNavigation>
+
+    suspend fun getAddressFromPlaceId(placeId: String): Response<PlaceClient>
 }

@@ -26,7 +26,7 @@ public class CustomeAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest,
                                     HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if (StringUtils.equals(httpServletRequest.getServletPath(), "/api/login")
+        if (StringUtils.equals(httpServletRequest.getServletPath(), "/login")
         || StringUtils.equals(httpServletRequest.getServletPath(), "/refresh-token")) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } else {
@@ -49,7 +49,7 @@ public class CustomeAuthorizationFilter extends OncePerRequestFilter {
                     filterChain.doFilter(httpServletRequest, httpServletResponse);
                 } catch (Exception e) {
                     httpServletResponse.setHeader("Error",e.getMessage());
-                    httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     Map<String,String> tokens=new HashMap<>();
                     tokens.put("errorMessage",e.getMessage());
                     httpServletResponse.setContentType("application/json");

@@ -1,4 +1,4 @@
-package com.example.user.data.model
+package com.example.user.data.model.googlemap
 
 data class Duration(
     val text: String,

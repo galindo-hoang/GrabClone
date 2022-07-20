@@ -12,9 +12,11 @@ class SignUpViewModel @Inject constructor(): ViewModel() {
     private var _password = MutableLiveData<String>()
     val password get() = _password
     private var _rePassword = MutableLiveData<String>()
-    val rePassword get() = _rePassword
+    val confirmPassword get() = _rePassword
     private var _phoneNumber = MutableLiveData<String>()
     val phoneNumber get() = _phoneNumber
+    var isValidPassword = true
+    var isValidPhoneNumber = true
 
     fun signUp(){}
 }

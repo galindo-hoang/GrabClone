@@ -1,4 +1,4 @@
-package com.example.be.model.dto.OTPDto;
+package com.example.be.model.payload.OTP;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class OtpRequestDto {
+public class OTPRequest {
     private String phonenumber;
     private String onceTimePassword;
 }

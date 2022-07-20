@@ -1,6 +1,6 @@
 package com.example.user.data.repository.route.impl
 
-import com.example.user.data.model.Route
+import com.example.user.data.model.googlemap.Route
 import com.example.user.data.repository.route.RouteNavigationCacheDataResource
 import javax.inject.Inject
 import javax.inject.Singleton

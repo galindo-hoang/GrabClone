@@ -20,7 +20,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String","BASE_URL","\"asd\""
-        buildConfigField "String","GOOGLE_MAP_API","\"AIzaSyCRYgLcoMV93PbLDBPDWnsG6nTpIdwUmaA\""
+        buildConfigField "String","GOOGLE_MAP_API","\"AIzaSyBjHUZ2p8UYH5cJdY3t_y1g08HpMR7Hio4\""
     }
 
     buildTypes {
@@ -51,8 +51,8 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.5.0-alpha02'
     implementation 'androidx.room:room-ktx:2.5.0-alpha02'
     //Coroutine
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     //ViewModel
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
     //LiveData
@@ -80,7 +80,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.10'
-
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.10'
 
 
 
