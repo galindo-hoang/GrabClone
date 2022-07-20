@@ -1,4 +1,4 @@
-package com.example.be.model.dto.OTPDto;
+package com.example.be.model.payload.OTP;
 
 public enum OTPStatus {
     DELIVERED,FAILED

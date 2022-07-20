@@ -1,4 +1,4 @@
-package com.example.be.utils;
+package com.example.be.model.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErrorResponse {
-    private Integer type;
+    private String timestamp;
+    private String exception;
     private String message;
 }
