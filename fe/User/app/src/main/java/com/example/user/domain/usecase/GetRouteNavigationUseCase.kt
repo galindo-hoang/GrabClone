@@ -1,6 +1,6 @@
 package com.example.user.domain.usecase
 
-import com.example.user.data.model.Route
+import com.example.user.data.model.googlemap.Route
 import com.example.user.domain.repository.RouteNavigationRepository
 import com.example.user.utils.Response
 import javax.inject.Inject

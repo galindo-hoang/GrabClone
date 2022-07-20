@@ -1,7 +1,7 @@
 package com.example.user.data.api
 
-import com.example.user.data.model.PlaceClient
-import com.example.user.data.model.RouteNavigation
+import com.example.user.data.model.googlemap.PlaceClient
+import com.example.user.data.model.googlemap.RouteNavigation
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
