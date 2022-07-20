@@ -38,7 +38,6 @@ const Login = (props: Props) => {
       const payload = { username, password }
       login(payload)
         .then(res => {
-          console.log(res.payload.status)
           if(res.payload.status===200) {
             history.push(PATH.HOME);
           }
