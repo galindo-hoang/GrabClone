@@ -25,18 +25,17 @@ public class UserController {
     private UserService userService;
     private final ModelMapper modelMapper;
 
-    private final TypeMap<User, UserDto> userToUserDtoTypeMap;
-
     @Autowired
     public UserController(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
-        userToUserDtoTypeMap = modelMapper.createTypeMap(User.class, UserDto.class);
+        TypeMap<User, UserDto> userToUserDtoTypeMap = modelMapper.createTypeMap(User.class, UserDto.class);
+        //skip role
+        userToUserDtoTypeMap.addMappings(mapper -> mapper.skip(UserDto::setRoles));
+        userToUserDtoTypeMap.addMappings(mapper -> mapper.skip(UserDto::setPassword));
     }
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getUsers() {
-        //skip role
-        userToUserDtoTypeMap.addMappings(mapper -> mapper.skip(UserDto::setRoles));
         return ResponseEntity.ok(
                 userService.findAll().stream()
                         .map(user -> modelMapper.map(user, UserDto.class)).collect(Collectors.toList()));
@@ -50,7 +49,6 @@ public class UserController {
                 modelMapper.map(userService.saveUser(modelMapper.map(user, User.class))
                         , UserDto.class));
     }
-
 
 
 }

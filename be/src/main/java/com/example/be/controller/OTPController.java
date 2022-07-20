@@ -1,9 +1,9 @@
 package com.example.be.controller;
 
 import com.example.be.exception.InvalidOTPException;
-import com.example.be.model.dto.OTPDto.OTPStatus;
-import com.example.be.model.dto.OTPDto.OtpRequestDto;
-import com.example.be.model.dto.OTPDto.OtpResponseDto;
+import com.example.be.model.payload.OTP.OTPStatus;
+import com.example.be.model.payload.OTP.OTPRequest;
+import com.example.be.model.payload.OTP.OTPResponse;
 import com.example.be.service.twilio.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,16 +19,15 @@ public class OTPController {
     private OtpService otpService;
 
     @PostMapping("/register")
-    public ResponseEntity<OtpResponseDto> sendOTP(@RequestBody OtpRequestDto otpRequestDto) {
-        System.out.println(otpRequestDto);
-        OtpResponseDto otpResponseDto = otpService.sendOTPForPasswordReset(otpRequestDto);
-        if (otpResponseDto.getStatus().equals(OTPStatus.DELIVERED))
-            return ResponseEntity.ok(otpResponseDto);
-        else return ResponseEntity.badRequest().body(otpResponseDto);
+    public ResponseEntity<OTPResponse> sendOTP(@RequestBody OTPRequest OTPRequest) {
+        OTPResponse OTPResponse = otpService.sendOTPForPasswordReset(OTPRequest);
+        if (OTPResponse.getStatus().equals(OTPStatus.DELIVERED))
+            return ResponseEntity.ok(OTPResponse);
+        else return ResponseEntity.badRequest().body(OTPResponse);
     }
 
     @PostMapping("/validate")
-    public ResponseEntity<?> validateOTP(@RequestBody OtpRequestDto otpRequestDto) throws InvalidOTPException {
-        return ResponseEntity.ok(otpService.validateOTP(otpRequestDto.getOnceTimePassword(), otpRequestDto.getPhonenumber()));
+    public ResponseEntity<?> validateOTP(@RequestBody OTPRequest OTPRequest) throws InvalidOTPException {
+        return ResponseEntity.ok(otpService.validateOTP(OTPRequest.getOnceTimePassword(), OTPRequest.getPhonenumber()));
     }
 }

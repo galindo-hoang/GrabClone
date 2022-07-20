@@ -53,7 +53,7 @@ public class RefreshTokenController {
                         .forEach(role -> roles.add(role.getName().toString()));
                 String accessToken = com.auth0.jwt.JWT.create()
                         .withSubject(user.getUsername())
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
+                        .withExpiresAt(new Date(System.currentTimeMillis() +15 * 1000))
                         .withIssuer(httpServletRequest.getRequestURL().toString())
                         .withClaim("roles", roles)
                         .sign(algorithm);
