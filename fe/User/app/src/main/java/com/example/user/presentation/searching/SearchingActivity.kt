@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import com.example.user.R
 import com.example.user.data.api.AuthenticationApi
 import com.example.user.data.model.authentication.PostValidateRegister
+import com.example.user.data.model.authentication.ResponseValidateRegister
 import com.example.user.databinding.ActivitySearchingBinding
 import com.example.user.presentation.BaseActivity
 import com.example.user.utils.Constant.decodePoly
@@ -27,6 +28,8 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,16 +70,24 @@ class SearchingActivity : BaseActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             val data = async {
-                authenticationApi.getResponseValidateRegister(PostValidateRegister(476443,"+84906892676"))
+                authenticationApi.postResponseValidateRegister(PostValidateRegister(476443,"+84906892676"))
             }
             val data1 = async {
-                authenticationApi.getResponseRegister(PostValidateRegister(476443,"+84906892676"))
+                authenticationApi.postResponseRegister(PostValidateRegister(476443,"+84906892676"))
             }
             val a = data1.await()
             val b = data.await()
+
+
+
+
+//            Log.e("-----", b.code().toString())
 //            Log.e("-----", a.toString())
-            Log.e("-----", a.body().toString())
-            Log.e("-----", b.body().toString())
+            Log.e("-----", b.toString())
+
+
+
+//            Log.e("-----", b.message().toString())
         }
 
 //        if(!Places.isInitialized())

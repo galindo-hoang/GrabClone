@@ -12,7 +12,6 @@
 
     <application
         android:name=".presentation.BaseApplication"
-        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -21,18 +20,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.User"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".ValidateRegisterActivity"
+            android:exported="false" />
         <activity
             android:name=".presentation.booking.BookingActivity"
             android:exported="false" />
         <activity
-            android:launchMode="singleTask"
             android:name=".presentation.login.LogInActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask" />
         <activity
-            android:launchMode="singleTask"
             android:name=".presentation.signup.SignUpActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask" />
         <activity
             android:name=".presentation.searching.SearchingActivity"
             android:exported="true"

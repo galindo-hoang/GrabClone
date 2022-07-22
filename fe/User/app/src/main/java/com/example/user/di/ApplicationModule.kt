@@ -19,6 +19,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -47,19 +48,19 @@ class ApplicationModule {
         routeNavigationApi: RouteNavigationApi
     ): AuthenticationApi
         {
+            val logging= HttpLoggingInterceptor().apply {
+                this.level = HttpLoggingInterceptor.Level.BODY
+            }
 
-            val check = Check(routeNavigationApi)
-//            val logging= HttpLoggingInterceptor().apply {
-//                this.level = HttpLoggingInterceptor.Level.BODY
-//            }
+//            val check = Check(routeNavigationApi)
             val xclient= OkHttpClient.Builder().apply {
-                this.addInterceptor(check)
+                this.addInterceptor(logging)
             }
             return Retrofit
                 .Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-//                .baseUrl("http://192.168.1.5:8080")
-                .baseUrl("http://192.168.223.107:8080")
+                .baseUrl("http://192.168.1.11:8080")
+//                .baseUrl("http://192.168.223.107:8080")
                 .client(xclient.build())
                 .build()
                 .create(AuthenticationApi::class.java)
