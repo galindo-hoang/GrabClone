@@ -17,14 +17,14 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
-    private String name;
-
     @Column(nullable = false, unique = true)
     private String username;
-
     @Column(nullable = false)
     private String password;
+    @Column(nullable = false, unique = true)
+    private String phonenumber;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean status;
 
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Role> roles = new ArrayList<>();
@@ -32,9 +32,9 @@ public class User implements Serializable {
     @Version
     private Integer version;
 
-    public User(String name, String username, String password) {
-        this.name = name;
+    public User(String username, String password, String phonenumber) {
         this.username = username;
         this.password = password;
+        this.phonenumber = phonenumber;
     }
 }
