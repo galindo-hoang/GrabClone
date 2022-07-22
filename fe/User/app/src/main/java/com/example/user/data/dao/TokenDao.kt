@@ -7,17 +7,20 @@ import com.example.user.data.model.authentication.TokenAuthentication
 @Dao
 interface TokenDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertToken(tokenAuthentication: TokenAuthentication)
+    suspend fun saveToken(tokenAuthentication: TokenAuthentication)
 
-    @Update
-    suspend fun updateToken(tokenAuthentication: TokenAuthentication)
+//    @Update
+//    suspend fun updateToken(tokenAuthentication: TokenAuthentication)
 
-    @Query("select * from TokenAuthentication where id = :Id")
-    fun fetchTokenById(Id: Long): LiveData<TokenAuthentication>
+    @Query("select * from TokenAuthentication where username = :userName")
+    suspend fun fetchTokenByUserName(userName: String): TokenAuthentication
 
     @Query("select * from TokenAuthentication where refreshToken = :refresh")
-    fun fetchTokenByRefreshToken(refresh: String): LiveData<TokenAuthentication>
+    suspend fun fetchTokenByRefreshToken(refresh: String): TokenAuthentication
 
-    @Query("delete * from TokenAuthentication")
+    @Query("select * from TokenAuthentication")
+    suspend fun fetchToken(): List<TokenAuthentication>
+
+    @Query("delete from TokenAuthentication")
     suspend fun clearAll()
 }
