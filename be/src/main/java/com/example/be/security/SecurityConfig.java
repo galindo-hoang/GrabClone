@@ -1,7 +1,7 @@
 package com.example.be.security;
 
 import com.example.be.security.filter.CustomAuthenticationFilter;
-import com.example.be.security.filter.CustomeAuthorizationFilter;
+import com.example.be.security.filter.CustomAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .hasAnyAuthority("ROLE_ADMIN");
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
-        http.addFilterBefore(new CustomeAuthorizationFilter(),
+        http.addFilterBefore(new CustomAuthorizationFilter(),
                 UsernamePasswordAuthenticationFilter.class); //intercept every request before before filters
     }
 
