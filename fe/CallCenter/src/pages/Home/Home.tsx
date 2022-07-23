@@ -1,7 +1,7 @@
 import React from "react"
 import MainLayout from "src/layouts/MainLayout"
 import { connect, ConnectedProps } from "react-redux"
-
+import LoginService from "src/service/Login/LoginService";
 
 const mapStateToProps = state => ({
   loading:state.productItem.loading,
@@ -16,12 +16,14 @@ const connector = connect(mapStateToProps, mapDispatchToProps)
 interface Props extends ConnectedProps<typeof connector> {}
 const Home = (props: Props) => {
   const {loading,loding2,info}= props
-  console.log(loading)
-  console.log(loding2)
-  console.log(info)
+
+  const testToken= () =>{
+    LoginService.getListUser(localStorage.getItem("accessToken")||"");
+  }
   return (
     <MainLayout>
       <h2 className="mb-4">Home</h2>
+      <button onClick={testToken}>Test Token</button>
     </MainLayout>
   )
 }

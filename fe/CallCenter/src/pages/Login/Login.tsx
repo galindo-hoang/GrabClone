@@ -7,6 +7,7 @@ import { PATH } from "src/constants/paths"
 
 const mapStateToProps = state => ({
   loading: state.loading,
+  clientInformation: state.clientInformation
 })
 
 const mapDispatchToProps = {
@@ -18,7 +19,7 @@ const connector = connect(mapStateToProps, mapDispatchToProps)
 interface Props extends ConnectedProps<typeof connector> {}
 
 const Login = (props: Props) => {
-  const { login, loading } = props
+  const { login, loading,clientInformation } = props
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -37,14 +38,18 @@ const Login = (props: Props) => {
       const payload = { username, password }
       login(payload)
         .then(res => {
-          history.push(PATH.HOME)
+          if(res.payload.status===200) {
+            history.push(PATH.HOME);
+          }
+          else{
+            setError(res.payload)
+          }
         })
         .catch(err => {
-          setError(err.payload.message)
+          setError(err.payload)
         })
     }
   }
-
   return (
     <div className="container">
       <div className="min-vh-100 row">

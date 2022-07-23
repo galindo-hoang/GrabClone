@@ -1,10 +1,11 @@
-import React from "react"
+import React, {useState} from "react"
 import { BrowserRouter } from "react-router-dom"
 import ProductRoutes from "./ProductRoutes"
 import LoginRoutes from "./LoginRoutes"
 import HomeRoutes from "./HomeRoutes"
 import BookingCarRoutes from "./BookingCarRoutes";
 import HistoryRoutes from "./HistoryRoutes";
+import MapRoutes from "./MapRoutes";
 
 export default function Routes() {
   return (
@@ -14,6 +15,7 @@ export default function Routes() {
       <BookingCarRoutes/>
       <ProductRoutes />
       <LoginRoutes />
+      <MapRoutes/>
     </BrowserRouter>
   )
 }
