@@ -47,10 +47,10 @@ public class BeApplication {
 //            Role roleDriver = roleService.saveRole(new Role(Role.RoleName.ROLE_DRIVER));
 //            Role roleTelephonist = roleService.saveRole(new Role(Role.RoleName.ROLE_TELEPHONIST));
 //
-//            User userQuan = new User("quan", "quan", "123");
-//            User userPhuc = new User("phuc", "phuc", "123");
-//            User userHuy = new User("huy", "huy", "123");
-//            User userThieu = new User("thieu", "thieu", "123");
+//            User userQuan = new User("quan", "123","0833759401");
+//            User userPhuc = new User("phuc", "123","0833759409");
+//            User userHuy = new User("huy", "123","0833759402");
+//            User userThieu = new User( "thieu", "123","0833759405");
 //
 //            userQuan.setRoles(List.of(roleAdmin, roleUser));
 //            userService.saveUser(userQuan);

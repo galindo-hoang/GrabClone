@@ -11,7 +11,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
 import com.example.user.R
 import com.example.user.data.api.AuthenticationApi
-import com.example.user.data.model.authentication.PostValidateRegister
+import com.example.user.data.dto.UserDto
+import com.example.user.data.dto.ValidateOTP
 import com.example.user.databinding.ActivitySearchingBinding
 import com.example.user.presentation.BaseActivity
 import com.example.user.utils.Constant.decodePoly
@@ -67,17 +68,28 @@ class SearchingActivity : BaseActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             val data = async {
-                authenticationApi.getResponseValidateRegister(PostValidateRegister(476443,"+84906892676"))
+                authenticationApi.postResponseValidateRegister(ValidateOTP(476443,"+84906892676"))
             }
             val data1 = async {
-                authenticationApi.getResponseRegister(PostValidateRegister(476443,"+84906892676"))
+                authenticationApi.postResponseRegister(UserDto("476443","huyy","+84906892676"))
             }
             val a = data1.await()
             val b = data.await()
+
+
+
+
+//            Log.e("-----", b.code().toString())
 //            Log.e("-----", a.toString())
             Log.e("-----", a.body().toString())
-            Log.e("-----", b.body().toString())
+
+
+
+//            Log.e("-----", b.message().toString())
         }
+
+
+
 
 //        if(!Places.isInitialized())
 //            Places.initialize(this,BuildConfig.GOOGLE_MAP_API)

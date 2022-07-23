@@ -49,8 +49,6 @@ public class UserController {
                 modelMapper.map(userService.saveUser(modelMapper.map(user, User.class))
                         , UserDto.class));
     }
-
-
 }
 
 @Data

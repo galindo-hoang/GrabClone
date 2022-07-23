@@ -22,7 +22,7 @@ public class OtpService {
     private OtpConfig otpConfig;
     private final Map<String, String> otpMap = new HashMap<>();
     public OTPResponse sendOTPForPasswordReset(OTPRequest OTPRequest) {
-        OTPResponse OTPResponse = null;
+        OTPResponse OTPResponse;
         try{
             PhoneNumber to = new PhoneNumber(OTPRequest.getPhonenumber());
             PhoneNumber from = new PhoneNumber(otpConfig.getTrialNumber());

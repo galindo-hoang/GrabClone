@@ -4,7 +4,12 @@ import android.content.Context
 import android.location.Address
 import android.location.Geocoder
 import android.util.Log
+import com.example.user.data.model.authentication.BodyAccessToken
+import com.example.user.data.model.authentication.BodyRefreshToken
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
+import org.apache.commons.codec.binary.Base64
+import java.text.DateFormat
 import java.util.*
 
 
@@ -71,6 +76,26 @@ object Constant {
         }
         return poly
     }
+
+    fun getPayloadDataFromJWTRefreshToken(token: String): BodyRefreshToken =
+        Gson().fromJson(
+            String(Base64(true).decode(token.split('.')[2])),
+            BodyRefreshToken::class.java
+        )
+    fun getPayloadDataFromJWTAccessToken(token: String): BodyAccessToken =
+        Gson().fromJson(
+            String(Base64(true).decode(token.split('.')[2])),
+            BodyAccessToken::class.java
+        )
+
+    fun getErrorBody(){
+
+//            val type = object : TypeToken<ResponseValidateRegister>() {}.type
+//            var errorResponse: ResponseValidateRegister? = Gson().fromJson(b.errorBody()!!.charStream(), type)
+//            Log.e("-----", errorResponse.toString())
+    }
+
+    fun convertTimeLongToDateTime(time: Long): Date = Date(time * 1000)
 
     fun checkPhone(str: String): Boolean =
         str.matches("^(0|\\+84)(\\s|\\.)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\\d)(\\s|\\.)?(\\d{3})(\\s|\\.)?(\\d{3})$".toRegex())
