@@ -18,7 +18,7 @@ const Home = (props: Props) => {
   const {loading,loding2,info}= props
 
   const testToken= () =>{
-    LoginService.getListUser(localStorage.getItem("token")||"he");
+    LoginService.getListUser(localStorage.getItem("accessToken")||"");
   }
   return (
     <MainLayout>

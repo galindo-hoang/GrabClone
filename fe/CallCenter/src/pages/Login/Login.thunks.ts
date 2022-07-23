@@ -13,7 +13,8 @@ export const login = (payload: ReqLogin) => async dispatch => {
         }
       });
       if(isAdmin){
-        localStorage.setItem("token", res.data.accessToken);
+        localStorage.setItem("accessToken", res.data.accessToken);
+        localStorage.setItem("refreshToken", res.data.refreshToken);
         return dispatch(actions.loginSuccess(res))
       }
       else{

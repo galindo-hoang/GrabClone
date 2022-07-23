@@ -27,7 +27,6 @@ class LoginService {
     return instance.get(GET_REFRESH_TOKEN_API_URL,config)
   }
   getListUser(accessToken:String){
-    console.log("hahahah")
     const config={
       headers:{
         Authorization: `Bearer ${accessToken}`

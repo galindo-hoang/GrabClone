@@ -11,7 +11,8 @@ export const AppReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
       case types.LOGOUT:
-        localStorage.removeItem("token")
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
         draft.isAuthenticated = false
         break
       case LOGIN_SUCCESS:
