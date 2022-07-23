@@ -8,7 +8,7 @@ interface AuthenticationCacheDataResource {
     fun getUser(): UserDto?
     fun getToken(): TokenAuthentication?
     fun updateUser(userDto: UserDto?)
-    fun updateToken(tokenAuthentication: TokenAuthentication)
+    fun updateToken(tokenAuthentication: TokenAuthentication?)
 
     fun getRefreshToken(): String
     fun getAccessToken(): String

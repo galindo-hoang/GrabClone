@@ -1,5 +1,6 @@
 package com.example.user.presentation.signup
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +8,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.example.user.R
 import com.example.user.databinding.ActivityValidateRegisterBinding
+import com.example.user.presentation.login.LogInActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -29,6 +31,7 @@ class ValidateRegisterActivity : AppCompatActivity() {
             if(it){
                 if(signUpViewModel.validateOTP() == 1){
                     Toast.makeText(this, "validate success",Toast.LENGTH_LONG).show()
+                    startActivity(Intent(this,LogInActivity::class.java))
                 }else{
                     Log.e("-------","fail")
                 }

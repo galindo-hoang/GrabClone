@@ -1,7 +1,6 @@
 package com.example.user.presentation.signup
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -9,12 +8,14 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.example.user.R
 import com.example.user.databinding.ActivitySignUpBinding
+import com.example.user.presentation.BaseActivity
+import com.example.user.presentation.login.LogInActivity
 import com.example.user.utils.Constant
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SignUpActivity : AppCompatActivity() {
+class SignUpActivity : BaseActivity() {
     private lateinit var binding: ActivitySignUpBinding
     @Inject
     lateinit var signUpViewModel: SignUpViewModel
@@ -24,13 +25,17 @@ class SignUpActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = signUpViewModel
         Log.e("tag", signUpViewModel.toString())
-        registerListenerViewChange()
-//        registerClickListener()
+        registerViewChangeListener()
+        registerClickListener()
     }
 
-//    private fun registerClickListener() {}
+    private fun registerClickListener() {
+        binding.btnHaveAccount.setOnClickListener {
+            startActivity(Intent(this,LogInActivity::class.java))
+        }
+    }
 
-    private fun registerListenerViewChange() {
+    private fun registerViewChangeListener() {
         signUpViewModel.phoneNumber.observe(this){
             if(it.isNotEmpty() && !Constant.checkPhone(it)){
                 binding.tvCheckPhoneNumber.visibility = View.VISIBLE

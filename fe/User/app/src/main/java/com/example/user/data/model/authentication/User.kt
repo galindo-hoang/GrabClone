@@ -15,10 +15,10 @@ data class User(
 //    val credentialsNonExpired: Boolean? = null,
 //    val enabled: Boolean? = null,
 
-    var password: String,
+    var password: String?,
     var username: String,
     @SerializedName("phonenumber")
-    var phoneNumber: String,
+    var phoneNumber: String?,
 
 ) {
     @Ignore

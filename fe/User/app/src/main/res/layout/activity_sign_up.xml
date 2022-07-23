@@ -182,7 +182,7 @@
                 android:textStyle="bold"/>
 
             <LinearLayout
-                app:layout_constraintBottom_toTopOf="@id/btn_create_account"
+                app:layout_constraintBottom_toTopOf="@id/btn_have_account"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_width="match_parent"
@@ -212,7 +212,7 @@
             </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_create_account"
+                android:id="@+id/btn_have_account"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -108,20 +108,20 @@
                 android:textSize="20sp"
                 android:layout_marginTop="15dp"/>
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_back"
-                app:layout_constraintTop_toBottomOf="@id/btn_forgot"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Back"
-                android:textAllCaps="false"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:textColor="@color/green"
-                android:textSize="20sp"
-                android:layout_marginTop="15dp"/>
+<!--            <androidx.appcompat.widget.AppCompatTextView-->
+<!--                android:id="@+id/btn_back"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/btn_forgot"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Back"-->
+<!--                android:textAllCaps="false"-->
+<!--                android:gravity="center"-->
+<!--                android:textStyle="bold"-->
+<!--                android:textColor="@color/green"-->
+<!--                android:textSize="20sp"-->
+<!--                android:layout_marginTop="15dp"/>-->
 
             <LinearLayout
                 app:layout_constraintBottom_toTopOf="@id/btn_create_account"

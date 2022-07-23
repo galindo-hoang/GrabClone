@@ -29,7 +29,7 @@
             android:name=".presentation.booking.BookingActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.login.LogInActivity"
+            android:name=".presentation.signup.SignUpActivity"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
@@ -37,7 +37,7 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.signup.SignUpActivity"
+            android:name=".presentation.login.LogInActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
