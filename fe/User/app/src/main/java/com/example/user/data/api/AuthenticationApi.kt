@@ -1,7 +1,9 @@
 package com.example.user.data.api
 
+import com.example.user.data.dto.Login
+import com.example.user.data.dto.UserDto
+import com.example.user.data.dto.ValidateOTP
 import com.example.user.data.model.authentication.*
-import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -11,13 +13,13 @@ import retrofit2.http.Query
 interface AuthenticationApi {
     @POST("/api/otp/register")
     suspend fun postResponseRegister(
-        @Body postValidateRegister: PostValidateRegister
-    ): Response<ResponseRegister>
+        @Body userDto: UserDto
+    ): Response<SuccessBodyValidateOrRegister>
 
     @POST("/api/otp/validate")
     suspend fun postResponseValidateRegister(
-        @Body postValidateRegister: PostValidateRegister
-    ): Response<ResponseValidateRegister>
+        @Body validateOTP: ValidateOTP
+    ): Response<SuccessBodyValidateOrRegister>
 
     @GET("/refresh-token")
     suspend fun getAccessToken(
@@ -26,6 +28,6 @@ interface AuthenticationApi {
 
     @POST("/login")
     suspend fun postResponseLogin(
-        @Body postLogin: PostLogin
+        @Body login: Login
     ): Response<ResponseLogin>
 }

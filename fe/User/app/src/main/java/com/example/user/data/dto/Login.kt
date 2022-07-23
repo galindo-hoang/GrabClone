@@ -1,9 +1,9 @@
-package com.example.user.data.model.authentication
+package com.example.user.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class PostLogin(
+data class Login(
     @SerializedName("username")
-    val userName: String,
+    val username: String,
     val password: String,
 )

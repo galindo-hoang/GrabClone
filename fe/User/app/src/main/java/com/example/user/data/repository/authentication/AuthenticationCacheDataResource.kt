@@ -1,12 +1,13 @@
 package com.example.user.data.repository.authentication
 
+import com.example.user.data.dto.UserDto
 import com.example.user.data.model.authentication.TokenAuthentication
 import com.example.user.data.model.authentication.User
 
 interface AuthenticationCacheDataResource {
-    fun getUser(): User?
+    fun getUser(): UserDto?
     fun getToken(): TokenAuthentication?
-    fun updateUser(user: User)
+    fun updateUser(userDto: UserDto?)
     fun updateToken(tokenAuthentication: TokenAuthentication)
 
     fun getRefreshToken(): String

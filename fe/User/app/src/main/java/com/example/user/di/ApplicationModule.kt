@@ -5,13 +5,22 @@ import androidx.room.Room
 import com.example.user.data.api.RouteNavigationApi
 import com.example.user.data.api.AuthenticationApi
 import com.example.user.data.api.Check
+import com.example.user.data.dao.TokenDao
 import com.example.user.data.dao.UserDao
 import com.example.user.data.database.BackEndDatabase
+import com.example.user.data.repository.authentication.AuthenticationCacheDataResource
+import com.example.user.data.repository.authentication.AuthenticationLocalDataResource
+import com.example.user.data.repository.authentication.AuthenticationRemoteDataResource
+import com.example.user.data.repository.authentication.AuthenticationRepositoryImpl
+import com.example.user.data.repository.authentication.impl.AuthenticationCacheDataResourceImpl
+import com.example.user.data.repository.authentication.impl.AuthenticationLocalDataResourceImpl
+import com.example.user.data.repository.authentication.impl.AuthenticationRemoteDataResourceImpl
 import com.example.user.data.repository.route.RouteNavigationCacheDataResource
 import com.example.user.data.repository.route.RouteNavigationRemoteDataSource
 import com.example.user.data.repository.route.RouteNavigationRepositoryImpl
 import com.example.user.data.repository.route.impl.RouteNavigationCacheDataResourceImpl
 import com.example.user.data.repository.route.impl.RouteNavigationRemoteDataSourceImpl
+import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.domain.repository.RouteNavigationRepository
 import dagger.Module
 import dagger.Provides
@@ -59,7 +68,8 @@ class ApplicationModule {
             return Retrofit
                 .Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://192.168.1.11:8080")
+//                .baseUrl("http://192.168.1.11:8080")
+                .baseUrl("http://192.168.1.63:8080")
 //                .baseUrl("http://192.168.223.107:8080")
                 .client(xclient.build())
                 .build()
@@ -99,4 +109,39 @@ class ApplicationModule {
     @Provides
     @Singleton
     fun providesUserDao(backEndDatabase: BackEndDatabase): UserDao = backEndDatabase.userDao()
+    @Provides
+    @Singleton
+    fun providesTokenDao(backEndDatabase: BackEndDatabase): TokenDao = backEndDatabase.tokenDao()
+
+    @Singleton
+    @Provides
+    fun providesAuthenticationCacheDataResource(): AuthenticationCacheDataResource =
+        AuthenticationCacheDataResourceImpl()
+
+    @Provides
+    @Singleton
+    fun providesAuthenticationLocalDataResource(
+        tokenDao: TokenDao,
+        userDao: UserDao
+    ): AuthenticationLocalDataResource = AuthenticationLocalDataResourceImpl(tokenDao,userDao)
+
+    @Provides
+    @Singleton
+    fun providesAuthenticationRemoteDataResource(
+        authenticationApi: AuthenticationApi
+    ): AuthenticationRemoteDataResource =
+        AuthenticationRemoteDataResourceImpl(authenticationApi)
+
+    @Provides
+    @Singleton
+    fun providesAuthenticationRepository(
+        authenticationCacheDataResource: AuthenticationCacheDataResource,
+        authenticationLocalDataResource: AuthenticationLocalDataResource,
+        authenticationRemoteDataResource: AuthenticationRemoteDataResource
+    ): AuthenticationRepository =
+        AuthenticationRepositoryImpl(
+            authenticationCacheDataResource,
+            authenticationLocalDataResource,
+            authenticationRemoteDataResource
+        )
 }
