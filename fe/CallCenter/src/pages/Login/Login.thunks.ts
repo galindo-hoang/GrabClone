@@ -1,5 +1,5 @@
 import * as actions from "./Login.actions"
-import loginService from "../../service/LoginService";
+import loginService from "../../service/Login/LoginService";
 import {ReqLogin} from "../../@types/login";
 
 export const login = (payload: ReqLogin) => async dispatch => {
@@ -7,7 +7,6 @@ export const login = (payload: ReqLogin) => async dispatch => {
   let isAdmin:Boolean=false;
   return await loginService.postLoginForm(payload)
     .then(res => {
-      console.log(res.data);
       res.data.user.authorities?.forEach(u=>{
         if(u.authority?.includes("ROLE_ADMIN")){
           isAdmin=true;
