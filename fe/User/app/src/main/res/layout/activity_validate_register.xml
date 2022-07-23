@@ -4,7 +4,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.user.presentation.signup.ValidateRegisterViewModel" />
+            type="com.example.user.presentation.signup.SignUpViewModel" />
     </data>
 
     <LinearLayout
@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="+84 123456789"
+                android:text="@{viewModel.phoneNumber}"
                 android:textColor="@color/green"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -76,7 +76,8 @@
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:hint="000000"
-                android:inputType="phone"
+                android:text="@={viewModel.inputOtp}"
+                android:inputType="number"
                 android:maxLength="6"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -105,13 +106,11 @@
             android:background="@drawable/solid_green_button"
             android:gravity="center"
             android:text="Confirm"
+            android:onClick="@{() -> viewModel.checkOtp()}"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:textStyle="bold"/>
 
 
     </LinearLayout>

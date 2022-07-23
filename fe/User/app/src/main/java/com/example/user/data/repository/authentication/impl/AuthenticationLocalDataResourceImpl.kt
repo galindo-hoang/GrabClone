@@ -16,6 +16,9 @@ class AuthenticationLocalDataResourceImpl @Inject constructor(
     private val tokenDao: TokenDao,
     private val userDao: UserDao
 ): AuthenticationLocalDataResource {
+    override suspend fun getAllUser(): List<User> =
+        userDao.fetchAllUser()
+
     override suspend fun getUserByPhoneNumber(phoneNumber: String): User =
         userDao.fetchUserByPhoneNumber(phoneNumber)
 

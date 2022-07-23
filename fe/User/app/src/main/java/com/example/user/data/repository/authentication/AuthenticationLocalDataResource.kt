@@ -5,6 +5,7 @@ import com.example.user.data.model.authentication.TokenAuthentication
 import com.example.user.data.model.authentication.User
 
 interface AuthenticationLocalDataResource {
+    suspend fun getAllUser(): List<User>
     suspend fun getUserByPhoneNumber(phoneNumber: String): User
     suspend fun getUserByUserName(userName: String): User
     suspend fun getTokenByUserName(userName: String): TokenAuthentication

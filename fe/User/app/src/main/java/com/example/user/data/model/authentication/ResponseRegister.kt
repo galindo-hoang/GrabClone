@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class ResponseRegister(
     val message: String,
-    val status: String
+    var status: String
 )
