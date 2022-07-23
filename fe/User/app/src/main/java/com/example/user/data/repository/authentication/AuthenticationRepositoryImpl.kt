@@ -1,15 +1,15 @@
 package com.example.user.data.repository.authentication
 
-import com.example.user.data.dto.Login
 import com.example.user.data.dto.UserDto
 import com.example.user.data.dto.ValidateOTP
-import com.example.user.data.model.authentication.*
+import com.example.user.data.model.authentication.ResponseLogin
+import com.example.user.data.model.authentication.SuccessBodyValidateOrRegister
+import com.example.user.data.model.authentication.TokenAuthentication
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.utils.Constant.convertTimeLongToDateTime
 import com.example.user.utils.Constant.getPayloadDataFromJWTAccessToken
 import com.example.user.utils.Constant.getPayloadDataFromJWTRefreshToken
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import okhttp3.RequestBody
 import retrofit2.Response
 import java.util.*
 import javax.inject.Inject
@@ -97,31 +97,26 @@ class AuthenticationRepositoryImpl @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun updateAccount(login: Login): UserDto {
-        val response = authenticationRemoteDataResource.getResponseLogin(login)
-        return when(response.code()){
-            200 -> {
-                val body = response.body() ?: throw Exception("Cant get body of response")
-                val newToken = TokenAuthentication(
-                    username = body.user.username,
-                    refreshToken = body.refreshToken,
-                    accessToken = body.accessToken
-                )
-                val newUser = UserDto(
-                    password = body.user.password,
-                    username = body.user.username,
-                    phoneNumber = body.user.phoneNumber
-                )
-                authenticationCacheDataResource.updateToken(newToken)
-                authenticationCacheDataResource.updateUser(newUser)
-                authenticationLocalDataResource.saveToken(newToken)
-                authenticationLocalDataResource.saveUser(body.user)
-                newUser
-            }
-            403 -> throw Exception("username or password error")
-            else -> throw Exception("cant connect to database")
-        }
+    override suspend fun updateAccount(responseLogin: ResponseLogin): UserDto {
+        val newToken = TokenAuthentication(
+            username = responseLogin.user.username,
+            refreshToken = responseLogin.refreshToken,
+            accessToken = responseLogin.accessToken
+        )
+        val newUser = UserDto(
+            password = responseLogin.user.password,
+            username = responseLogin.user.username,
+            phoneNumber = responseLogin.user.phoneNumber
+        )
+        authenticationCacheDataResource.updateToken(newToken)
+        authenticationCacheDataResource.updateUser(newUser)
+        authenticationLocalDataResource.saveToken(newToken)
+        authenticationLocalDataResource.saveUser(responseLogin.user)
+        return newUser
     }
+
+    override suspend fun postAccountLogin(requestBody: RequestBody): Response<ResponseLogin> =
+        authenticationRemoteDataResource.getResponseLogin(requestBody)
 
     override suspend fun getAccount(): UserDto {
         var userDto = authenticationCacheDataResource.getUser()
@@ -136,6 +131,13 @@ class AuthenticationRepositoryImpl @Inject constructor(
             authenticationCacheDataResource.updateUser(userDto)
         }
         return userDto
+    }
+
+    override suspend fun clearAll() {
+        authenticationLocalDataResource.clearAllToken()
+        authenticationLocalDataResource.clearAllUser()
+        authenticationCacheDataResource.updateUser(null)
+        authenticationCacheDataResource.updateToken(null)
     }
 
 }

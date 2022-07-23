@@ -4,6 +4,7 @@ import com.example.user.data.dto.Login
 import com.example.user.data.dto.UserDto
 import com.example.user.data.dto.ValidateOTP
 import com.example.user.data.model.authentication.*
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -28,6 +29,6 @@ interface AuthenticationApi {
 
     @POST("/login")
     suspend fun postResponseLogin(
-        @Body login: Login
+        @Body requestBody: RequestBody
     ): Response<ResponseLogin>
 }

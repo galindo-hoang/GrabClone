@@ -6,6 +6,7 @@ import com.example.user.data.dto.UserDto
 import com.example.user.data.dto.ValidateOTP
 import com.example.user.data.model.authentication.*
 import com.example.user.data.repository.authentication.AuthenticationRemoteDataResource
+import okhttp3.RequestBody
 import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,8 +24,8 @@ class AuthenticationRemoteDataResourceImpl @Inject constructor(
     ): Response<SuccessBodyValidateOrRegister> =
         authenticationApi.postResponseValidateRegister(validateOTP)
 
-    override suspend fun getResponseLogin(login: Login): Response<ResponseLogin> =
-        authenticationApi.postResponseLogin(login)
+    override suspend fun getResponseLogin(requestBody: RequestBody): Response<ResponseLogin> =
+        authenticationApi.postResponseLogin(requestBody)
 
     override suspend fun getAccessToken(refreshToken: String): Response<TokenAuthentication> =
         authenticationApi.getAccessToken(refreshToken)

@@ -8,8 +8,6 @@ import com.example.user.data.model.authentication.BodyAccessToken
 import com.example.user.data.model.authentication.BodyRefreshToken
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
-import org.apache.commons.codec.binary.Base64
-import java.text.DateFormat
 import java.util.*
 
 
@@ -79,12 +77,12 @@ object Constant {
 
     fun getPayloadDataFromJWTRefreshToken(token: String): BodyRefreshToken =
         Gson().fromJson(
-            String(Base64(true).decode(token.split('.')[2])),
+            String(Base64.getDecoder().decode(token.split('.')[1])),
             BodyRefreshToken::class.java
         )
     fun getPayloadDataFromJWTAccessToken(token: String): BodyAccessToken =
         Gson().fromJson(
-            String(Base64(true).decode(token.split('.')[2])),
+            String(Base64.getDecoder().decode(token.split('.')[1])),
             BodyAccessToken::class.java
         )
 

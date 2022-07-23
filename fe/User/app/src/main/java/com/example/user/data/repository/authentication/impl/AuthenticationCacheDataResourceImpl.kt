@@ -16,7 +16,7 @@ class AuthenticationCacheDataResourceImpl @Inject constructor(): AuthenticationC
     override fun updateUser(userDto: UserDto?) {
         this.userDto = userDto
     }
-    override fun updateToken(tokenAuthentication: TokenAuthentication){
+    override fun updateToken(tokenAuthentication: TokenAuthentication?){
         this.token = tokenAuthentication
     }
 
