@@ -46,6 +46,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".presentation.BackgroundService"/>
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
