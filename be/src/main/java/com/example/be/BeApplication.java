@@ -5,6 +5,7 @@ import com.example.be.model.entity.Role;
 import com.example.be.model.entity.User;
 import com.example.be.service.RoleService;
 import com.example.be.service.UserService;
+import com.example.be.service.NotificationService;
 import com.example.be.service.twilio.OtpConfig;
 import com.twilio.Twilio;
 import org.springframework.beans.factory.annotation.Autowired;
