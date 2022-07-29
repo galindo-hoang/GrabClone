@@ -1,38 +1,32 @@
 package com.example.user.presentation.searching
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.example.user.R
 import com.example.user.data.api.AuthenticationApi
-import com.example.user.data.dto.UserDto
-import com.example.user.data.dto.ValidateOTP
 import com.example.user.databinding.ActivitySearchingBinding
 import com.example.user.presentation.BaseActivity
 import com.example.user.utils.Constant.decodePoly
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.libraries.places.widget.Autocomplete
-import com.google.android.libraries.places.widget.AutocompleteActivity
+import com.google.android.libraries.places.widget.*
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -64,41 +58,58 @@ class SearchingActivity : BaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = searchingViewModel
 
-//        val da = Gson().toJson(PostValidateRegister(12345,"+84906892676"))
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val data = async {
-                authenticationApi.postResponseValidateRegister(ValidateOTP(476443,"+84906892676"))
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.e("TAG", "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
             }
-            val data1 = async {
-                authenticationApi.postResponseRegister(UserDto("476443","huyy","+84906892676"))
-            }
-            val a = data1.await()
-            val b = data.await()
 
-
-
-
-//            Log.e("-----", b.code().toString())
-//            Log.e("-----", a.toString())
-            Log.e("-----", a.body().toString())
-
-
-
-//            Log.e("-----", b.message().toString())
-        }
-
-
-
+            // Get new FCM registration token
+            val msg = task.result
+            // Log and toast
+//            val msg = getString(R.string.msg_token_fmt, token)
+            Log.e("TAG", msg)
+            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+        })
 
 //        if(!Places.isInitialized())
-//            Places.initialize(this,BuildConfig.GOOGLE_MAP_API)
+//            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
 //        placesClient = Places.createClient(this)
 //
 //        setupLoadPlaceFromGoogleMap()
 //        setupHandleEventListener()
 //        registerObserve()
     }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // FCM SDK (and your app) can post notifications.
+        } else {
+            // TODO: Inform user that that your app will not show notifications.
+        }
+    }
+
+    // ...
+//    private fun askNotificationPermission() {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+//            PackageManager.PERMISSION_GRANTED
+//        ) {
+//            // FCM SDK (and your app) can post notifications.
+//        } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+//            // TODO: display an educational UI explaining to the user the features that will be enabled
+//            //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
+//            //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+//            //       If the user selects "No thanks," allow the user to continue without notifications.
+//        } else {
+//            // Directly ask for the permission
+//            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+//        }
+//    }
+
 
     private fun setupHandleEventListener() {
         binding.etDestination.setOnClickListener {

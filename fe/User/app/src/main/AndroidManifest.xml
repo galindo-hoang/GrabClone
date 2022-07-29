@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" tools:node="remove"/>
 
     <application
         android:name=".presentation.BaseApplication"
@@ -33,11 +34,11 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.searching.SearchingActivity"
+            android:name=".presentation.login.LogInActivity"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.login.LogInActivity"
+            android:name=".presentation.searching.SearchingActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -47,6 +48,38 @@
             </intent-filter>
         </activity>
         <service android:name=".presentation.BackgroundService"/>
+
+
+
+
+
+
+        <service
+            android:name=".presentation.MyFirebaseMessaging"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+<!--        <meta-data-->
+<!--            android:name="com.google.firebase.messaging.default_notification_channel_id"-->
+<!--            android:value="@string/default_notification_channel_id" />-->
+
+        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
+     See README(https://goo.gl/l4GJaQ) for more. -->
+<!--        <meta-data-->
+<!--            android:name="com.google.firebase.messaging.default_notification_icon"-->
+<!--            android:resource="@drawable/ic_launcher_foreground" />-->
+<!--        &lt;!&ndash; Set color used with incoming notification messages. This is used when no color is set for the incoming-->
+<!--             notification message. See README(https://goo.gl/6BKBk7) for more. &ndash;&gt;-->
+<!--        <meta-data-->
+<!--            android:name="com.google.firebase.messaging.default_notification_color"-->
+<!--            android:resource="@color/teal_200" />-->
+
+
+
+
+
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
