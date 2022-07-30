@@ -1,15 +1,11 @@
 package com.example.user.presentation
 
-import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.*
+import com.example.user.service.BackgroundService
 import dagger.hilt.android.HiltAndroidApp
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @HiltAndroidApp
 class BaseApplication: Application(),LifecycleObserver {

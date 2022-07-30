@@ -9,7 +9,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" tools:node="remove"/>
+    <uses-permission
+        android:name="android.permission.POST_NOTIFICATIONS"
+        tools:node="remove" />
 
     <application
         android:name=".presentation.BaseApplication"
@@ -23,6 +25,9 @@
         android:theme="@style/Theme.User"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".presentation.searching.SearchingActivity"
+            android:exported="false" />
         <activity
             android:name=".presentation.signup.ValidateRegisterActivity"
             android:exported="false" />
@@ -38,7 +43,7 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.searching.SearchingActivity"
+            android:name=".presentation.main.MainActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -47,39 +52,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".presentation.BackgroundService"/>
-
-
-
-
-
-
-        <service
-            android:name=".presentation.MyFirebaseMessaging"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-<!--        <meta-data-->
-<!--            android:name="com.google.firebase.messaging.default_notification_channel_id"-->
-<!--            android:value="@string/default_notification_channel_id" />-->
-
-        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
-     See README(https://goo.gl/l4GJaQ) for more. -->
-<!--        <meta-data-->
-<!--            android:name="com.google.firebase.messaging.default_notification_icon"-->
-<!--            android:resource="@drawable/ic_launcher_foreground" />-->
-<!--        &lt;!&ndash; Set color used with incoming notification messages. This is used when no color is set for the incoming-->
-<!--             notification message. See README(https://goo.gl/6BKBk7) for more. &ndash;&gt;-->
-<!--        <meta-data-->
-<!--            android:name="com.google.firebase.messaging.default_notification_color"-->
-<!--            android:resource="@color/teal_200" />-->
-
-
-
-
-
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -91,6 +63,18 @@
              project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
              "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
         -->
+
+        <service android:name=".service.BackgroundService" />
+        <service
+            android:name=".service.MyFirebaseMessaging"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/map_api" />
