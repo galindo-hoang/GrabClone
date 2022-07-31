@@ -1,5 +1,6 @@
 package com.example.user.presentation.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.databinding.FragmentHomeBinding
+import com.example.user.presentation.booking.BookingActivity
 import com.example.user.presentation.main.adapter.BookingAdapter
 import com.example.user.presentation.main.adapter.PromptAdapter
 import com.example.user.presentation.main.adapter.VoucherAdapter
@@ -24,8 +26,21 @@ class HomeFragment : Fragment() {
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
         setRecycleView()
+        registerClickListener()
+        registerViewChangeListener()
         return binding.root
     }
+
+    private fun registerViewChangeListener() {
+        binding.selector1.setOnClickListener {
+            startActivity(Intent(activity,BookingActivity::class.java))
+        }
+        binding.selector2.setOnClickListener {
+            startActivity(Intent(activity,BookingActivity::class.java))
+        }
+    }
+
+    private fun registerClickListener() {}
 
     private fun setRecycleView() {
         bookingAdapter = BookingAdapter(listOf())

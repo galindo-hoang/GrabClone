@@ -20,7 +20,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String","BASE_URL","\"asd\""
-        buildConfigField "String","GOOGLE_MAP_API","\"AIzaSyCg1TnZgdBkvChnGTVY7nLBfrSFU0GxgmY\""
+        buildConfigField "String","GOOGLE_MAP_API","\"AIzaSyAv0dOgVBesqFjqEHmUFlnJRLCBnMdoRwI\""
     }
 
     buildTypes {
