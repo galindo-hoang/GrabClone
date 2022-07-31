@@ -1,9 +1,7 @@
 package com.example.user.presentation.searching
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Point
 import android.os.Bundle
@@ -11,21 +9,22 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import com.example.user.BuildConfig
 import com.example.user.R
 import com.example.user.data.api.AuthenticationApi
+import com.example.user.data.model.googlemap.ResultPlaceClient
 import com.example.user.databinding.ActivitySearchingBinding
 import com.example.user.presentation.BaseActivity
 import com.example.user.utils.Constant.decodePoly
+import com.example.user.utils.Status
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.*
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -42,8 +41,7 @@ class SearchingActivity : BaseActivity() {
     private lateinit var loadPlacesFromGoogleMap: ActivityResultLauncher<Intent>
     private lateinit var binding: ActivitySearchingBinding
     private var isOrigin: Boolean? = null
-    private lateinit var resultCheck: LatLng
-    private lateinit var map: GoogleMap
+    gprivate lateinit var map: GoogleMap
     private val intentGoogleMap by lazy {
         Autocomplete
             .IntentBuilder(
@@ -60,56 +58,24 @@ class SearchingActivity : BaseActivity() {
 
 
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.e("TAG", "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
+//        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+//            if (!task.isSuccessful) {
+//                Log.e("TAG", "Fetching FCM registration token failed", task.exception)
+//                return@OnCompleteListener
+//            }
+//            val msg = task.result
+//            Log.e("TAG", msg)
+//            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+//        })
 
-            // Get new FCM registration token
-            val msg = task.result
-            // Log and toast
-//            val msg = getString(R.string.msg_token_fmt, token)
-            Log.e("TAG", msg)
-            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-        })
+        if(!Places.isInitialized())
+            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
+        placesClient = Places.createClient(this)
 
-//        if(!Places.isInitialized())
-//            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
-//        placesClient = Places.createClient(this)
-//
-//        setupLoadPlaceFromGoogleMap()
-//        setupHandleEventListener()
-//        registerObserve()
+        setupLoadPlaceFromGoogleMap()
+        setupHandleEventListener()
+        registerObserve()
     }
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            // FCM SDK (and your app) can post notifications.
-        } else {
-            // TODO: Inform user that that your app will not show notifications.
-        }
-    }
-
-    // ...
-//    private fun askNotificationPermission() {
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-//            PackageManager.PERMISSION_GRANTED
-//        ) {
-//            // FCM SDK (and your app) can post notifications.
-//        } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-//            // TODO: display an educational UI explaining to the user the features that will be enabled
-//            //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
-//            //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
-//            //       If the user selects "No thanks," allow the user to continue without notifications.
-//        } else {
-//            // Directly ask for the permission
-//            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-//        }
-//    }
-
 
     private fun setupHandleEventListener() {
         binding.etDestination.setOnClickListener {
@@ -128,13 +94,28 @@ class SearchingActivity : BaseActivity() {
 
     private fun registerObserve(){
         searchingViewModel.resultPlaceClient.observe(this){
-            if(isOrigin == true) searchingViewModel.origin.postValue(it)
-            else if (isOrigin == false) searchingViewModel.destination.postValue(it)
-            isOrigin = null
+            when(it.status){
+                Status.LOADING -> Toast.makeText(this,"Loading...",Toast.LENGTH_LONG).show()
+                Status.ERROR -> Toast.makeText(this,"Cant load data",Toast.LENGTH_LONG).show()
+                Status.SUCCESS -> {
+                    if(isOrigin == true) {
+                        searchingViewModel.setOrigin(it.data)
+                        it.data?.let { rps ->
+                            binding.etOrigin.text = rps.formatted_address
+                        }
+                    }
+                    else if (isOrigin == false) {
+                        searchingViewModel.setDestination(it.data)
+                        it.data?.let { rps ->
+                            binding.etDestination.text = rps.formatted_address
+                        }
+                    }
+                    isOrigin = null
+                }
+            }
         }
         searchingViewModel.routes.observe(this){ routes ->
-            if(routes.isNotEmpty()){
-                val polylineOptions = PolylineOptions()
+            if(routes?.isNotEmpty() == true){
                 val points = mutableListOf<LatLng>()
                 routes.forEach { route ->
                     route.legs.forEach { leg ->
@@ -143,31 +124,19 @@ class SearchingActivity : BaseActivity() {
                         }
                     }
                 }
-
-                polylineOptions.addAll(points)
-                polylineOptions.width(10f)
-                polylineOptions.color(Color.RED)
-                polylineOptions.geodesic(true)
-                polylineOptions.let {
+                PolylineOptions().apply {
+                    this.addAll(points)
+                    this.width(10f)
+                    this.color(Color.RED)
+                    this.geodesic(true)
+                }.let {
                     map.addPolyline(it)
                 }
                 val bounds = LatLngBounds.Builder()
-                searchingViewModel.origin.observe(this){ latlng ->
-                    resultCheck = LatLng(latlng.geometry.location.lat, latlng.geometry.location.lng)
-                    map.addMarker(
-                        MarkerOptions().position(resultCheck)
-                            .title("Marker 1")
-                    )
-                    bounds.include(resultCheck)
-                }
-                searchingViewModel.destination.observe(this){ latlng ->
-                    val result = LatLng(latlng.geometry.location.lat, latlng.geometry.location.lng)
-                    map.addMarker(
-                        MarkerOptions().position(result)
-                            .title("Marker 2")
-                    )
-                    bounds.include(result)
-                }
+
+                addMarker(bounds,searchingViewModel.origin!!,"Marker 1")
+                addMarker(bounds,searchingViewModel.destination!!,"Marker 2")
+
                 val point = Point()
                 windowManager.defaultDisplay.getSize(point)
                 map.animateCamera(
@@ -206,5 +175,14 @@ class SearchingActivity : BaseActivity() {
                     }
                 }
             }
+    }
+
+    private fun addMarker(bounds: LatLngBounds.Builder, place: ResultPlaceClient, marker: String){
+        val latLong = LatLng(place.geometry.location.lat, place.geometry.location.lng)
+        map.addMarker(
+            MarkerOptions().position(latLong)
+                .title(marker)
+        )
+        bounds.include(latLong)
     }
 }
