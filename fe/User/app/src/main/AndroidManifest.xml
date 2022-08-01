@@ -26,6 +26,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".presentation.searching.SearchingActivity"
+            android:exported="false" />
+        <activity
             android:name=".presentation.main.MainActivity"
             android:exported="false" />
         <activity
@@ -43,7 +46,7 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.searching.SearchingActivity"
+            android:name=".presentation.booking.MethodBookingActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -63,7 +66,6 @@
              project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
              "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
         -->
-
         <service android:name=".service.BackgroundService" />
         <service
             android:name=".service.MyFirebaseMessaging"
@@ -73,7 +75,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

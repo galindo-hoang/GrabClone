@@ -1,5 +1,6 @@
 package com.example.user.presentation.booking
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -52,6 +53,7 @@ class BookingActivity : BaseActivity() {
         mLocationRequest.numUpdates = 1
     }
 
+    @SuppressLint("MissingPermission")
     private fun getCurrentLocation(){
         if(Permissions.checkPermissions(this)){
             if(!Permissions.isEnableLocation(this)) Permissions.turnOnLocation(this)

@@ -41,7 +41,7 @@ class SearchingActivity : BaseActivity() {
     private lateinit var loadPlacesFromGoogleMap: ActivityResultLauncher<Intent>
     private lateinit var binding: ActivitySearchingBinding
     private var isOrigin: Boolean? = null
-    gprivate lateinit var map: GoogleMap
+    private lateinit var map: GoogleMap
     private val intentGoogleMap by lazy {
         Autocomplete
             .IntentBuilder(

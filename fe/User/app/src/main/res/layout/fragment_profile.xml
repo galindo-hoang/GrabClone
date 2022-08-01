@@ -36,7 +36,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginHorizontal="12dp"
             android:layout_marginBottom="34dp"
-            android:background="@drawable/ic_profile_user_green_24"/>
+            android:background="@drawable/ic_profile_user_circle_green_24"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_left"
