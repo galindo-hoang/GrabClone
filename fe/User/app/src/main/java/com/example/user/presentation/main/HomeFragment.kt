@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.databinding.FragmentHomeBinding
-import com.example.user.presentation.booking.BookingActivity
+import com.example.user.presentation.searching.SearchingActivity
 import com.example.user.presentation.main.adapter.BookingAdapter
 import com.example.user.presentation.main.adapter.PromptAdapter
 import com.example.user.presentation.main.adapter.VoucherAdapter
@@ -33,10 +33,10 @@ class HomeFragment : Fragment() {
 
     private fun registerViewChangeListener() {
         binding.selector1.setOnClickListener {
-            startActivity(Intent(activity,BookingActivity::class.java))
+            startActivity(Intent(activity,SearchingActivity::class.java))
         }
         binding.selector2.setOnClickListener {
-            startActivity(Intent(activity,BookingActivity::class.java))
+            startActivity(Intent(activity,SearchingActivity::class.java))
         }
     }
 

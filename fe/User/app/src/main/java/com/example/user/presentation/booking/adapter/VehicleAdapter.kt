@@ -1,9 +1,9 @@
 package com.example.user.presentation.booking.adapter
 
-import android.app.Application
 import android.content.Context
-import android.content.res.Resources
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -34,10 +34,12 @@ class VehicleAdapter @Inject constructor(
         private val binding = view
         fun bind(model: Vehicle,position: Int){
             binding.root.setOnClickListener {
+                Log.e("a","+++++++ $adapterPosition ++++++++++ $position +++++++++ ${list.size}")
                 notifyItemChanged(itemSelected)
                 itemSelected = position
                 notifyItemChanged(position)
                 func?.let { it1 -> it1(model,position) }
+
             }
             if (itemSelected == adapterPosition){
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(context.resources,R.color.light_green,null))
@@ -46,6 +48,10 @@ class VehicleAdapter @Inject constructor(
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(context.resources,R.color.white,null))
                 binding.tvTitleVehicle.setTextColor(ResourcesCompat.getColor(context.resources,R.color.gray,null))
             }
+            Log.e("a","''''''''' $adapterPosition")
+//            if(adapterPosition == list.size - 1){
+//                binding.divider.visibility = View.GONE
+//            }
         }
     }
 
