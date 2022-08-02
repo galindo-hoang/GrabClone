@@ -86,13 +86,14 @@
         android:gravity="center"
         android:text="86.000đ"
         android:textSize="16sp"/>
-    <View
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        app:layout_constraintWidth_percent="0.9"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ll_content"
-        android:background="@color/grey"/>
+<!--    <View-->
+<!--        android:id="@+id/divider"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="1dp"-->
+<!--        app:layout_constraintWidth_percent="0.9"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/ll_content"-->
+<!--        android:background="@color/grey"/>-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
