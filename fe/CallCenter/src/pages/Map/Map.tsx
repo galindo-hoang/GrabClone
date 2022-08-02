@@ -22,6 +22,8 @@ import {
 } from "react-map-gl-draw";
 import { geoJSON } from 'leaflet';
 import * as geojson from 'geojson';
+import { DatePicker } from "antd";
+import MessageService from "src/service/Message/MessageService";
 const accessToken="pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 
 
@@ -35,6 +37,7 @@ const Modal=()=>{
         <option value="">--Please choose a draw mode--</option>
         <option value="">--Please choose a draw mode--</option>
       </select>
+
     </div>
   );
 }
@@ -46,8 +49,7 @@ const Map = () => {
   const [latitude, setLatitude] = useState(10.76307106505523)
   const [longitude, setLongitude] = useState(106.68214425045026);
   const [zoom,setZoom]=useState(18);
-
-
+  const [loadMap,setLoadMap]=useState(false);
   let coordinate1:coordinate={
     latitude:10.76307106505523,
     longitude:106.68214425045026
@@ -56,15 +58,6 @@ const Map = () => {
     latitude:10.755820,
     longitude:106.691449
   }
-
-
-  // const getLocalte=()=>{
-  //   MapService.convertAddressToCoordinate("",accessToken).then((res)=>{
-  //     lat=res.data.features[0].center[1];
-  //      long=res.data.features[0].center[0];
-  //   })
-  // }
-
   const [lineValue,setLineValue]=useState([] as coordinate)
 
   useEffect(()=>{
@@ -74,8 +67,14 @@ const Map = () => {
       setLineValue(res.data.routes[0].geometry.coordinates);
     })
   }
-  checkDistance()
+  checkDistance();
   },[]);
+
+  useEffect(()=>{
+    MessageService.openMessage({loading:'loading map', loaded:'loaded map success !'},loadMap)
+  },[loadMap])
+
+
 
   const [viewState, setViewState] = useState({
     longitude: longitude,
@@ -84,7 +83,6 @@ const Map = () => {
 
   });
 
-  console.log(lineValue);
 
   const geoJson:GeoJSON.FeatureCollection<any>  = {
     type: 'FeatureCollection',
@@ -121,7 +119,7 @@ const Map = () => {
 
       }}
       onLoad={(map)=>{
-        console.log(map)
+        setLoadMap(true)
       }}
 
 

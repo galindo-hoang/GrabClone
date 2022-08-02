@@ -3,6 +3,7 @@ import { Switch } from "react-router-dom"
 import AuthenticatedGuard from "src/guards/AuthenticatedGuard"
 import { PATH } from "src/constants/paths"
 import Loading from "src/components/Loading/Loading"
+import MessageService from "src/service/Message/MessageService"
 const Home = lazy(() => import("src/pages/Map/Map"))
 
 export default function MapRoutes() {
