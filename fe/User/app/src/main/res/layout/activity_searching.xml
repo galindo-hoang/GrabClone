@@ -1,132 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools">
-    <data>
-        <variable
-            name="viewModel"
-            type="com.example.user.presentation.searching.SearchingViewModel" />
-    </data>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.searching.SearchingActivity"
+    android:background="@color/green">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tb"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".presentation.searching.SearchingActivity">
+        android:layout_height="?attr/actionBarSize"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:navigationIcon="@drawable/ic_arrow_back_circle_24">
+    </androidx.appcompat.widget.Toolbar>
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/tb"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            app:navigationIcon="@drawable/ic_cancel_14">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:text="Where do you want to go?"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:textSize="16sp" />
-        </androidx.appcompat.widget.Toolbar>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tb"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginBottom="50dp"
+        app:cardCornerRadius="20dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
-            android:layout_marginHorizontal="20dp">
+            android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/ll_input_field"
-                android:layout_width="0dp"
+                android:layout_margin="10dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:background="@drawable/input_searching_layout"
-                android:padding="10dp"
                 android:orientation="vertical">
+                <fragment
+                    android:id="@+id/map_view_in_searching_activity"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="90dp"/>
                 <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/et_origin"
+                    android:id="@+id/et_search_place"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Search for a pickup"
-                    android:text="@{viewModel.origin.formatted_address}"
-                    android:layout_margin="5dp"
-                    android:textColorHint="@color/gray"
-                    android:drawablePadding="10dp"
-                    android:gravity="center_vertical"
-                    android:drawableStart="@drawable/ic_up_arrow_24"
-                    android:background="@android:color/transparent"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:textSize="14sp"/>
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginStart="38dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="@color/grey"/>
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/et_destination"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColorHint="@color/gray"
-                    android:layout_margin="5dp"
-                    android:drawablePadding="10dp"
-                    android:text="@{viewModel.destination.formatted_address}"
-                    android:drawableStart="@drawable/ic_oval_circle_red_24"
-                    android:gravity="center_vertical"
-                    android:background="@android:color/transparent"
-                    android:hint="Search for a destination"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:textSize="14sp"/>
+                    android:layout_height="35dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/input_layout_round"
+                    android:hint="Search for a location"
+                    android:textSize="14sp"
+                    android:paddingHorizontal="10dp" />
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_save_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:text="Save an address"
+                    android:padding="10dp"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/button_outline"
+                    tools:ignore="SmallSp" />
             </LinearLayout>
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_searching_car"
-                android:layout_width="0dp"
-                android:layout_height="38dp"
-                android:text="Searching Car"
-                android:onClick="@{() -> viewModel.searchingCar()}"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textAllCaps="false"
-                android:layout_marginTop="16dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ll_input_field"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:background="@drawable/button_green_solid"
-                tools:ignore="UsingOnClickInXml" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:background="@color/light_gray"/>
 
-<!--            <androidx.appcompat.widget.AppCompatButton-->
-<!--                android:id="@+id/btn_add_destination"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="30dp"-->
-<!--                android:text="Add a destination"-->
-<!--                android:textSize="10sp"-->
-<!--                android:paddingHorizontal="10dp"-->
-<!--                android:textAllCaps="false"-->
-<!--                android:layout_marginTop="16dp"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/ll_input_field"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                android:background="@drawable/button_outline"-->
-<!--                tools:ignore="SmallSp" />-->
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rcv_recent_places"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.7dp"
-            android:background="@color/grey"/>
+    </androidx.cardview.widget.CardView>
 
-
-        <fragment
-            android:id="@+id/map_view_in_searching_activity"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-    </LinearLayout>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>

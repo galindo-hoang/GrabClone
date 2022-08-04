@@ -10,6 +10,6 @@
         android:title="Orders" />
     <item
         android:id="@+id/bnv_profile"
-        android:icon="@drawable/ic_profile_user_24"
+        android:icon="@drawable/ic_profile_user_circle_24"
         android:title="Profile" />
 </menu>
