@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect,useState} from "react"
 import { connect, ConnectedProps } from "react-redux"
 import { logout, toggleSideNav } from "src/App/App.actions"
 import { useHistory } from "react-router-dom"
@@ -27,10 +27,10 @@ const Header = (props: Props) => {
     history.push(PATH.LOGIN)
   }
   useEffect(() => {}, [history])
-
+  const [isDarkMode, setIsDarkMode] = useState(false)
   return (
     <header className="d-flex bg-light justify-content-between p-3 shadow-sm">
-      <button className="btn btn-primary" onClick={toggleSideNav}>
+      <button className="btn  main-background" onClick={toggleSideNav}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           height="20"
@@ -59,7 +59,8 @@ const Header = (props: Props) => {
           </g>
         </svg>
       </button>
-     <p >Xin chào {clientInformation?.data?.user?.username}</p>
+    {/* <p >Xin chào {clientInformation?.data?.user?.username}</p>*/}
+
       <LogoutIcon onClick={handleLogout} className="btn btn-outline-secondary">
         Logout
       </LogoutIcon>

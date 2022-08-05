@@ -5,6 +5,7 @@ import {PATH} from "../../constants/paths";
 import {useHistory} from "react-router-dom";
 import MessageService from "src/service/Message/MessageService";
 import "antd/dist/antd.css";
+import { Button, Checkbox, Form, Input } from 'antd';
 
 
 export default function BookingCar() {
@@ -38,7 +39,7 @@ export default function BookingCar() {
       <div className="container">
         <div className="min-vh-30 row">
           <div className="col-md-6 m-auto">
-            <form className="p-5 rounded-sm shadow text-center" onSubmit={submit}>
+            <form className="p-5 rounded-sm shadow text-center info-background" onSubmit={submit}>
               <Title>Đặt xe</Title>
               <p className="text-muted">Vui lòng điền đầy đủ thông tin </p>
               <label className="float-left mb-1">Họ và tên</label>
@@ -77,7 +78,7 @@ export default function BookingCar() {
                 onChange={onChangeNote}
               />
               <button type="submit" className="btn btn-block btn-info btn-lg">
-                Đặt xe
+                Xác nhận
               </button>
             </form>
           </div>

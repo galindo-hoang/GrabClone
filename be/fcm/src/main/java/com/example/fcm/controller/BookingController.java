@@ -1,5 +1,6 @@
 package com.example.fcm.controller;
 
+import com.example.fcm.model.dto.InformationBookingDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/booking")
 public class BookingController {
     @PostMapping("/")
-    public ResponseEntity<?>sendInformationBooking(@RequestBody ){
+    public ResponseEntity<InformationBookingDTO>sendInformationBookingToDriver(@RequestBody InformationBookingDTO informationBookingDTO){
 
+        return ResponseEntity.ok(new InformationBookingDTO());
     }
 }

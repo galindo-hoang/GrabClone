@@ -4,7 +4,7 @@ import AuthenticatedGuard from "src/guards/AuthenticatedGuard"
 import { PATH } from "src/constants/paths"
 import Loading from "src/components/Loading/Loading"
 import MessageService from "src/service/Message/MessageService"
-const Home = lazy(() => import("src/pages/Map/Map"))
+const Map = lazy(() => import("src/pages/Map/Map"))
 
 export default function MapRoutes() {
   return (
@@ -14,7 +14,7 @@ export default function MapRoutes() {
         path={PATH.MAP}
         component={() => (
           <Suspense fallback={<Loading />}>
-            <Home />
+            <Map/>
           </Suspense>
         )}
       />
