@@ -19,7 +19,7 @@
     <modules>
         <module>authentication</module>
         <module>fcm</module>
-        <module>eureka</module>
+        <module>eureka-server</module>
         <module>api-gateway</module>
     </modules>
     <dependencyManagement>
