@@ -2,7 +2,6 @@ package com.example.user.presentation.booking.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -26,16 +25,6 @@ class PaymentAdapter @Inject constructor(
         this.func = func
     }
 
-    companion object {
-        val callback = object : DiffUtil.ItemCallback<Payment>() {
-            override fun areItemsTheSame(oldItem: Payment, newItem: Payment): Boolean =
-                oldItem.id == newItem.id
-
-            override fun areContentsTheSame(oldItem: Payment, newItem: Payment): Boolean =
-                oldItem == newItem
-        }
-    }
-
     fun setList(list: List<Payment>){
         this.list = list
         submitList(list)
@@ -45,14 +34,11 @@ class PaymentAdapter @Inject constructor(
         private val binding = view
         fun bind(model: Payment,position: Int){
             binding.root.setOnClickListener {
-//                notifyItemChanged(itemSelected)
+                notifyItemChanged(position)
+                notifyItemChanged(itemSelected)
                 itemSelected = position
-//                notifyItemChanged(position)
                 func?.let { it1 -> it1(model,position) }
             }
-//            if(adapterPosition == list.size - 1){
-//                binding.divider.visibility = View.GONE
-//            }
             if (itemSelected == adapterPosition){
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(context.resources,R.color.light_green,null))
             }else{
@@ -70,4 +56,15 @@ class PaymentAdapter @Inject constructor(
     }
 
     override fun getItemCount(): Int = list.size
+
+
+    companion object {
+        val callback = object : DiffUtil.ItemCallback<Payment>() {
+            override fun areItemsTheSame(oldItem: Payment, newItem: Payment): Boolean =
+                oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: Payment, newItem: Payment): Boolean =
+                oldItem == newItem
+        }
+    }
 }
