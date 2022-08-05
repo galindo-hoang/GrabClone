@@ -6,6 +6,7 @@ import Loading from "src/components/Loading/Loading"
 const History = lazy(() => import("src/pages/History/History"))
 
 export default function HistoryRoutes() {
+  
   return (
     <Switch>
       <AuthenticatedGuard

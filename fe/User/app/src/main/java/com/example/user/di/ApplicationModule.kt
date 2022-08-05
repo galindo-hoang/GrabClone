@@ -2,9 +2,8 @@ package com.example.user.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.user.data.api.RouteNavigationApi
 import com.example.user.data.api.AuthenticationApi
-import com.example.user.data.api.Check
+import com.example.user.data.api.RouteNavigationApi
 import com.example.user.data.dao.TokenDao
 import com.example.user.data.dao.UserDao
 import com.example.user.data.database.BackEndDatabase

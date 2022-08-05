@@ -10,11 +10,11 @@ import MapRoutes from "./MapRoutes";
 export default function Routes() {
   return (
     <BrowserRouter>
+      <LoginRoutes />
       <HistoryRoutes/>
       <HomeRoutes />
       <BookingCarRoutes/>
       <ProductRoutes />
-      <LoginRoutes />
       <MapRoutes/>
     </BrowserRouter>
   )

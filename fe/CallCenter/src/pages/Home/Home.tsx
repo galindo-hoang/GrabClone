@@ -1,6 +1,6 @@
 import React from "react"
 import MainLayout from "src/layouts/MainLayout"
-import { connect, ConnectedProps } from "react-redux"
+import {connect, ConnectedProps, useSelector} from "react-redux"
 import LoginService from "src/service/Login/LoginService";
 
 const mapStateToProps = state => ({

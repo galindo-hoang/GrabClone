@@ -36,6 +36,7 @@ class RouteNavigationRepositoryImpl @Inject constructor(
             val response = routeNavigationRemoteDataSource.getAddressFromPlaceId(placeId)
             placeClient.status = response.code().toString()
             if(response.body() != null) placeClient.result = response.body()!!.result
+            else placeClient.status = "400"
         } catch (e:Exception){
             e.printStackTrace()
             placeClient.status = "500"
