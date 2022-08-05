@@ -20,7 +20,7 @@
         <module>authentication</module>
         <module>fcm</module>
         <module>eureka</module>
-        <module>apigw</module>
+        <module>api-gateway</module>
     </modules>
     <dependencyManagement>
         <dependencies>
