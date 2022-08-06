@@ -18,9 +18,10 @@
     </properties>
     <modules>
         <module>authentication</module>
-        <module>fcm</module>
         <module>eureka-server</module>
         <module>api-gateway</module>
+        <module>sms</module>
+        <module>fcm</module>
     </modules>
     <dependencyManagement>
         <dependencies>
