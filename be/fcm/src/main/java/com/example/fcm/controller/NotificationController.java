@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.fcm.model.domain.*;
 import com.example.fcm.model.dto.*;
 import com.example.fcm.model.entity.*;
-import com.example.fcm.service.NotificationService;
-import com.example.fcm.service.TokenStoreService;
+import com.example.fcm.service.*;
 
 @RestController
 @Slf4j
@@ -23,6 +22,9 @@ public class NotificationController {
 
     @Autowired
     private TokenStoreService tokenStoreService;
+
+    @Autowired
+    private TopicNameService topicNameService;
 
     @PostMapping("/register")
     public void register(@RequestBody RegistrationRequestDto registrationRequestDto) {
@@ -34,7 +36,7 @@ public class NotificationController {
                     tokenRecord.setFcmToken(registrationRequestDto.getFcmToken());
                     tokenRecord.setCreatedAt(new Date());
                     tokenStoreService.save(tokenRecord);
-                    log.info("Update token: {} for userId: {}", registrationRequestDto.getFcmToken(),
+                    log.info("Update token: {} for userId: {} success", registrationRequestDto.getFcmToken(),
                             registrationRequestDto.getUserId());
                 } else {
                     tokenRecord = new FcmTokenRecord(null, registrationRequestDto.getUserId(),
@@ -45,10 +47,11 @@ public class NotificationController {
                 }
             } else {
                 if (tokenRecord.getUserId().equals(registrationRequestDto.getUserId())) {
-                    log.info("UserId: {} with token: {} is already registered", registrationRequestDto.getUserId(),
-                            registrationRequestDto.getFcmToken());
+                    log.info("Token: {} not changed for userId: {}, token is the same as before",
+                            registrationRequestDto.getFcmToken(),
+                            registrationRequestDto.getUserId());
                 } else {
-                    log.info("Request token registration: {} from userId: {} is already registered for userId: {}",
+                    log.info("Register token: {} for userId: {} failed, token already registered by userId: {}",
                             registrationRequestDto.getFcmToken(), registrationRequestDto.getUserId(),
                             tokenRecord.getUserId());
                 }
@@ -67,10 +70,15 @@ public class NotificationController {
                 SubscriptionRequest subscriptionRequest = new SubscriptionRequest(tokenRecord.getFcmToken(),
                         subscriptionRequestDto.getTopicName());
                 notificationService.subscribeToTopic(subscriptionRequest);
+                if (topicNameService.findByTopicName(subscriptionRequestDto.getTopicName()) == null) {
+                    topicNameService.save(new TopicNameRecord(null, subscriptionRequestDto.getTopicName()));
+                    log.info("Create topic name: {}", subscriptionRequestDto.getTopicName());
+                }
                 log.info("Subscribe to topic: {} for userId: {} success", subscriptionRequestDto.getTopicName(),
                         subscriptionRequestDto.getUserId());
             } else {
-                log.info("No token found for userId: {}", subscriptionRequestDto.getUserId());
+                log.info("Subscribe to topic: {} for userId: {} failed, token not found",
+                        subscriptionRequestDto.getTopicName(), subscriptionRequestDto.getUserId());
             }
         } catch (Exception e) {
             log.error("Subscribe to topic: {} for userId: {} error", subscriptionRequestDto.getTopicName(),
@@ -82,14 +90,24 @@ public class NotificationController {
     public void unsubscribeFromTopic(@RequestBody SubscriptionRequestDto subscriptionRequestDto) {
         try {
             FcmTokenRecord tokenRecord = tokenStoreService.findByUserId(subscriptionRequestDto.getUserId());
+            TopicNameRecord topicNameRecord = topicNameService.findByTopicName(subscriptionRequestDto.getTopicName());
             if (tokenRecord != null) {
-                SubscriptionRequest subscriptionRequest = new SubscriptionRequest(tokenRecord.getFcmToken(),
-                        subscriptionRequestDto.getTopicName());
-                notificationService.unsubscribeFromTopic(subscriptionRequest);
-                log.info("Unsubscribe to topic: {} for userId: {} success", subscriptionRequestDto.getTopicName(),
-                        subscriptionRequestDto.getUserId());
+                if (topicNameRecord != null) {
+                    SubscriptionRequest subscriptionRequest = new SubscriptionRequest(tokenRecord.getFcmToken(),
+                            subscriptionRequestDto.getTopicName());
+                    notificationService.unsubscribeFromTopic(subscriptionRequest);
+                    log.info("Unsubscribe to topic: {} for userId: {} success", subscriptionRequestDto.getTopicName(),
+                            subscriptionRequestDto.getUserId());
+                } else {
+                    log.info("Unsubscribe to topic: {} for userId: {} failed, topic not found",
+                            subscriptionRequestDto.getTopicName(), subscriptionRequestDto.getUserId());
+                }
+            } else if (topicNameRecord != null) {
+                log.info("Unsubscribe to topic: {} for userId: {} failed, token not found",
+                        subscriptionRequestDto.getTopicName(), subscriptionRequestDto.getUserId());
             } else {
-                log.info("No token found for userId: {}", subscriptionRequestDto.getUserId());
+                log.info("Unsubscribe to topic: {} for userId: {} failed, token and topic not found",
+                        subscriptionRequestDto.getTopicName(), subscriptionRequestDto.getUserId());
             }
         } catch (Exception e) {
             log.error("Unsubscribe to topic: {} for userId: {} error", subscriptionRequestDto.getTopicName(),
@@ -126,11 +144,20 @@ public class NotificationController {
 
     @PostMapping("/topic")
     public String sendPnsToTopic(@RequestBody NotificationRequestDto notificationRequestDto) {
-        NotificationRequest notificationRequest = new NotificationRequest(
-                notificationRequestDto.getTarget(),
-                notificationRequestDto.getTitle(),
-                notificationRequestDto.getBody());
-        log.info("Send PNS to topic: {} success", notificationRequestDto.getTarget());
-        return notificationService.sendPnsToTopic(notificationRequest);
+        try {
+            if (topicNameService.findByTopicName(notificationRequestDto.getTarget()) != null) {
+                NotificationRequest notificationRequest = new NotificationRequest(
+                        notificationRequestDto.getTarget(),
+                        notificationRequestDto.getTitle(),
+                        notificationRequestDto.getBody());
+                log.info("Send PNS to topic: {} success", notificationRequestDto.getTarget());
+                return notificationService.sendPnsToTopic(notificationRequest);
+            } else {
+                log.info("No topic found for topicName: {}", notificationRequestDto.getTarget());
+            }
+        } catch (Exception e) {
+            log.error("Send PNS to topic: {} error", notificationRequestDto.getTarget(), e);
+        }
+        return "Error";
     }
 }
