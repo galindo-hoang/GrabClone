@@ -1,12 +1,9 @@
 package com.example.authentication.utils;
 
 
-import com.example.authentication.exception.InvalidOTPException;
 import com.example.authentication.exception.UsernameAlreadyExistException;
 import com.example.authentication.exception.UsernameNotFoundException;
 import com.example.authentication.model.payload.ErrorResponse;
-import com.example.authentication.model.payload.OTP.OTPResponse;
-import com.example.authentication.model.payload.OTP.OTPStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -38,17 +35,6 @@ public class MyControllerAdvice extends ResponseEntityExceptionHandler {
                 "com.UsernameAlreadyExistException", ex.getMessage());
         log.error("UsernameAlreadyExistException: {}", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(InvalidOTPException.class)
-    public ResponseEntity<Object> handleInvalidOTPException(InvalidOTPException ex) {
-        OTPResponse errorResponse = new OTPResponse(
-                OTPStatus.FAILED,
-                ex.getMessage(),
-                ZonedDateTime.now().format(DateTimeFormatter.formatter)
-        );
-        log.error("InvalidOTPException: {}", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

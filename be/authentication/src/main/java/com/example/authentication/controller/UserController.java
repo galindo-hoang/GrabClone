@@ -4,6 +4,7 @@ import com.example.authentication.model.dto.UserDto;
 import com.example.authentication.model.entity.Role;
 import com.example.authentication.model.entity.User;
 import com.example.authentication.service.UserService;
+import com.example.authentication.utils.ModelMapperGenerator;
 import lombok.Data;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -22,15 +23,13 @@ public class UserController {
     @Autowired
 
     private UserService userService;
-    private final ModelMapper modelMapper;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Autowired
     public UserController(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
-        TypeMap<User, UserDto> userToUserDtoTypeMap = modelMapper.createTypeMap(User.class, UserDto.class);
-        //skip role
-        userToUserDtoTypeMap.addMappings(mapper -> mapper.skip(UserDto::setRoles));
-        userToUserDtoTypeMap.addMappings(mapper -> mapper.skip(UserDto::setPassword));
+        ModelMapperGenerator.getUserTypeMap(modelMapper);
     }
 
     @GetMapping
@@ -48,6 +47,8 @@ public class UserController {
                 modelMapper.map(userService.saveUser(modelMapper.map(user, User.class))
                         , UserDto.class));
     }
+
+
 }
 
 @Data

@@ -15,7 +15,7 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("sms", r -> r.path("/api/v1/sms/**").filters(f -> f.filter(filter)).uri("lb://SMS")).build();
+                .route("sms", r -> r.path("/api/v1/sms/**").uri("lb://SMS")).build();
     }
 
 }

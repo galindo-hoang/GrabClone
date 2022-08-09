@@ -39,13 +39,13 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
         String accessToken = com.auth0.jwt.JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 28800 * 1000)) //8h
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm);
         String refreshToken = com.auth0.jwt.JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 86400 * 1000))//24h
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
         JwtResponse jwtResponse = new JwtResponse(accessToken, refreshToken, user);

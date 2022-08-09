@@ -23,7 +23,8 @@ public class User implements Serializable {
     private String password;
     @Column(nullable = false, unique = true)
     private String phonenumber;
-
+    @Column(nullable = false, unique = true, length = 6)
+    private String otp;
     @ManyToMany
     @JoinTable(
             name = "User_Role",
@@ -35,9 +36,10 @@ public class User implements Serializable {
     @Version
     private Integer version;
 
-    public User(String username, String password, String phonenumber) {
+    public User(String username, String password, String phonenumber,String otp) {
         this.username = username;
         this.password = password;
         this.phonenumber = phonenumber;
+        this.otp = otp;
     }
 }
