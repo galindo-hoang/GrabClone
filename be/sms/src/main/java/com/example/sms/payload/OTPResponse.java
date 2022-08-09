@@ -1,4 +1,4 @@
-package com.example.authentication.model.payload.OTP;
+package com.example.sms.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,4 +11,7 @@ public class OTPResponse {
     private OTPStatus status;
     private String message;
     private String timestamp;
+    public String getOTP(){
+        return this.message.substring(this.message.length()-6);
+    }
 }

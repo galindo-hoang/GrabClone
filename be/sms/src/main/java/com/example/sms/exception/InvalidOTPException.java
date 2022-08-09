@@ -1,4 +1,4 @@
-package com.example.authentication.exception;
+package com.example.sms.exception;
 
 public class InvalidOTPException extends Exception {
     public InvalidOTPException(String message) {

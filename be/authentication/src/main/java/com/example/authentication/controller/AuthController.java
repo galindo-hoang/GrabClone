@@ -6,22 +6,53 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.authentication.exception.InvalidTokenException;
 import com.example.authentication.exception.UsernameNotFoundException;
+import com.example.authentication.model.dto.UserDto;
+import com.example.authentication.model.entity.Role;
 import com.example.authentication.model.entity.User;
+import com.example.authentication.service.RoleService;
 import com.example.authentication.service.UserService;
+import com.example.authentication.utils.ModelMapperGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 
 @RestController
-public class RefreshTokenController {
+public class AuthController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private ModelMapper modelMapper;
+    @Autowired
+    private RoleService roleService;
+    @Autowired
+    public AuthController(ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+        ModelMapperGenerator.getUserTypeMap(modelMapper);
+    }
+    @PostMapping("/register")
+    public ResponseEntity<UserDto> saveUser(@RequestBody UserDto user) {
+        //Get current resource url
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toUriString());
+        User userSaving = modelMapper.map(user, User.class);
+        userSaving.setPassword(user.getPassword());
+        userSaving.setRoles(List.of(roleService.findByName(Role.RoleName.ROLE_USER)));
+        return ResponseEntity.created(uri).body(
+                modelMapper.map(userService.saveUser(userSaving)
+                        , UserDto.class));
+    }
 
     @GetMapping("/refresh-token")
     public void refreshToken(HttpServletRequest httpServletRequest,
@@ -44,7 +75,7 @@ public class RefreshTokenController {
                         .forEach(role -> roles.add(role.getName().toString()));
                 String accessToken = com.auth0.jwt.JWT.create()
                         .withSubject(user.getUsername())
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 1000))
+                        .withExpiresAt(new Date(System.currentTimeMillis() + 28800 * 1000))
                         .withIssuer(httpServletRequest.getRequestURL().toString())
                         .withClaim("roles", roles)
                         .sign(algorithm);

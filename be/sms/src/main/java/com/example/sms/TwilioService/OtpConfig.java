@@ -1,4 +1,4 @@
-package com.example.authentication.service.twilio;
+package com.example.sms.TwilioService;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

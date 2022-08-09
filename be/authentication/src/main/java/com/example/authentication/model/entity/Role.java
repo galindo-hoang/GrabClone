@@ -21,8 +21,6 @@ public class Role implements Serializable {
     @Enumerated(EnumType.STRING)
     private RoleName name;
 
-    @ManyToMany(mappedBy = "roles")
-    private List<User> users = new ArrayList<>();
 
     @Version
     private Integer version;

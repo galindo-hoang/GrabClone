@@ -1,4 +1,4 @@
-package com.example.authentication.model.payload.OTP;
+package com.example.sms.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -13,6 +13,7 @@ public class UserDto {
     private String username;
     private String password;
     private String phonenumber;
+    private String otp;
     private List<RoleDto> roles = new ArrayList<>();
     private Integer version;
 
