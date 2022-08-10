@@ -4,3 +4,7 @@ export interface bookingCarForm{
   address?:string
   note?:string
 }
+export interface localtion{
+  destination?:string,
+  departure?:string
+}

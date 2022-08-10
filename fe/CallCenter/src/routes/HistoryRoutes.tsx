@@ -10,8 +10,7 @@ export default function HistoryRoutes() {
   return (
     <Switch>
       <AuthenticatedGuard
-        exact
-        path={PATH.HISTORY}
+        exact path={PATH.HISTORY}
         component={() => (
           <Suspense fallback={<Loading />}>
             <History />

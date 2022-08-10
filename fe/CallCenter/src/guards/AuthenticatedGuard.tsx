@@ -1,11 +1,7 @@
 import React from "react"
-import {
-  Route,
-  RouteProps,
-  Redirect,
-  RouteComponentProps
-} from "react-router-dom"
 import { connect } from "react-redux"
+import {Redirect, Route, RouteComponentProps, RouteProps } from "react-router-dom"
+import { PATH } from "src/constants/paths"
 
 interface ReduxProps {
   isAuthenticated: boolean
@@ -14,19 +10,20 @@ interface Props extends ReduxProps, RouteProps {
   component: React.ComponentType<RouteComponentProps>
 }
 
-function AuthenticatedGuard(props: Props) {
+const AuthenticatedGuard=(props: Props):JSX.Element=>{
   const { isAuthenticated, component: Component, ...rest } = props
-  return (
+  const render:JSX.Element=(
     <Route
       {...rest}
-      render={props => {
+      render={(props):JSX.Element => {
         if (!isAuthenticated && !localStorage.getItem("accesToken") && !localStorage.getItem("refreshToken")) {
-          return <Redirect to="/login" />
+          return <Redirect to={PATH.LOGIN as string} />
         }
         return <Component {...props} />
       }}
     />
   )
+  return render
 }
 
 const mapStateToProps = state => ({

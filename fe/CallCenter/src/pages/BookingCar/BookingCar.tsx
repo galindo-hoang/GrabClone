@@ -6,12 +6,30 @@ import {useHistory} from "react-router-dom";
 import MessageService from "src/service/Message/MessageService";
 import "antd/dist/antd.css";
 import { Button, Checkbox, Form, Input } from 'antd';
+import { NavLink } from "react-router-dom"
+import {connect, ConnectedProps, useSelector} from "react-redux"
+import { bookingCar } from "./BookingCar.thunks";
+import {localtion} from "../../@types/bookingcar";
+import { Geocoder } from "src/service/BookingCar/GeoCoder";
+
+const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
+const mapStateToProps = state => ({
+
+})
+
+const mapDispatchToProps = {
+  bookingCar
+}
 
 
-export default function BookingCar() {
+const connector = connect(mapStateToProps, mapDispatchToProps)
+interface Props extends ConnectedProps<typeof connector> {}
+
+const BookingCar =(props:Props)=>{
+  const {bookingCar}=props
   const [fullname,setFullName]=useState("");
   const [phoneNumber,setPhoneNumber]=useState("");
-  const [pickUpAdress,setPickUpAdress]=useState("");
+  const [departure,setDeparture]=useState("");
   const [destination,setDestination]=useState("");
   const [note,setNote]=useState("");
   const history = useHistory();
@@ -21,19 +39,24 @@ export default function BookingCar() {
   const onChangePhoneNumber=(event)=>{
     setPhoneNumber(event?.target?.value)
   }
-  const onChangePickUpAddress=(event)=>{
-    setPickUpAdress(event?.target?.value)
+  const onChangeDeparture=(event)=>{
+    setDeparture(event?.target?.value)
   }
   const onChangeDestination=(event)=>{
-    setDestination(event?.target?.value)
+    setDestination(event?.target?.value);
   }
   const onChangeNote=(event)=>{
     setNote(event?.target?.value)
   }
   const submit=event=>{
+    const location:localtion={};
+    location.destination=destination;
+    location.departure=departure;
+    bookingCar(location)
     event.preventDefault();
     history.push(PATH.MAP);
   }
+
   return (
     <MainLayout>
       <div className="container">
@@ -59,9 +82,9 @@ export default function BookingCar() {
               <label className="float-left mb-1">Địa chỉ đón</label>
               <input
                 type="text"
-                placeholder="Điền địa chỉ đi"
+                placeholder="Điền địa chỉ đón"
                 className="form-control form-control-lg mb-3"
-                onChange={onChangePickUpAddress}
+                onChange={onChangeDeparture}
               />
               <label className="float-left mb-1">Địa chỉ đến</label>
               <input
@@ -78,7 +101,7 @@ export default function BookingCar() {
                 onChange={onChangeNote}
               />
               <button type="submit" className="btn btn-block btn-info btn-lg">
-                Xác nhận
+                  Xác nhận
               </button>
             </form>
           </div>
@@ -87,3 +110,5 @@ export default function BookingCar() {
     </MainLayout>
   )
 }
+
+export default connector(BookingCar)
