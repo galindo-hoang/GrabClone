@@ -2,8 +2,9 @@ package com.example.user.data.repository.authentication
 
 import com.example.user.data.dto.UserDto
 import com.example.user.data.dto.ValidateOTP
+import com.example.user.data.model.authentication.BodyRegisterSaveAccount
 import com.example.user.data.model.authentication.ResponseLogin
-import com.example.user.data.model.authentication.SuccessBodyValidateOrRegister
+import com.example.user.data.model.authentication.BodyValidateOrRegister
 import com.example.user.data.model.authentication.TokenAuthentication
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.utils.Constant.convertTimeLongToDateTime
@@ -21,15 +22,20 @@ class AuthenticationRepositoryImpl @Inject constructor(
     private val authenticationLocalDataResource: AuthenticationLocalDataResource,
     private val authenticationRemoteDataResource: AuthenticationRemoteDataResource
 ): AuthenticationRepository {
-    override suspend fun postRequestRegister(
+    override suspend fun postRequestRegisterPhoneNumber(
         userDto: UserDto
-    ): Response<SuccessBodyValidateOrRegister> =
-        authenticationRemoteDataResource.getResponseRegister(userDto)
+    ): Response<BodyValidateOrRegister> =
+        authenticationRemoteDataResource.getResponseRegisterPhoneNumber(userDto)
+
+    override suspend fun postRequestRegisterSaveAccount(
+        userDto: UserDto
+    ): Response<BodyRegisterSaveAccount> =
+        authenticationRemoteDataResource.getResponseRegisterSaveAccount(userDto)
 
     override suspend fun postValidateRegister(
         validateOTP: ValidateOTP
-    ): Response<SuccessBodyValidateOrRegister> =
-        authenticationRemoteDataResource.getResponseValidateRegister(validateOTP)
+    ): Response<BodyValidateOrRegister> =
+        authenticationRemoteDataResource.getResponseValidatePhoneNumber(validateOTP)
 
     override suspend fun getRefreshToken(): String = getRefreshTokenFromCache()
     private suspend fun getRefreshTokenFromCache():String{

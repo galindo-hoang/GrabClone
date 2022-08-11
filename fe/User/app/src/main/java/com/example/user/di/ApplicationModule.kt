@@ -67,8 +67,8 @@ class ApplicationModule {
             return Retrofit
                 .Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-//                .baseUrl("http://192.168.1.11:8080")
-                .baseUrl("http://192.168.1.63:8080")
+                .baseUrl("http://192.168.1.11:8085")
+//                .baseUrl("http://192.168.1.63:8080")
 //                .baseUrl("http://192.168.223.107:8080")
                 .client(xclient.build())
                 .build()
