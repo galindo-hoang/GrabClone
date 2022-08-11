@@ -11,7 +11,7 @@ import {connect, ConnectedProps, useSelector} from "react-redux"
 import { bookingCar } from "./BookingCar.thunks";
 import {localtion} from "../../@types/bookingcar";
 import { Geocoder } from "src/service/BookingCar/GeoCoder";
-
+import { AutoComplete } from 'antd';
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 const mapStateToProps = state => ({
 
@@ -20,7 +20,13 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   bookingCar
 }
+const setOptionDestination = (str: string, repeat = 1) => ({
+  value: str.repeat(repeat),
+});
 
+const setOptionDeparture = (str: string, repeat = 1) => ({
+  value: str.repeat(repeat),
+});
 
 const connector = connect(mapStateToProps, mapDispatchToProps)
 interface Props extends ConnectedProps<typeof connector> {}
@@ -29,8 +35,13 @@ const BookingCar =(props:Props)=>{
   const {bookingCar}=props
   const [fullname,setFullName]=useState("");
   const [phoneNumber,setPhoneNumber]=useState("");
-  const [departure,setDeparture]=useState("");
-  const [destination,setDestination]=useState("");
+
+  const [departure,setDeparture]=useState('');
+  const [departureAutocomplete,setDepartureAutocomplete]=useState<{ value: string }[]>([]);
+
+  const [destination,setDestination]=useState('');
+  const [destinationAutocomplete,setDestinationAutocomplete]=useState<{ value: string }[]>([]);
+
   const [note,setNote]=useState("");
   const history = useHistory();
   const onChangeFullName=(event)=>{
@@ -39,11 +50,20 @@ const BookingCar =(props:Props)=>{
   const onChangePhoneNumber=(event)=>{
     setPhoneNumber(event?.target?.value)
   }
-  const onChangeDeparture=(event)=>{
-    setDeparture(event?.target?.value)
+  const onChangeDeparture=(data)=>{
+    setDeparture(data)
   }
-  const onChangeDestination=(event)=>{
-    setDestination(event?.target?.value);
+  const onChangeDestination=(data)=>{
+    setDestination(data);
+  }
+  const onSearchDestination=(searchText)=>{
+    setDestinationAutocomplete(
+      !searchText ? [] : [setOptionDestination(searchText), setOptionDestination(searchText, 2), setOptionDestination(searchText, 3)])
+  }
+  const onSearchDeparture=(searchText)=>{
+    setDepartureAutocomplete(
+      !searchText ? [] : [setOptionDeparture(searchText), setOptionDeparture(searchText, 2), setOptionDeparture(searchText, 3)]
+    )
   }
   const onChangeNote=(event)=>{
     setNote(event?.target?.value)
@@ -80,18 +100,22 @@ const BookingCar =(props:Props)=>{
                 onChange={onChangePhoneNumber}
               />
               <label className="float-left mb-1">Địa chỉ đón</label>
-              <input
-                type="text"
-                placeholder="Điền địa chỉ đón"
+              <AutoComplete
                 className="form-control form-control-lg mb-3"
+                options={departureAutocomplete}
+                value={departure}
+                onSearch={onSearchDeparture}
                 onChange={onChangeDeparture}
+                placeholder="Điền địa chỉ đón"
               />
               <label className="float-left mb-1">Địa chỉ đến</label>
-              <input
-                type="text"
-                placeholder="Điền địa chỉ đến"
+              <AutoComplete
                 className="form-control form-control-lg mb-3"
+                options={destinationAutocomplete}
+                value={destination}
+                onSearch={onSearchDestination}
                 onChange={onChangeDestination}
+                placeholder="Điền địa chỉ đến"
               />
               <label className="float-left mb-1">Ghi chú</label>
               <input
