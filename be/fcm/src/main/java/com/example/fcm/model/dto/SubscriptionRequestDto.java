@@ -1,12 +1,9 @@
-package com.example.fcm.dto;
+package com.example.fcm.model.dto;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class SubscriptionRequestDto {
-
-    String topicName;
-    String tokens;
+    private String topicName;
+    private Integer userId;
 }
