@@ -24,10 +24,14 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31" >
         <activity
+<<<<<<< HEAD
             android:name=".presentation.signup.SignUpActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.booking.MethodBookingActivity"
+=======
+            android:name=".presentation.booking.BookingActivity"
+>>>>>>> origin/master
             android:exported="false" />
         <activity
             android:name=".presentation.main.MainActivity"

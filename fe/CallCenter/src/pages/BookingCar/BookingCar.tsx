@@ -3,13 +3,15 @@ import MainLayout from "src/layouts/MainLayout"
 import {Title} from "../BookingCar/BookingCar.styles";
 import {PATH} from "../../constants/paths";
 import {useHistory} from "react-router-dom";
-
+import MessageService from "src/service/Message/MessageService";
+import "antd/dist/antd.css";
 
 
 export default function BookingCar() {
   const [fullname,setFullName]=useState("");
   const [phoneNumber,setPhoneNumber]=useState("");
-  const [address,setAddress]=useState("");
+  const [pickUpAdress,setPickUpAdress]=useState("");
+  const [destination,setDestination]=useState("");
   const [note,setNote]=useState("");
   const history = useHistory();
   const onChangeFullName=(event)=>{
@@ -18,14 +20,17 @@ export default function BookingCar() {
   const onChangePhoneNumber=(event)=>{
     setPhoneNumber(event?.target?.value)
   }
-  const onChangeAddress=(event)=>{
-    setAddress(event?.target?.value)
+  const onChangePickUpAddress=(event)=>{
+    setPickUpAdress(event?.target?.value)
+  }
+  const onChangeDestination=(event)=>{
+    setDestination(event?.target?.value)
   }
   const onChangeNote=(event)=>{
     setNote(event?.target?.value)
   }
   const submit=event=>{
-    event.preventDefault()
+    event.preventDefault();
     history.push(PATH.MAP);
   }
   return (
@@ -50,12 +55,19 @@ export default function BookingCar() {
                 className="form-control form-control-lg mb-3"
                 onChange={onChangePhoneNumber}
               />
-              <label className="float-left mb-1">Địa chỉ</label>
+              <label className="float-left mb-1">Địa chỉ đón</label>
               <input
                 type="text"
-                placeholder="Điền địa chỉ"
+                placeholder="Điền địa chỉ đi"
                 className="form-control form-control-lg mb-3"
-                onChange={onChangeAddress}
+                onChange={onChangePickUpAddress}
+              />
+              <label className="float-left mb-1">Địa chỉ đến</label>
+              <input
+                type="text"
+                placeholder="Điền địa chỉ đến"
+                className="form-control form-control-lg mb-3"
+                onChange={onChangeDestination}
               />
               <label className="float-left mb-1">Ghi chú</label>
               <input

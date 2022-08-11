@@ -48,6 +48,13 @@ class MethodBookingActivity : BaseActivity() {
         paymentAdapter.setList(getData())
         paymentAdapter.setOnClickListener { it, position ->
         }
+        binding.rcvPayment.adapter = paymentAdapter
+        binding.rcvPayment.layoutManager = LinearLayoutManager(this)
+        paymentAdapter.setList(getData())
+        paymentAdapter.setOnClickListener { it, position ->
+            Log.e("---------",it.toString())
+            Log.e("=========",position.toString())
+        }
     }
 
     fun getDataV(): List<Vehicle>{
