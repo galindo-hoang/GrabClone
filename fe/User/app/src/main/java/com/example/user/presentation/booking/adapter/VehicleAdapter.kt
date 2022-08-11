@@ -1,13 +1,14 @@
 package com.example.user.presentation.booking.adapter
 
-import android.app.Application
 import android.content.Context
-import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.user.R
+import com.example.user.data.dto.Payment
 import com.example.user.data.dto.Vehicle
 import com.example.user.databinding.ItemVehicleBinding
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,7 +17,7 @@ import javax.inject.Inject
 class VehicleAdapter @Inject constructor(
     @ApplicationContext
     private val context: Context
-): RecyclerView.Adapter<VehicleAdapter.VehicleViewHolder>() {
+): ListAdapter<Vehicle,VehicleAdapter.VehicleViewHolder>(callback) {
 
     private var list = listOf<Vehicle>()
     private var func: ((it: Vehicle, position:Int) -> Unit)? = null
@@ -27,17 +28,18 @@ class VehicleAdapter @Inject constructor(
 
     fun setList(list: List<Vehicle>){
         this.list = list
-        notifyDataSetChanged()
+        submitList(list)
     }
 
     inner class VehicleViewHolder(view: ItemVehicleBinding): RecyclerView.ViewHolder(view.root){
         private val binding = view
         fun bind(model: Vehicle,position: Int){
             binding.root.setOnClickListener {
+                notifyItemChanged(position)
                 notifyItemChanged(itemSelected)
                 itemSelected = position
-                notifyItemChanged(position)
                 func?.let { it1 -> it1(model,position) }
+
             }
             if (itemSelected == adapterPosition){
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(context.resources,R.color.light_green,null))
@@ -46,6 +48,9 @@ class VehicleAdapter @Inject constructor(
                 binding.root.setBackgroundColor(ResourcesCompat.getColor(context.resources,R.color.white,null))
                 binding.tvTitleVehicle.setTextColor(ResourcesCompat.getColor(context.resources,R.color.gray,null))
             }
+//            if(adapterPosition == list.size - 1){
+//                binding.divider.visibility = View.GONE
+//            }
         }
     }
 
@@ -58,4 +63,15 @@ class VehicleAdapter @Inject constructor(
     }
 
     override fun getItemCount(): Int = list.size
+
+
+    companion object {
+        val callback = object : DiffUtil.ItemCallback<Vehicle>() {
+            override fun areItemsTheSame(oldItem: Vehicle, newItem: Vehicle): Boolean =
+                oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: Vehicle, newItem: Vehicle): Boolean =
+                oldItem == newItem
+        }
+    }
 }

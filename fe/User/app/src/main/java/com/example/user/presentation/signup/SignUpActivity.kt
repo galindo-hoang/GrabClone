@@ -37,21 +37,12 @@ class SignUpActivity : BaseActivity() {
 
     private fun registerViewChangeListener() {
         signUpViewModel.phoneNumber.observe(this){
-            if(it.isNotEmpty() && !Constant.checkPhone(it)){
-                binding.tvCheckPhoneNumber.visibility = View.VISIBLE
-                signUpViewModel.isValidPhoneNumber = false
-            }else{
-                binding.tvCheckPhoneNumber.visibility = View.GONE
-                signUpViewModel.isValidPhoneNumber = true
-            }
-        }
-        signUpViewModel.confirmPassword.observe(this){
-            if(it.isNotEmpty() && it != binding.etConfirmNewPassword.text.toString()){
-                binding.tvCheckConfirmNewPassword.visibility = View.VISIBLE
-                signUpViewModel.isValidPassword = false
-            }else {
-                binding.tvCheckConfirmNewPassword.visibility = View.GONE
-                signUpViewModel.isValidPassword = true
+            if(it != null) {
+                if(it.isNotEmpty() && !Constant.checkPhone(it)){
+                    signUpViewModel.isValidPhoneNumber.postValue(false)
+                }else {
+                    signUpViewModel.isValidPhoneNumber.postValue(true)
+                }
             }
         }
 

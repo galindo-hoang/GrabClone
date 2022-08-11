@@ -8,4 +8,7 @@ data class UserDto(
     var username: String?,
     @SerializedName("phonenumber")
     var phoneNumber: String?,
+    @SerializedName("otp", alternate = arrayOf("onceTimePassword"))
+    var otp: String? = null
+
 )

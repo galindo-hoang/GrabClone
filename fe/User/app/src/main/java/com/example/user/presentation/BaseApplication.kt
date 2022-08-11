@@ -12,8 +12,8 @@ class BaseApplication: Application(),LifecycleObserver {
     private lateinit var inten: Intent
     override fun onCreate() {
         super.onCreate()
-        inten = Intent(applicationContext, BackgroundService::class.java)
-        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+//        inten = Intent(applicationContext, BackgroundService::class.java)
+//        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
     }
 
 
