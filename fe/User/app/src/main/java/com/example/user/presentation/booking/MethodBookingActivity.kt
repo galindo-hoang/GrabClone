@@ -33,7 +33,6 @@ class MethodBookingActivity : BaseActivity() {
         binding.rcvVehicle.adapter = vehicleAdapter
         binding.rcvVehicle.layoutManager = LinearLayoutManager(this)
         vehicleAdapter.setList(getDataV())
-        // set up divider
         val dividerItemDecoration = MaterialDividerItemDecoration(
             binding.root.context, LinearLayoutManager.VERTICAL
         ).apply {
@@ -42,11 +41,8 @@ class MethodBookingActivity : BaseActivity() {
         binding.rcvVehicle.addItemDecoration(dividerItemDecoration)
         binding.rcvPayment.addItemDecoration(dividerItemDecoration)
         vehicleAdapter.setOnClickListener { it, position ->
-        }
-        binding.rcvPayment.adapter = paymentAdapter
-        binding.rcvPayment.layoutManager = LinearLayoutManager(this)
-        paymentAdapter.setList(getData())
-        paymentAdapter.setOnClickListener { it, position ->
+            Log.e("---------",it.toString())
+            Log.e("=========",position.toString())
         }
         binding.rcvPayment.adapter = paymentAdapter
         binding.rcvPayment.layoutManager = LinearLayoutManager(this)
@@ -60,15 +56,15 @@ class MethodBookingActivity : BaseActivity() {
     fun getDataV(): List<Vehicle>{
         val a = mutableListOf<Vehicle>()
         a.add(Vehicle(0))
-        a.add(Vehicle(1))
-        a.add(Vehicle(2))
+        a.add(Vehicle(0))
+        a.add(Vehicle(0))
         return a
     }
     fun getData(): List<Payment>{
         val a = mutableListOf<Payment>()
         a.add(Payment(0))
-        a.add(Payment(1))
-        a.add(Payment(2))
+        a.add(Payment(0))
+        a.add(Payment(0))
         return a
     }
 }
