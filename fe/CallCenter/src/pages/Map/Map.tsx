@@ -12,21 +12,10 @@ import {COLOR} from "src/constants/styles";
 import {useSpring,animated} from 'react-spring'
 import MapBoxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import {connect, ConnectedProps, useSelector} from "react-redux"
-import { localtion } from "src/@types/bookingcar";
+import {location, info2Location, featuresLocation} from "src/@types/bookingcar";
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 
-const Geocoder = () => {
-  const ctrl = new MapBoxGeocoder({
-    accessToken: accessToken,
-    marker: true,
-    collapsed: true,
-  });
-  useControl(() => ctrl);
-  ctrl.on('result', (e) => {
-    const coords = e.result.geometry.coordinates;
-  });
-  return null;
-};
+
 
 const Menu = (props:any) => {
   const {location}=props;
@@ -44,16 +33,16 @@ const Menu = (props:any) => {
         <label className="float-left mb-1">Địa điểm đón <CarOutlined/> </label>
         <input
           type="text"
-          placeholder={location.departure}
           className="form-control form-control-lg mb-3"
           readOnly={true}
+          value={location.departure}
         />
         <label className="float-left mb-1">Địa chỉ đến <EnvironmentOutlined/></label>
         <input
           type="text"
-          placeholder={location.destination}
           className="form-control form-control-lg mb-3"
           readOnly={true}
+          value={location.destination}
         />
         <button type="submit" className="btn btn-block btn-info btn-lg">
           Tìm tài xế
@@ -83,34 +72,36 @@ const Map = (props:Props) => {
     longitude: 106.691449
   }
   const {closeSideNav,departure,destination} = props;
-  const locationBooking:localtion={
-    destination:destination,
-    departure:departure
-  }
-  const [viewCoordinate,setViewCoordinate]=useState<coordinate>(destinationCoordinate2);
+  const [viewCoordinate,setViewCoordinate]=useState<coordinate>({
+    longitude:departure.coordinate.longitude,
+    latitude:departure.coordinate.latitude,
+  });
   const [zoom, setZoom] = useState(18)
   const [loadMap, setLoadMap] = useState(false)
   const [lineValue, setLineValue] = useState([] as coordinate)
   const [showPopupDestination, setShowPopupDestination] = useState(false);
   const [showPopupDeparture, setShowPopupDeparture] = useState(false);
-  const [destinationCoordinate,setDestinationCoordinate]=useState<coordinate>(destinationCoordinate2);
-  const [departureCoordinate,setDepartureCoordinate]=useState<coordinate>(departureCoordinate2);
+
+  const [destinationCoordinate,setDestinationCoordinate]=useState<featuresLocation>({
+    value:destination.value,
+    coordinate:destination.coordinate
+  });
+  const [departureCoordinate,setDepartureCoordinate]=useState<featuresLocation>({
+    value:departure.value,
+    coordinate:departure.coordinate
+  });
+
+  const locationBooking:location={
+    destination:destination.value,
+    departure:departure.value
+  }
 
 
   useEffect(() => {
     const checkDistance = async () => {
-      await MapService.getDistance(destinationCoordinate as coordinate, departureCoordinate as coordinate, accessToken).then((res) => {
+      await MapService.getDistance(destinationCoordinate.coordinate as coordinate, departureCoordinate.coordinate as coordinate, accessToken).then((res) => {
         const distance = res.data.routes[0].distance / 1000;
         setLineValue(res.data.routes[0].geometry.coordinates);
-      })
-    }
-    const convertLocationtoCoordinateDestination = async () => {
-      await MapService.convertAddressToCoordinate(destination,accessToken).then(res =>{
-
-      })
-    }
-    const convertLocationtoCoordinateDeparture = async () => {
-      await MapService.convertAddressToCoordinate(destination,accessToken).then(res =>{
       })
     }
     checkDistance();
@@ -156,7 +147,6 @@ const Map = (props:Props) => {
 
                 }}
 
-
                 onLoad={(map) => {
                   setLoadMap(true)
                 }}
@@ -185,34 +175,34 @@ const Map = (props:Props) => {
 
       {showPopupDestination && (
         <Popup
-          latitude={destinationCoordinate?.latitude as number}
-          longitude={destinationCoordinate?.longitude as number}
+          latitude={destinationCoordinate?.coordinate?.latitude as number}
+          longitude={destinationCoordinate?.coordinate?.longitude as number}
           closeButton={true}
           closeOnClick={true}
           onClose={() => setShowPopupDestination(false)}
           anchor="top-right"
         >
-          <div>Pop up marker</div>
+          <div>Điểm đến</div>
         </Popup>
       )}
 
       {showPopupDeparture && (
         <Popup
-          latitude={departureCoordinate?.latitude as number}
-          longitude={departureCoordinate?.longitude as number}
+          latitude={departureCoordinate?.coordinate?.latitude as number}
+          longitude={departureCoordinate?.coordinate?.longitude as number}
           closeButton={true}
           closeOnClick={true}
           onClose={() => setShowPopupDeparture(false)}
           anchor="top-right"
         >
-          <div>Pop up marker</div>
+          <div>Điểm xuất phát</div>
         </Popup>
       )}
 
 
       <Marker
-        latitude={destinationCoordinate?.latitude}
-        longitude={destinationCoordinate?.longitude}>
+        latitude={destinationCoordinate?.coordinate?.latitude}
+        longitude={destinationCoordinate?.coordinate?.longitude}>
         <img
           onClick={() => setShowPopupDestination(true)}
           style={{height: 50, width: 50}}
@@ -221,17 +211,16 @@ const Map = (props:Props) => {
       </Marker>
 
       <Marker
-        latitude={departureCoordinate?.latitude}
-        longitude={departureCoordinate?.longitude}>
+        latitude={departureCoordinate?.coordinate?.latitude}
+        longitude={departureCoordinate?.coordinate?.longitude}>
         <img
           onClick={() => setShowPopupDeparture(true)}
           style={{height: 50, width: 50}}
           src="https://library.kissclipart.com/20180925/rpe/kissclipart-map-car-icon-clipart-car-google-maps-navigation-c81a6a2d0ecb7a15.png"
         />
       </Marker>
-      {/*<GeolocateControl position='top-right'/>*/}
-      {/*<NavigationControl position='top-right'/>*/}
-      <Geocoder/>
+      <GeolocateControl position='top-right'/>
+      <NavigationControl position='top-right'/>
       <Menu location={locationBooking}/>
     </ReactMapGL>
   </MainLayout>

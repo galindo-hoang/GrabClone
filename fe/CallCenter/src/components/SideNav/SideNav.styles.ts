@@ -25,6 +25,7 @@ export const Menu = styled.ul`
         margin-right: 10px;
       }
       &.active {
+        color:black;
         background: ${COLOR.INFO};
       }
     }

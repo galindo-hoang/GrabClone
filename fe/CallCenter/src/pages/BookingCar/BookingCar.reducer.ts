@@ -1,6 +1,6 @@
 import * as types from "./BookingCar.constants"
 import produce from "immer"
-import {localtion} from "../../@types/bookingcar"
+import {location} from "../../@types/bookingcar"
 const initialState= {
   departure:null,
   destination:null,

@@ -1,11 +1,18 @@
 package com.example.authentication;
 
+import com.example.authentication.model.entity.Role;
+import com.example.authentication.model.entity.User;
+import com.example.authentication.service.RoleService;
+import com.example.authentication.service.UserService;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 @SpringBootApplication
 @EnableEurekaClient
@@ -20,7 +27,7 @@ public class AuthenticationApplication {
         return new BCryptPasswordEncoder();
     }
 
-    /*@Bean
+   /* @Bean
     CommandLineRunner runner(UserService userService, RoleService roleService) {
         return args -> {
             Role roleAdmin = roleService.saveRole(new Role(Role.RoleName.ROLE_ADMIN));
@@ -28,10 +35,10 @@ public class AuthenticationApplication {
             Role roleDriver = roleService.saveRole(new Role(Role.RoleName.ROLE_DRIVER));
             Role roleTelephonist = roleService.saveRole(new Role(Role.RoleName.ROLE_TELEPHONIST));
 
-            User userQuan = new User("quan", "123","0833759401");
-            User userPhuc = new User("phuc", "123","0833759409");
-            User userHuy = new User("huy", "123","0833759402");
-            User userThieu = new User( "thieu", "123","0833759405");
+            User userQuan = new User("quan", "123","0833759401","");
+            User userPhuc = new User("phuc", "123","0833759409","");
+            User userHuy = new User("huy", "123","0833759402","");
+            User userThieu = new User( "thieu", "123","0833759405","");
 
             userQuan.setRoles(List.of(roleAdmin, roleUser));
             userService.saveUser(userQuan);

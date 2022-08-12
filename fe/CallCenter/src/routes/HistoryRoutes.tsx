@@ -3,6 +3,7 @@ import { Switch } from "react-router-dom"
 import AuthenticatedGuard from "src/guards/AuthenticatedGuard"
 import { PATH } from "src/constants/paths"
 import Loading from "src/components/Loading/Loading"
+import MapGuard from "../guards/MapGuard";
 const History = lazy(() => import("src/pages/History/History"))
 
 export default function HistoryRoutes() {

@@ -1,5 +1,5 @@
 import * as actions from "./BookingCar.actions"
-import {localtion} from "../../@types/bookingcar"
-export const bookingCar = (localtion: localtion) => async dispatch => {
-  return dispatch(actions.bookingCarRequested(localtion));
+import {location,info2Location} from "../../@types/bookingcar"
+export const bookingCar = (location: info2Location) => async dispatch => {
+  return dispatch(actions.bookingCarRequested(location));
 }

@@ -1,10 +1,22 @@
+import {coordinate} from "./map";
+
 export interface bookingCarForm{
   fullName?:string
   phoneNumber?:string
   address?:string
   note?:string
 }
-export interface localtion{
+export interface location{
   destination?:string,
   departure?:string
+}
+
+export interface featuresLocation{
+  coordinate?:coordinate,
+  value?:string
+}
+
+export interface info2Location{
+  destination?:featuresLocation,
+  departure?:featuresLocation
 }

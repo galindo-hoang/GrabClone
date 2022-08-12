@@ -1,4 +1,4 @@
-import {message} from 'antd';
+import {message,Modal, Space} from 'antd';
 import "antd/dist/antd.css";
 
 const key = 'updatable'
@@ -11,7 +11,13 @@ class MessageService {
       setTimeout(() => {
       }, 1000)
     }
-  }
+  };
+  warning = (title:string) => {
+    Modal.warning({
+      title: 'Thông báo',
+      content: `${title}`,
+    });
+  };
 }
 
 

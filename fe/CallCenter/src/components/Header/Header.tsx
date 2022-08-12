@@ -61,7 +61,7 @@ const Header = (props: Props) => {
       </button>
     {/* <p >Xin chào {clientInformation?.data?.user?.username}</p>*/}
 
-      <LogoutIcon onClick={handleLogout} className="btn btn-outline-secondary">
+      <LogoutIcon onClick={handleLogout} className="btn btn-outline-secondary main-background">
         Logout
       </LogoutIcon>
     </header>
