@@ -13,6 +13,7 @@ import com.example.authentication.service.RoleService;
 import com.example.authentication.service.UserService;
 import com.example.authentication.utils.ModelMapperGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import java.net.URI;
 import java.util.*;
 
 @RestController
+@Slf4j
 public class AuthController {
     @Autowired
     private UserService userService;
@@ -52,6 +54,12 @@ public class AuthController {
         return ResponseEntity.created(uri).body(
                 modelMapper.map(userService.saveUser(userSaving)
                         , UserDto.class));
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> ss(){
+        log.info("test");
+        return ResponseEntity.ok("ok");
     }
 
     @GetMapping("/refresh-token")
