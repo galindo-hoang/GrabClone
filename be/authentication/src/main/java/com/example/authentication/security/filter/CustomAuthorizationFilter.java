@@ -34,7 +34,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             String authorizationHeader = httpServletRequest.getHeader("Authorization");
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 try {
-                    String token = authorizationHeader.substring("Bearer ".length());
+                   /* String token = authorizationHeader.substring("Bearer ".length());
                     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
                     JWTVerifier verifier = JWT.require(algorithm).build();
                     DecodedJWT jwt = verifier.verify(token);
@@ -46,7 +46,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     }
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(username, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);*/
                     filterChain.doFilter(httpServletRequest, httpServletResponse);
                 } catch (Exception e) {
                     httpServletResponse.setHeader("Error", e.getMessage());

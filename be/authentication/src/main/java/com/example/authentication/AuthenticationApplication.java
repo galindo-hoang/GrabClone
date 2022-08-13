@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.example.authentication"
+})
 @EnableEurekaClient
 public class AuthenticationApplication {
     public static void main(String[] args) {

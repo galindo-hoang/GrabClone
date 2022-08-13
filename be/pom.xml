@@ -23,6 +23,9 @@
         <module>sms</module>
         <module>fcm</module>
         <module>rabbit-mq</module>
+        <module>logger</module>
+        <module>clients</module>
+        <module>booking</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -55,6 +58,10 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
     </dependencies>
     <build>
