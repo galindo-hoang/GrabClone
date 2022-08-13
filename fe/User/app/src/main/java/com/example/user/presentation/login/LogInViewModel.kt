@@ -18,7 +18,7 @@ class LogInViewModel @Inject constructor(
     private var _isLogin: MutableLiveData<Int> = MutableLiveData()
     val isLogin get() = _isLogin
 
-    fun login(){
+    fun login() {
         if(_userName.value != null || _password.value != null){
             runBlocking {
                 val user = loginUseCase.invoke(Login(_userName.value!!,_password.value!!))

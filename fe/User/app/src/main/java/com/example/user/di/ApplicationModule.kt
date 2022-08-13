@@ -2,8 +2,8 @@ package com.example.user.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.user.data.api.AuthenticationApi
-import com.example.user.data.api.RouteNavigationApi
+import com.example.user.data.api.*
+import com.example.user.data.api.interceptor.CheckAccessTokenInterceptor
 import com.example.user.data.dao.TokenDao
 import com.example.user.data.dao.UserDao
 import com.example.user.data.database.BackEndDatabase
@@ -52,28 +52,49 @@ class ApplicationModule {
 
     @Provides
     @Singleton
-    fun providesBackendApi(
-        routeNavigationApi: RouteNavigationApi
-    ): AuthenticationApi
+    fun providesAuthenticationApi(): AuthenticationApi
         {
             val logging= HttpLoggingInterceptor().apply {
                 this.level = HttpLoggingInterceptor.Level.BODY
             }
-
-//            val check = Check(routeNavigationApi)
-            val xclient= OkHttpClient.Builder().apply {
-                this.addInterceptor(logging)
-            }
             return Retrofit
                 .Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://192.168.1.11:8085")
-//                .baseUrl("http://192.168.1.63:8080")
+//                .baseUrl("http://192.168.1.11:8085")
+                .baseUrl("http://192.168.1.75:8085")
 //                .baseUrl("http://192.168.223.107:8080")
-                .client(xclient.build())
+                .client(
+                    OkHttpClient.Builder().apply { this.addInterceptor(logging) }.build()
+                )
                 .build()
                 .create(AuthenticationApi::class.java)
         }
+
+    @Provides
+    @Singleton
+    fun providesRenewAccessTokenApi(): RenewAccessTokenApi =
+        Retrofit
+            .Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+//            .baseUrl("http://192.168.1.11:8085")
+            .baseUrl("http://192.168.1.75:8085")
+            .build()
+            .create(RenewAccessTokenApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providesBookingApi(checkAccessTokenInterceptor: CheckAccessTokenInterceptor): BookingApi =
+        Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+//            .baseUrl("http://192.168.1.11:8085")
+            .baseUrl("http://192.168.1.75:8085")
+            .client(
+                OkHttpClient.Builder()
+                    .apply { this.addInterceptor(checkAccessTokenInterceptor) }
+                    .build()
+            )
+            .build()
+            .create(BookingApi::class.java)
 
     @Provides
     @Singleton
@@ -127,9 +148,10 @@ class ApplicationModule {
     @Provides
     @Singleton
     fun providesAuthenticationRemoteDataResource(
-        authenticationApi: AuthenticationApi
+        authenticationApi: AuthenticationApi,
+        renewAccessTokenApi: RenewAccessTokenApi
     ): AuthenticationRemoteDataResource =
-        AuthenticationRemoteDataResourceImpl(authenticationApi)
+        AuthenticationRemoteDataResourceImpl(authenticationApi,renewAccessTokenApi)
 
     @Provides
     @Singleton

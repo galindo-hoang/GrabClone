@@ -16,7 +16,7 @@ data class User(
 //    val enabled: Boolean? = null,
 
     var password: String?,
-    var username: String,
+    var username: String?,
     @SerializedName("phonenumber")
     var phoneNumber: String?,
 

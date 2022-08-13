@@ -26,11 +26,6 @@ interface AuthenticationApi {
         @Body validateOTP: ValidateOTP
     ): Response<BodyValidateOrRegister>
 
-    @GET("/refresh-token")
-    suspend fun getAccessToken(
-        @Query ("Authorization") refreshToken: String
-    ): Response<TokenAuthentication>
-
     @POST("/login")
     suspend fun postResponseLogin(
         @Body requestBody: RequestBody

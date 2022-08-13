@@ -7,7 +7,7 @@ import com.example.user.data.dao.UserDao
 import com.example.user.data.model.authentication.TokenAuthentication
 import com.example.user.data.model.authentication.User
 
-@Database(entities = [User::class, TokenAuthentication::class], version = 2)
+@Database(entities = [User::class, TokenAuthentication::class], version = 3)
 abstract class BackEndDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun tokenDao(): TokenDao
