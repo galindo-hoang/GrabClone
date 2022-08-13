@@ -22,7 +22,6 @@
 		<joda-time.version>2.10.14</joda-time.version>
 		<modelmapper.version>3.1.0</modelmapper.version>
 		<jwt.version>3.18.1</jwt.version>
-		<twilio.version>7.34.0</twilio.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -86,11 +85,6 @@
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
 			<version>${jwt.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.twilio.sdk</groupId>
-			<artifactId>twilio</artifactId>
-			<version>${twilio.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

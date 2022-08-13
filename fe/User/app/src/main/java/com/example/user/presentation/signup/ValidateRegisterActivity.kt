@@ -31,7 +31,7 @@ class ValidateRegisterActivity : AppCompatActivity() {
             if(it){
                 if(signUpViewModel.validateOTP() == 1){
                     Toast.makeText(this, "validate success",Toast.LENGTH_LONG).show()
-                    startActivity(Intent(this,LogInActivity::class.java))
+                    startActivity(Intent(this,UpdateAccountActivity::class.java))
                 }else{
                     Log.e("-------","fail")
                 }

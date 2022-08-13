@@ -22,6 +22,7 @@
         <module>api-gateway</module>
         <module>sms</module>
         <module>fcm</module>
+        <module>rabbit-mq</module>
     </modules>
     <dependencyManagement>
         <dependencies>
