@@ -18,7 +18,10 @@ public class GatewayConfig {
         return builder.routes()
                 .route("sms", r -> r.path("/api/v1/sms/**")
                         .filters(f -> f.filter(filter))
-                        .uri("lb://SMS")).build();
+                        .uri("lb://SMS"))
+                .route("sms", r -> r.path("/api/v1/users/**")
+                        .filters(f -> f.filter(filter))
+                        .uri("lb://AUTHENTICATION")).build();
     }
 
 }
