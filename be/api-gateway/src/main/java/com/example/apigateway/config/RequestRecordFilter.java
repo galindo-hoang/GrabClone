@@ -46,11 +46,16 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
         String path = exchange.getRequest().getURI().toString();
         ServerHttpResponse response = exchange.getResponse();
         ServerHttpRequest request = exchange.getRequest();
-        final List<String> apiEndpoints = List.of("http://localhost:8085/refresh-token", "" +
+        final List<String> apiEndpoints = List.of("http://localhost:8085/refresh-token",
                 "http://localhost:8085/login",
                 "http://localhost:8085/register",
                 "http://localhost:8085/api/v1/sms/register",
-                "http://localhost:8085/api/v1/sms/validate");
+                "http://localhost:8085/api/v1/sms/validate",
+                                                 "http://34.142.228.231:8085/refresh-token",
+                "http://34.142.228.231:8085/login",
+                "http://34.142.228.231:8085/register",
+                "http://34.142.228.231:8085/api/v1/sms/register",
+                "http://34.142.228.231:8085/api/v1/sms/validate");
         if (!apiEndpoints.contains(path)) {
             if (!request.getHeaders().containsKey("Authorization")) {
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
