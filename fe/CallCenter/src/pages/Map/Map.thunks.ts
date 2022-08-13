@@ -1,9 +1,9 @@
+import * as actions from "../BookingCar/BookingCar.actions";
 
 
-export const map = ()  => {
+export const map = async ()  =>dispatch =>{
 }
 
 
-export const Geocoder=() =>{
-
+export const Geocoder=async () =>dispatch=>{
 }

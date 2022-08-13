@@ -25,7 +25,6 @@ const connector = connect(mapStateToProps, mapDispatchToProps)
 
 const MapGuard=(props:Props)=>{
   const {departure,destination,component: Component, ...rest}=props;
-  console.log(destination);
   const render:JSX.Element=(
     <Route
       {...rest}

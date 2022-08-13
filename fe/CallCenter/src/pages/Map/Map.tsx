@@ -108,7 +108,16 @@ const Map = (props:Props) => {
   }, []);
 
   useEffect(() => {
-    MessageService.openMessage({loading: 'đang tải map', loaded: 'Tải map thành công!'}, loadMap)
+    let isMessage=true;
+    if(isMessage===true) {
+      const showMessage = async () => {
+        await MessageService.openMessage({loading: 'đang tải map', loaded: 'Tải map thành công!'}, loadMap)
+      }
+      showMessage()
+    }
+    return ()=>{
+      isMessage=false;
+    }
   }, [loadMap])
   const [viewState, setViewState] = useState({
     longitude: viewCoordinate?.longitude,
