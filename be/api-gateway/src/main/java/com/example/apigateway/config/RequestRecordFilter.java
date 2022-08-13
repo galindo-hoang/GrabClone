@@ -43,7 +43,7 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String path = exchange.getRequest().getPath().toString();
+        String path = exchange.getRequest().getURI().toString();
         ServerHttpResponse response = exchange.getResponse();
         ServerHttpRequest request = exchange.getRequest();
         final List<String> apiEndpoints = List.of("http://localhost:8085/refresh-token", "" +
@@ -51,9 +51,7 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
                 "http://localhost:8085/register",
                 "http://localhost:8085/api/v1/sms/register",
                 "http://localhost:8085/api/v1/sms/validate");
-        Predicate<ServerHttpRequest> isApiSecured = r -> apiEndpoints.stream()
-                .noneMatch(uri -> r.getURI().getPath().contains(uri));
-        if (!isApiSecured.test(request)) {
+        if (!apiEndpoints.contains(path)) {
             if (!request.getHeaders().containsKey("Authorization")) {
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
                 return response.setComplete();

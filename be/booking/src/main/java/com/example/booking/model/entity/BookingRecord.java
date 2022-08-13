@@ -20,7 +20,7 @@ public class BookingRecord implements Serializable {
     @Column
     private String phonenumber;
     @Embedded
-    private BookCoordinates coordinates;
+    private BookingCoordinate coordinates;
     @Column
     private TypeCar typeCar;
     @Column
@@ -42,27 +42,7 @@ public class BookingRecord implements Serializable {
 
 }
 
-@Embeddable
-@Getter
-@Setter
-class BookCoordinates {
-    private Double latitude;
-    private Double longitude;
 
-}
 
-enum StateBooking {
-    PENDING,
-    ACCEPTED,
-    REJECTED
-}
 
-enum TypeCar {
-    MOTORCYCLE,
-    CAR
-}
 
-enum PaymentMethod {
-    CASH,
-    CREDIT_CARD
-}

@@ -49,8 +49,8 @@ public class UserController {
     }
 
     @GetMapping("/{phoneNumber}")
-    public ResponseEntity<UserDto> getUser(@PathVariable String phoneNumber) {
-        return ResponseEntity.ok(modelMapper.map(userService.findByUserByPhoneNumber(phoneNumber), UserDto.class));
+    public ResponseEntity<Integer> getUser(@PathVariable String phoneNumber) {
+        return ResponseEntity.ok(modelMapper.map(userService.findByUserByPhoneNumber(phoneNumber).getId(), Integer.class));
     }
 
 }
