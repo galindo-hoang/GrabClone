@@ -11,6 +11,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
         }
 )
 @EnableEurekaClient
+@EnableFeignClients(
+        basePackages = "com.example.clients"
+)
 public class BookingApplication {
 
     public static void main(String[] args) {
