@@ -8,4 +8,5 @@ import lombok.*;
 @Builder
 public class DriverLocationDto {
     private Integer bookingId;
+    private Integer userId;
 }
