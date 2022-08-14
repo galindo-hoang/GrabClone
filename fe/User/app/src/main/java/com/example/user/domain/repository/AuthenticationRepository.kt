@@ -2,6 +2,7 @@ package com.example.user.domain.repository
 
 import com.example.user.data.dto.UserDto
 import com.example.user.data.dto.ValidateOTP
+import com.example.user.data.model.authentication.BodyRefreshToken
 import com.example.user.data.model.authentication.BodyRegisterSaveAccount
 import com.example.user.data.model.authentication.ResponseLogin
 import com.example.user.data.model.authentication.BodyValidateOrRegister
@@ -14,15 +15,14 @@ interface AuthenticationRepository {
     suspend fun postRequestRegisterSaveAccount(userDto: UserDto): Response<BodyRegisterSaveAccount>
     suspend fun postValidateRegister(validateOTP: ValidateOTP): Response<BodyValidateOrRegister>
     // login
-    suspend fun updateAccount(responseLogin: ResponseLogin): UserDto
+    fun updateAccount(responseLogin: ResponseLogin): UserDto
     suspend fun postAccountLogin(requestBody: RequestBody): Response<ResponseLogin>
-    // open application did login
+    // after login
     suspend fun getAccount(): UserDto
     // clear
     suspend fun clearAll()
 
 
-    suspend fun getRefreshToken(): String
+//    suspend fun getRefreshToken(): String
     suspend fun getAccessToken(): String
-    fun updateAccessToken(accessToken: String): String
 }

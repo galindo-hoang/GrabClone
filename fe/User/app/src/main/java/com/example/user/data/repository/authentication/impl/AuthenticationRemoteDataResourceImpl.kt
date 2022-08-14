@@ -1,6 +1,7 @@
 package com.example.user.data.repository.authentication.impl
 
 import com.example.user.data.api.AuthenticationApi
+import com.example.user.data.api.RenewAccessTokenApi
 import com.example.user.data.dto.UserDto
 import com.example.user.data.dto.ValidateOTP
 import com.example.user.data.model.authentication.*
@@ -12,7 +13,8 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthenticationRemoteDataResourceImpl @Inject constructor(
-    private val authenticationApi: AuthenticationApi
+    private val authenticationApi: AuthenticationApi,
+    private val renewAccessTokenApi: RenewAccessTokenApi
 ): AuthenticationRemoteDataResource {
     override suspend fun getResponseRegisterPhoneNumber(
         userDto: UserDto
@@ -31,6 +33,6 @@ class AuthenticationRemoteDataResourceImpl @Inject constructor(
         authenticationApi.postResponseLogin(requestBody)
 
     override suspend fun getAccessToken(refreshToken: String): Response<TokenAuthentication> =
-        authenticationApi.getAccessToken(refreshToken)
+        renewAccessTokenApi.getNewAccessToken("Bearer $refreshToken")
 
 }

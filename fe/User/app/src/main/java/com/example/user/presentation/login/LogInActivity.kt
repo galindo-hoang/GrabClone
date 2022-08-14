@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil
 import com.example.user.R
 import com.example.user.databinding.ActivityLoginBinding
 import com.example.user.presentation.BaseActivity
+import com.example.user.presentation.main.MainActivity
 import com.example.user.presentation.signup.SignUpActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -37,7 +38,7 @@ class LogInActivity : BaseActivity() {
     private fun registerViewChangeListener() {
         logInViewModel.isLogin.observe(this){
             when(it){
-                1 -> Toast.makeText(this,"Login success",Toast.LENGTH_LONG).show()
+                1 -> startActivity(Intent(this,MainActivity::class.java))
                 0 -> Toast.makeText(this,"Please fill username or password",Toast.LENGTH_LONG).show()
                 -1 -> Toast.makeText(this,"username or password invalid",Toast.LENGTH_LONG).show()
             }
