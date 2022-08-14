@@ -1,5 +1,6 @@
 package com.example.user.data.repository.authentication
 
+import android.util.Log
 import com.example.user.data.dto.Login
 import com.example.user.data.dto.UserDto
 import com.example.user.data.dto.ValidateOTP
@@ -56,6 +57,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         }
         val bodyAccessToken = getPayloadDataFromJWTAccessToken(accessToken)
         if(getCurrentDate() >= convertTimeLongToDateTime(bodyAccessToken.exp)){
+            Log.e("checking----","hello")
             val refreshToken = authenticationCacheDataResource.getRefreshToken()
             val bodyRefreshToken = getPayloadDataFromJWTRefreshToken(refreshToken)
             if(getCurrentDate() >= convertTimeLongToDateTime(bodyRefreshToken.exp)){

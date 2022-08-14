@@ -40,11 +40,11 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.login.LogInActivity"
+            android:name=".presentation.booking.MethodBookingActivity"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.booking.MethodBookingActivity"
+            android:name=".presentation.login.LogInActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>

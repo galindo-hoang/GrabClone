@@ -1,5 +1,6 @@
 package com.example.user.data.api.interceptor
 
+import android.util.Log
 import com.example.user.data.api.RenewAccessTokenApi
 import com.example.user.domain.repository.AuthenticationRepository
 import kotlinx.coroutines.*
@@ -18,6 +19,7 @@ class CheckAccessTokenInterceptor @Inject constructor(
             try { accessToken = authenticationRepository.getAccessToken() }
             catch (e: Exception) { throw e }
         }
+        Log.e("checking--------+",accessToken)
         var request = chain.request();
         return chain.proceed(request.newBuilder().header("Authorization","Bearer $accessToken").build())
     }

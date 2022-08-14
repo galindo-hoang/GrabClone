@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.data.api.AuthenticationApi
-import com.example.user.data.api.BookingApi
-import com.example.user.data.api.RenewAccessTokenApi
 import com.example.user.data.dto.Payment
 import com.example.user.data.dto.Vehicle
 import com.example.user.databinding.ActivityMethodBookingBinding
@@ -14,8 +12,6 @@ import com.example.user.presentation.booking.adapter.PaymentAdapter
 import com.example.user.presentation.booking.adapter.VehicleAdapter
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 

@@ -14,12 +14,16 @@ import com.example.user.data.repository.authentication.AuthenticationRepositoryI
 import com.example.user.data.repository.authentication.impl.AuthenticationCacheDataResourceImpl
 import com.example.user.data.repository.authentication.impl.AuthenticationLocalDataResourceImpl
 import com.example.user.data.repository.authentication.impl.AuthenticationRemoteDataResourceImpl
+import com.example.user.data.repository.booking.BookingRemoteDataResource
+import com.example.user.data.repository.booking.BookingRepositoryImpl
+import com.example.user.data.repository.booking.impl.BookingRemoteDataResourceImpl
 import com.example.user.data.repository.route.RouteNavigationCacheDataResource
 import com.example.user.data.repository.route.RouteNavigationRemoteDataSource
 import com.example.user.data.repository.route.RouteNavigationRepositoryImpl
 import com.example.user.data.repository.route.impl.RouteNavigationCacheDataResourceImpl
 import com.example.user.data.repository.route.impl.RouteNavigationRemoteDataSourceImpl
 import com.example.user.domain.repository.AuthenticationRepository
+import com.example.user.domain.repository.BookingRepository
 import com.example.user.domain.repository.RouteNavigationRepository
 import dagger.Module
 import dagger.Provides
@@ -60,8 +64,8 @@ class ApplicationModule {
             return Retrofit
                 .Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-//                .baseUrl("http://192.168.1.11:8085")
-                .baseUrl("http://192.168.1.75:8085")
+                .baseUrl("http://192.168.1.11:8085")
+//                .baseUrl("http://192.168.1.75:8085")
 //                .baseUrl("http://192.168.223.107:8080")
                 .client(
                     OkHttpClient.Builder().apply { this.addInterceptor(logging) }.build()
@@ -76,8 +80,8 @@ class ApplicationModule {
         Retrofit
             .Builder()
             .addConverterFactory(GsonConverterFactory.create())
-//            .baseUrl("http://192.168.1.11:8085")
-            .baseUrl("http://192.168.1.75:8085")
+            .baseUrl("http://192.168.1.11:8085")
+//            .baseUrl("http://192.168.1.75:8085")
             .build()
             .create(RenewAccessTokenApi::class.java)
 
@@ -86,8 +90,8 @@ class ApplicationModule {
     fun providesBookingApi(checkAccessTokenInterceptor: CheckAccessTokenInterceptor): BookingApi =
         Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-//            .baseUrl("http://192.168.1.11:8085")
-            .baseUrl("http://192.168.1.75:8085")
+            .baseUrl("http://192.168.1.11:8085")
+//            .baseUrl("http://192.168.1.75:8085")
             .client(
                 OkHttpClient.Builder()
                     .apply { this.addInterceptor(checkAccessTokenInterceptor) }
@@ -165,4 +169,16 @@ class ApplicationModule {
             authenticationLocalDataResource,
             authenticationRemoteDataResource
         )
+
+    @Provides
+    @Singleton
+    fun providesBookingRemoteDataSource(
+        bookingApi: BookingApi
+    ): BookingRemoteDataResource = BookingRemoteDataResourceImpl(bookingApi)
+
+    @Provides
+    @Singleton
+    fun providesBookingRepository(
+        bookingRemoteDataResource: BookingRemoteDataResource
+    ): BookingRepository = BookingRepositoryImpl(bookingRemoteDataResource)
 }
