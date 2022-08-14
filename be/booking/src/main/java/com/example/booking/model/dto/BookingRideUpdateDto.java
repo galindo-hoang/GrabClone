@@ -5,8 +5,6 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DriverLocationDto {
+public class BookingRideUpdateDto {
     private Integer userId;
-    private Double latitude;
-    private Double longitude;
 }

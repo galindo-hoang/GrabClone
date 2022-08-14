@@ -1,7 +1,7 @@
 package com.example.booking.model.domain;
 
-public enum RideStatus {
+public enum RideState {
     STARTED,
     CANCELLED,
-    COMPLETED
+    FINISHED
 }

@@ -3,7 +3,7 @@ package com.example.booking.model.entity;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.example.booking.model.domain.RideStatus;
+import com.example.booking.model.domain.RideState;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -27,7 +27,7 @@ public class RideRecord implements Serializable {
     private Integer driverId;
 
     @Embedded
-    private RideStatus status;
+    private RideState state;
 
     @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
     @Temporal(TemporalType.TIMESTAMP)

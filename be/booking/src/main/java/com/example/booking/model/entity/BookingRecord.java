@@ -5,7 +5,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.example.booking.model.domain.MapCoordinate;
 import com.example.booking.model.domain.PaymentMethod;
-import com.example.booking.model.domain.BookingStatus;
+import com.example.booking.model.domain.BookingState;
 import com.example.booking.model.domain.TypeCar;
 
 import javax.persistence.*;
@@ -31,7 +31,7 @@ public class BookingRecord implements Serializable {
     @Column
     private TypeCar typeCar;
     @Column
-    private BookingStatus state;
+    private BookingState state;
     @Column
     private PaymentMethod paymentMethod;
     @Column

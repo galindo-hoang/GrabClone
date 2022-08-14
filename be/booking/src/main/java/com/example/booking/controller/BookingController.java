@@ -58,22 +58,23 @@ public class BookingController {
                     .pickupCoordinate(new MapCoordinate(bookingDto.getPickupLatitude(), bookingDto.getPickupLongitude()))
                     .dropoffCoordinate(new MapCoordinate(bookingDto.getDropoffLatitude(), bookingDto.getDropoffLongitude()))
                     .typeCar(TypeCar.valueOf(bookingDto.getTypeCar()))
-                    .state(BookingStatus.CREATED)
+                    .state(BookingState.CREATED)
                     .paymentMethod(PaymentMethod.valueOf(bookingDto.getPaymentMethod()))
                     .price(bookingDto.getPrice())
                     .createdAt(new Date())
                     .build();
-            final BookingRecord savedBookingRecord = bookingService.save(bookingRecord);
-            bookingRecordMap.put(savedBookingRecord.getId(), savedBookingRecord);
+            bookingRecord = bookingService.save(bookingRecord);
+            bookingRecordMap.put(bookingRecord.getId(), bookingRecord);
 
 
             // Send booking notification to all drivers using FCM service
+            Integer bookingId = bookingRecord.getId();
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("target", "booking");
             jsonObject.put("title", "New booking");
-            jsonObject.put("body", "A new booking is waiting for you");
+            jsonObject.put("body", "A new booking is available");
             jsonObject.put("data", new HashMap<String, String>() {{ 
-                put("bookingId", savedBookingRecord.toString());
+                put("bookingId", bookingId.toString());
                 put("pickupLatitude", bookingDto.getPickupLatitude().toString());
                 put("pickupLongitude", bookingDto.getPickupLongitude().toString());
                 put("dropoffLatitude", bookingDto.getDropoffLatitude().toString());
@@ -129,9 +130,9 @@ public class BookingController {
                     "http://localhost:8082/fcm/topic", HttpMethod.POST, requestEntity, Integer.class);
 
 
-            // Update booking status to FINISHED and save it to database
+            // Update booking state to FINISHED and save it to database
             BookingRecord bookingRecord = bookingRecordMap.remove(bookingAcceptanceDto.getBookingId());
-            bookingRecord.setState(BookingStatus.FINISHED);
+            bookingRecord.setState(BookingState.ACCEPTED);
             bookingService.save(bookingRecord);
             
 
@@ -139,14 +140,16 @@ public class BookingController {
             RideRecord rideRecord = RideRecord.builder()
                     .bookingId(bookingAcceptanceDto.getBookingId())
                     .driverId(bookingAcceptanceDto.getUserId())
-                    .status(RideStatus.STARTED)
+                    .state(RideState.STARTED)
                     .startTime(new Date())
                     .build();
-            final RideRecord savedRideRecord = rideService.save(rideRecord);
-            rideRecordMap.put(savedRideRecord.getDriverId(), Pair.of(savedRideRecord, bookingRecord));
+            rideRecord = rideService.save(rideRecord);
+            rideRecordMap.put(rideRecord.getDriverId(), Pair.of(rideRecord, bookingRecord));
 
 
             // Send booking successfully accepted notification to the driver using FCM service
+            Integer rideId = rideRecord.getId();
+            Date startTime = rideRecord.getStartTime();
             jsonObject = new JSONObject();
             jsonObject.put("target", bookingAcceptanceDto.getUserId());
             jsonObject.put("title", "Booking successfully accepted");
@@ -161,8 +164,8 @@ public class BookingController {
                 put("price", bookingRecord.getPrice().toString());
                 put("paymentMethod", bookingRecord.getPaymentMethod().toString());
                 put("createdAt", bookingRecord.getCreatedAt().toString());
-                put("rideId", savedRideRecord.toString());
-                put("startTime", savedRideRecord.getStartTime().toString());
+                put("rideId", rideId.toString());
+                put("startTime", startTime.toString());
             }});
 
             requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
@@ -185,8 +188,8 @@ public class BookingController {
                 put("price", bookingRecord.getPrice().toString());
                 put("paymentMethod", bookingRecord.getPaymentMethod().toString());
                 put("createdAt", bookingRecord.getCreatedAt().toString());
-                put("rideId", savedRideRecord.toString());
-                put("startTime", savedRideRecord.getStartTime().toString());
+                put("rideId", rideId.toString());
+                put("startTime", startTime.toString());
             }});
 
             requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
@@ -202,24 +205,270 @@ public class BookingController {
         }
     }
 
-    // @PostMapping("/update_driver_location")
-    // public ResponseEntity<BookingAcceptanceDto> updateDriverLocation(@RequestBody BookingAcceptanceDto bookingAcceptanceDto) {
-    //     return ResponseEntity.badRequest().build();
-    // }
+    @PostMapping("/update_driver_location")
+    public ResponseEntity<DriverLocationDto> updateDriverLocation(@RequestBody DriverLocationDto driverLocationDto) {
+        try {
+            // Return not found if ride record not found
+            if (!rideRecordMap.containsKey(driverLocationDto.getUserId())) {
+                return ResponseEntity.notFound().build();
+            }
 
-    // @PostMapping("/finish_ride")
-    // public ResponseEntity<BookingAcceptanceDto> finishRide(@RequestBody BookingAcceptanceDto bookingAcceptanceDto) {
-    //     return ResponseEntity.badRequest().build();
-    // }
 
-    // @PostMapping("/cancel_booking")
-    // public ResponseEntity<BookingAcceptanceDto> cancelBooking(@RequestBody BookingAcceptanceDto bookingAcceptanceDto) {
-    //     return ResponseEntity.badRequest().build();
-    // }
+            // Push the driver's location to the passenger
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("target", rideRecordMap.get(driverLocationDto.getUserId()).getSecond().getPassengerId());
+            jsonObject.put("title", "Update driver location");
+            jsonObject.put("body", "The driver's location has been updated");
+            jsonObject.put("data", new HashMap<String, String>() {{ 
+                put("rideId", rideRecordMap.get(driverLocationDto.getUserId()).getFirst().toString());
+                put("latitude", driverLocationDto.getLatitude().toString());
+                put("longitude", driverLocationDto.getLongitude().toString());
+            }});
 
-    // @PostMapping("/cancel_ride")
-    // public ResponseEntity<BookingAcceptanceDto> cancelRide(@RequestBody BookingAcceptanceDto bookingAcceptanceDto) {
-    //     return ResponseEntity.badRequest().build();
-    // }
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+            ResponseEntity<Integer> response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/user", HttpMethod.POST, requestEntity, Integer.class);
+            requestEntity = new HttpEntity<String>(null, requestHeader);
+
+
+            // Return success response
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/finish_ride")
+    public ResponseEntity<BookingRideUpdateDto> finishRide(@RequestBody BookingRideUpdateDto finishRideDto) {
+        try {
+            // Return not found if ride record not found
+            if (!rideRecordMap.containsKey(finishRideDto.getUserId())) {
+                return ResponseEntity.notFound().build();
+            }
+
+
+            // Update ride record and save it to database
+            RideRecord rideRecord = rideRecordMap.get(finishRideDto.getUserId()).getFirst();
+            BookingRecord bookingRecord = rideRecordMap.remove(finishRideDto.getUserId()).getSecond();
+            rideRecord.setState(RideState.FINISHED);
+            rideRecord.setEndTime(new Date());
+            rideService.save(rideRecord);
+
+
+            // Send ride finished notification to the driver using FCM service
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("target", finishRideDto.getUserId());
+            jsonObject.put("title", "Ride finished");
+            jsonObject.put("body", "The ride has been finished");
+            jsonObject.put("data", new HashMap<String, String>() {{ 
+                put("rideId", rideRecord.toString());
+                put("startTime", rideRecord.getStartTime().toString());
+                put("endTime", rideRecord.getEndTime().toString());
+            }});
+
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+            ResponseEntity<Integer> response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/user", HttpMethod.POST, requestEntity, Integer.class);
+
+
+            // Send ride finished notification to the passenger using FCM service
+            jsonObject = new JSONObject();
+            jsonObject.put("target", bookingRecord.getPassengerId());
+            jsonObject.put("title", "Ride finished");
+            jsonObject.put("body", "The ride has been finished");
+            jsonObject.put("data", new HashMap<String, String>() {{ 
+                put("rideId", rideRecord.toString());
+                put("startTime", rideRecord.getStartTime().toString());
+                put("endTime", rideRecord.getEndTime().toString());
+            }});
+            
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+            response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/user", HttpMethod.POST, requestEntity, Integer.class);
+
+            
+            // Re-subscribe the driver to the booking topic
+            jsonObject = new JSONObject();
+            jsonObject.put("userId", finishRideDto.getUserId());
+            jsonObject.put("topic", "booking");
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+            
+            response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/subscribe", HttpMethod.POST, requestEntity, Integer.class);
+            requestEntity = new HttpEntity<String>(null, requestHeader);
+
+
+            // Return success response
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/cancel_booking")
+    public ResponseEntity<BookingRideUpdateDto> cancelBooking(@RequestBody BookingRideUpdateDto cancelBookingDto) {
+        try {
+            // Get booking record of the user
+            BookingRecord bookingRecord = null;
+            for (HashMap.Entry<Integer, BookingRecord> entry : bookingRecordMap.entrySet()) {
+                if (entry.getValue().getPassengerId().equals(cancelBookingDto.getUserId())) {
+                    bookingRecord = entry.getValue();
+                    bookingRecordMap.remove(entry.getKey());
+                    break;
+                }
+            }
+
+
+            // Return not found if booking record not found (the user is not a passenger, or the ride has created)
+            if (bookingRecord == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+
+            // Send booking cancelled notification to drivers using FCM service
+            Integer bookingId = bookingRecord.getId();
+            Date createdAt = bookingRecord.getCreatedAt();
+            Date endedAt = new Date();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("target", "booking");
+            jsonObject.put("title", "Booking cancelled");
+            jsonObject.put("body", "The booking has been cancelled");
+            jsonObject.put("data", new HashMap<String, String>() {{ 
+                put("bookingId", bookingId.toString());
+                put("createdAt", createdAt.toString());
+                put("endedAt", endedAt.toString());
+            }});
+
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+            ResponseEntity<Integer> response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/topic", HttpMethod.POST, requestEntity, Integer.class);
+
+
+            // Update booking record and save it to database
+            bookingRecord.setState(BookingState.CANCELLED);
+            bookingRecord.setUpdatedAt(endedAt);
+            bookingService.save(bookingRecord);
+            
+
+            // Send booking cancelled notification to the passenger using FCM service
+            jsonObject = new JSONObject();
+            jsonObject.put("target", bookingRecord.getPassengerId());
+            jsonObject.put("title", "Booking cancelled");
+            jsonObject.put("body", "Your booking has been cancelled");
+            jsonObject.put("data", new HashMap<String, String>() {{ 
+                put("bookingId", bookingId.toString());
+                put("createdAt", createdAt.toString());
+                put("endedAt", endedAt.toString());
+            }});
+
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+            response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/user", HttpMethod.POST, requestEntity, Integer.class);
+            requestEntity = new HttpEntity<String>(null, requestHeader);
+
+
+            // Return success response
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/cancel_ride")
+    public ResponseEntity<BookingRideUpdateDto> cancelRide(@RequestBody BookingRideUpdateDto cancelRideDto) {
+        try {
+            // Return not found if ride record not found
+            if (!rideRecordMap.containsKey(cancelRideDto.getUserId())) {
+                return ResponseEntity.notFound().build();
+            }
+
+
+            RideRecord rideRecord = rideRecordMap.get(cancelRideDto.getUserId()).getFirst();
+            BookingRecord bookingRecord = rideRecordMap.remove(cancelRideDto.getUserId()).getSecond();
+            rideRecord.setEndTime(new Date());
+
+
+            // Send ride cancelled notification to the passenger using FCM service
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("target", bookingRecord.getPassengerId());
+            jsonObject.put("title", "Ride cancelled");
+            jsonObject.put("body", "The ride has been cancelled. Please wait for another driver");
+            jsonObject.put("data", new HashMap<String, String>() {{
+                put("rideId", rideRecord.getId().toString());
+                put("startTime", rideRecord.getStartTime().toString());
+                put("endTime", rideRecord.getEndTime().toString());
+            }});
+
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+            ResponseEntity<Integer> response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/user", HttpMethod.POST, requestEntity, Integer.class);
+
+
+            // Update booking record and save it to database
+            bookingRecord.setState(BookingState.REJECTED);
+            bookingRecord.setUpdatedAt(new Date());
+            bookingService.save(bookingRecord);
+            bookingRecordMap.put(bookingRecord.getId(), bookingRecord);
+
+
+            // Push notification to other drivers using FCM service
+            jsonObject = new JSONObject();
+            jsonObject.put("target", "booking");
+            jsonObject.put("title", "New booking");
+            jsonObject.put("body", "A new booking is available");
+            jsonObject.put("data", new HashMap<String, String>() {{ 
+                put("bookingId", bookingRecord.toString());
+                put("pickupLatitude", bookingRecord.getPickupCoordinate().getLatitude().toString());
+                put("pickupLongitude", bookingRecord.getPickupCoordinate().getLongitude().toString());
+                put("dropoffLatitude", bookingRecord.getDropoffCoordinate().getLatitude().toString());
+                put("dropoffLongitude", bookingRecord.getDropoffCoordinate().getLongitude().toString());
+                put("typeCar", bookingRecord.getTypeCar().toString());
+                put("paymentMethod", bookingRecord.getPaymentMethod().toString());
+                put("price", bookingRecord.getPrice().toString());
+            }});
+
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+            response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/topic", HttpMethod.POST, requestEntity, Integer.class);
+
+
+            // Update ride record and save it to database
+            rideRecord.setState(RideState.CANCELLED);
+            rideService.save(rideRecord);
+
+
+            // Send ride cancelled notification to drivers using FCM service
+            jsonObject = new JSONObject();
+            jsonObject.put("target", rideRecord.getDriverId());
+            jsonObject.put("title", "Ride cancelled");
+            jsonObject.put("body", "The ride has been cancelled");
+            jsonObject.put("data", new HashMap<String, String>() {{ 
+                put("rideId", rideRecord.getId().toString());
+                put("startTime", rideRecord.getStartTime().toString());
+                put("endTime", rideRecord.getEndTime().toString());
+            }});
+
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+            response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/user", HttpMethod.POST, requestEntity, Integer.class);
+
+
+            // Re-subscribe the driver to the booking topic
+            jsonObject = new JSONObject();
+            jsonObject.put("userId", rideRecord.getDriverId());
+            jsonObject.put("topic", "booking");
+            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
+
+            response = restTemplate.exchange(
+                    "http://localhost:8082/fcm/subscribe", HttpMethod.POST, requestEntity, Integer.class);
+            requestEntity = new HttpEntity<String>(null, requestHeader);
+
+
+            // Return success response
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
 }

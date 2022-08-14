@@ -1,7 +1,8 @@
 package com.example.booking.model.domain;
 
-public enum BookingStatus {
+public enum BookingState {
     CREATED,
     CANCELLED,
-    FINISHED
+    REJECTED,
+    ACCEPTED
 }
