@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
     @Autowired
 
@@ -48,6 +48,10 @@ public class UserController {
                         , UserDto.class));
     }
 
+    @GetMapping("/{phoneNumber}")
+    public ResponseEntity<Integer> getUser(@PathVariable String phoneNumber) {
+        return ResponseEntity.ok(modelMapper.map(userService.findByUserByPhoneNumber(phoneNumber).getId(), Integer.class));
+    }
 
 }
 
