@@ -29,7 +29,7 @@ const MapGuard=(props:Props)=>{
     <Route
       {...rest}
       render={(props):JSX.Element => {
-        if (departure===null&&destination===null) {
+        if (!localStorage.getItem("location")) {
           return <Redirect to={PATH.BOOKINGCAR as string} />
         }
         return <Component {...props} />

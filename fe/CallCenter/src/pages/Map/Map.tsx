@@ -55,26 +55,19 @@ const mapStateToProps = state => ({
   closeSideNav: state.app.closeSideNav,
   departure: state.bookingCar?.departure,
   destination: state.bookingCar?.destination,
+  location:JSON.parse(localStorage.getItem("location") as string),
 })
 
 const mapDispatchToProps = {}
 
-const connector = connect(mapStateToProps, mapDispatchToProps)
+const connector = connect(mapStateToProps, mapDispatchToProps);
 interface Props extends ConnectedProps<typeof connector> {}
 
 const Map = (props:Props) => {
-  let destinationCoordinate2: coordinate = {
-    latitude: 10.76307106505523,
-    longitude: 106.68214425045026
-  };
-  let departureCoordinate2: coordinate = {
-    latitude: 10.755820,
-    longitude: 106.691449
-  }
-  const {closeSideNav,departure,destination} = props;
+  const {closeSideNav,location} = props;
   const [viewCoordinate,setViewCoordinate]=useState<coordinate>({
-    longitude:departure.coordinate.longitude,
-    latitude:departure.coordinate.latitude,
+    longitude:location.departure.coordinate.longitude as number,
+    latitude:location.departure.coordinate.latitude as number,
   });
   const [zoom, setZoom] = useState(18)
   const [loadMap, setLoadMap] = useState(false)
@@ -83,19 +76,18 @@ const Map = (props:Props) => {
   const [showPopupDeparture, setShowPopupDeparture] = useState(false);
 
   const [destinationCoordinate,setDestinationCoordinate]=useState<featuresLocation>({
-    value:destination.value,
-    coordinate:destination.coordinate
+    value:location.destination.value,
+    coordinate:location.destination.coordinate
   });
   const [departureCoordinate,setDepartureCoordinate]=useState<featuresLocation>({
-    value:departure.value,
-    coordinate:departure.coordinate
+    value:location.departure.value,
+    coordinate:location.departure.coordinate
   });
 
   const locationBooking:location={
-    destination:destination.value,
-    departure:departure.value
+    destination:location.destination.value,
+    departure:location.departure.value
   }
-
 
   useEffect(() => {
     const checkDistance = async () => {
@@ -110,10 +102,7 @@ const Map = (props:Props) => {
   useEffect(() => {
     let isMessage=true;
     if(isMessage===true) {
-      const showMessage = async () => {
-        await MessageService.openMessage({loading: 'đang tải map', loaded: 'Tải map thành công!'}, loadMap)
-      }
-      showMessage()
+      const notification= MessageService.getInstance({loading: 'đang tải map', loaded: 'Tải map thành công!'},loadMap);
     }
     return ()=>{
       isMessage=false;
