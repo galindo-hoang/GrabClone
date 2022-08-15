@@ -3,7 +3,7 @@ import MainLayout from "src/layouts/MainLayout"
 import {Title} from "../BookingCar/BookingCar.styles";
 import {PATH} from "../../constants/paths";
 import {useHistory} from "react-router-dom";
-import MessageService from "src/service/Message/MessageService";
+import {MessageWarningService} from "src/service/Message/MessageService";
 import "antd/dist/antd.css";
 import {AutoComplete, Button, Modal, Table} from 'antd';
 import {connect, ConnectedProps} from "react-redux"
@@ -39,6 +39,7 @@ const BookingCar = (props: Props) => {
   const {bookingCar} = props
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [carType,setCarType]=useState("");
 
   const [departure, setDeparture] = useState<featuresLocation>({
     value: undefined,
@@ -152,6 +153,9 @@ const BookingCar = (props: Props) => {
   const onChangeNote = (event) => {
     setNote(event?.target?.value)
   }
+  const onChangeCarType=(event)=>{
+    setCarType(event?.target?.value)
+  }
   const submit = event => {
   }
 
@@ -176,6 +180,13 @@ const BookingCar = (props: Props) => {
                 placeholder="Điền số điện thoại"
                 className="form-control form-control-lg mb-3"
                 onChange={onChangePhoneNumber}
+              />
+              <label className="float-left mb-1">Loại xe</label>
+              <input
+                type="text"
+                placeholder="Điền loại xe"
+                className="form-control form-control-lg mb-3"
+                onChange={onChangeCarType}
               />
               <Row>
                 <Col xs lg md="12">
@@ -243,7 +254,7 @@ const BookingCar = (props: Props) => {
                   bookingCar(position)
                   history.push(PATH.MAP);
                 } else {
-                  // MessageMap.warning("Vui lòng nhập đầy đủ thông tin")
+                 const message=MessageWarningService.getInstance("Vui lòng điền đầy đủ thông tin")
                 }
               }}>
                 Xác nhận

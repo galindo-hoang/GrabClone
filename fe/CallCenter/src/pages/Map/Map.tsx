@@ -6,7 +6,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import MapService from "src/service/Map/MapService";
 import {coordinate} from "src/@types/map";
 import 'antd/dist/antd.css';
-import MessageService from "src/service/Message/MessageService";
+import {MessageLoadMapService} from "src/service/Message/MessageService";
 import {CarOutlined, EnvironmentOutlined} from '@ant-design/icons'
 import {COLOR} from "src/constants/styles";
 import {useSpring,animated} from 'react-spring'
@@ -102,7 +102,7 @@ const Map = (props:Props) => {
   useEffect(() => {
     let isMessage=true;
     if(isMessage===true) {
-      const notification= MessageService.getInstance({loading: 'đang tải map', loaded: 'Tải map thành công!'},loadMap);
+      const notification= MessageLoadMapService.getInstance({loading: 'đang tải map', loaded: 'Tải map thành công!'},loadMap);
     }
     return ()=>{
       isMessage=false;
