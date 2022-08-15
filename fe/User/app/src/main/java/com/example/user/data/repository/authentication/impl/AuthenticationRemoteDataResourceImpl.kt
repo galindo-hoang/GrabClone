@@ -1,7 +1,7 @@
 package com.example.user.data.repository.authentication.impl
 
 import com.example.user.data.api.AuthenticationApi
-import com.example.user.data.dto.Login
+import com.example.user.data.api.RenewAccessTokenApi
 import com.example.user.data.dto.UserDto
 import com.example.user.data.dto.ValidateOTP
 import com.example.user.data.model.authentication.*
@@ -13,21 +13,26 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthenticationRemoteDataResourceImpl @Inject constructor(
-    private val authenticationApi: AuthenticationApi
+    private val authenticationApi: AuthenticationApi,
+    private val renewAccessTokenApi: RenewAccessTokenApi
 ): AuthenticationRemoteDataResource {
-    override suspend fun getResponseRegister(
+    override suspend fun getResponseRegisterPhoneNumber(
         userDto: UserDto
-    ): Response<SuccessBodyValidateOrRegister> = authenticationApi.postResponseRegister(userDto)
+    ): Response<BodyValidateOrRegister> = authenticationApi.postResponseRegisterPhoneNumber(userDto)
 
-    override suspend fun getResponseValidateRegister(
+    override suspend fun getResponseRegisterSaveAccount(
+        userDto: UserDto
+    ): Response<BodyRegisterSaveAccount> = authenticationApi.postResponseRegisterSaveAccount(userDto)
+
+    override suspend fun getResponseValidatePhoneNumber(
         validateOTP: ValidateOTP
-    ): Response<SuccessBodyValidateOrRegister> =
-        authenticationApi.postResponseValidateRegister(validateOTP)
+    ): Response<BodyValidateOrRegister> =
+        authenticationApi.postResponseValidatePhoneNumber(validateOTP)
 
     override suspend fun getResponseLogin(requestBody: RequestBody): Response<ResponseLogin> =
         authenticationApi.postResponseLogin(requestBody)
 
     override suspend fun getAccessToken(refreshToken: String): Response<TokenAuthentication> =
-        authenticationApi.getAccessToken(refreshToken)
+        renewAccessTokenApi.getNewAccessToken("Bearer $refreshToken")
 
 }

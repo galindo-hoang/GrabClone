@@ -3,26 +3,21 @@ package com.example.user.domain.usecase
 import android.util.Log
 import com.example.user.data.dto.UserDto
 import com.example.user.data.model.authentication.ErrorBodyValidateOrRegister
-import com.example.user.data.model.authentication.SuccessBodyValidateOrRegister
 import com.example.user.domain.repository.AuthenticationRepository
-import com.example.user.domain.repository.UserRepository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
 
-class SignUpUseCase @Inject constructor(
+class SignUpPhoneNumberUseCase @Inject constructor(
     private val authenticationRepository: AuthenticationRepository
 ) {
     suspend fun invoke(userDto: UserDto): Int {
-        val response = authenticationRepository.postRequestRegister(userDto)
+        val response = authenticationRepository.postRequestRegisterPhoneNumber(userDto)
+        Log.e("-----",response.body().toString())
         return when(response.code()){
             200 -> {
                 val body = response.body()
-                if(body == null) -1
-                else {
-                    val code = body.message.split(" ")[3].toInt()
-                    code
-                }
+                body?.otp?.toInt() ?: -1
             }
             500 -> {
                 val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type
