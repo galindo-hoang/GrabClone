@@ -3,6 +3,7 @@ package com.example.booking.controller;
 import com.example.booking.model.domain.*;
 import com.example.booking.model.dto.*;
 import com.example.booking.model.entity.*;
+<<<<<<< HEAD
 import com.example.booking.service.*;
 
 import java.util.Date;
@@ -14,22 +15,34 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+=======
+import com.example.booking.service.BookingStoreService;
+import com.example.clients.feign.UserByPhoneNumber.UserByPhoneNumberClient;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+>>>>>>> master
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/v1/booking")
 public class BookingController {
+<<<<<<< HEAD
     @Autowired
     private BookingStoreService bookingService;
     @Autowired
     private RideStoreService rideService;
     @Autowired
     private RestTemplate restTemplate;
+=======
+    private final BookingStoreService bookingService;
+    private final UserByPhoneNumberClient userByPhoneNumberClient;
+>>>>>>> master
 
     private HttpHeaders requestHeader;
     private HttpEntity<String> requestEntity;
@@ -51,9 +64,21 @@ public class BookingController {
     @PostMapping("/create_booking")
     public ResponseEntity<BookingRequestDto> createBooking(@RequestBody BookingRequestDto bookingDto) {
         try {
+<<<<<<< HEAD
             // Create booking record and save it to database
             BookingRecord bookingRecord = BookingRecord.builder()
                     .passengerId(bookingDto.getUserId())
+=======
+            // get user by phonenumber
+            /*HttpHeaders headers = new HttpHeaders();
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+            ResponseEntity<Integer> response = restTemplate.exchange(
+                    "http://localhost:8081/api/v1/users/{phonenumber}", HttpMethod.GET, requestEntity,
+                    Integer.class, bookingDto.getPhonenumber());*/
+            Integer userId = userByPhoneNumberClient.getUserByPhoneNumber(bookingDto.getPhonenumber()).getBody();
+            BookingRecord bookingRecord = BookingRecord.builder()
+                    .userId(userId)
+>>>>>>> master
                     .phonenumber(bookingDto.getPhonenumber())
                     .pickupCoordinate(new MapCoordinate(bookingDto.getPickupLatitude(), bookingDto.getPickupLongitude()))
                     .dropoffCoordinate(new MapCoordinate(bookingDto.getDropoffLatitude(), bookingDto.getDropoffLongitude()))
@@ -63,6 +88,7 @@ public class BookingController {
                     .price(bookingDto.getPrice())
                     .createdAt(new Date())
                     .build();
+<<<<<<< HEAD
             bookingRecord = bookingService.save(bookingRecord);
             bookingRecordMap.put(bookingRecord.getId(), bookingRecord);
 
@@ -92,6 +118,10 @@ public class BookingController {
 
             // Return success response
             return ResponseEntity.ok().build();
+=======
+            bookingService.saveBooking(bookingRecord);
+            return ResponseEntity.ok(bookingDto);
+>>>>>>> master
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

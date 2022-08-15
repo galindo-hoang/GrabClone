@@ -24,9 +24,12 @@ public class BookingRecord implements Serializable {
     private Integer id;
     @Column
     private String phonenumber;
+
     @Embedded
+    @Column(name = "pickUpCoordinate")
     private MapCoordinate pickupCoordinate;
     @Embedded
+    @Column(name="dropOffCoordinate")
     private MapCoordinate dropoffCoordinate;
     @Column
     private TypeCar typeCar;
