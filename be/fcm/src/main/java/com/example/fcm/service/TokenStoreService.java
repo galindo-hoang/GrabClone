@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.fcm.model.entity.FcmTokenRecord;
 import com.example.fcm.repository.FCMTokenRepository;
 import com.example.fcm.service.TokenStoreService;
-import com.example.fcm.model.entity.FcmTokenRecord;
 
+@Service
 public class TokenStoreService {
     @Autowired
     private FCMTokenRepository fcmTokenRepository;

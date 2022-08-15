@@ -22,28 +22,46 @@ public class BookingRecord implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @Column
     private String phonenumber;
+
+    @AttributeOverrides({
+            @AttributeOverride(name = "latitude", column = @Column(name = "pickupLatitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "pickupLongitude"))
+    })
     @Embedded
     private MapCoordinate pickupCoordinate;
+
+    @AttributeOverrides({
+            @AttributeOverride(name = "latitude", column = @Column(name = "dropoffLatitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "dropoffLongitude"))
+    })
     @Embedded
     private MapCoordinate dropoffCoordinate;
+
     @Column
     private TypeCar typeCar;
+
     @Column
     private BookingState state;
+
     @Column
     private PaymentMethod paymentMethod;
+
     @Column
     private Float price;
+
     @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
     @Temporal(TemporalType.TIMESTAMP)
     @Column
     private Date createdAt;
+
     @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
     @Temporal(TemporalType.TIMESTAMP)
     @Column
     private Date updatedAt;
+
     @Column
     private Integer passengerId;
 }

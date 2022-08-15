@@ -106,6 +106,12 @@ public class BookingController {
             }
 
 
+            // Reject if the driver is already assigned to another booking
+            if (rideRecordMap.containsKey(bookingAcceptanceDto.getUserId())) {
+                return ResponseEntity.badRequest().build();
+            }
+
+
             // Unsubscribe the accepted driver from the booking topic
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("userId", bookingAcceptanceDto.getUserId());

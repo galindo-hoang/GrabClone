@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.fcm.model.entity.TopicNameRecord;
-import com.example.fcm.model.entity.TopicNameRecord;
 import com.example.fcm.repository.TopicNameRepository;
 import com.example.fcm.service.TopicNameService;
 
@@ -18,6 +17,6 @@ public class TopicNameService {
     }
 
     public TopicNameRecord save(TopicNameRecord topicNameRecord) {
-        topicNameRepository.save(topicNameRecord);
+        return topicNameRepository.save(topicNameRecord);
     }
 }
