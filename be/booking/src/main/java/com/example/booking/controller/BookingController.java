@@ -4,44 +4,38 @@ import com.example.booking.model.dto.BookingAcceptanceDto;
 import com.example.booking.model.dto.BookingDto;
 import com.example.booking.model.entity.*;
 import com.example.booking.service.BookingStoreService;
-import com.example.clients.feign.UserByPhoneNumber.UserByPhoneNumber;
 import com.example.clients.feign.UserByPhoneNumber.UserByPhoneNumberClient;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 
 @Slf4j
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/v1/booking")
 public class BookingController {
-    @Autowired
-    private BookingStoreService bookingService;
-    @Autowired
-    private RestTemplate restTemplate;
+    private final BookingStoreService bookingService;
+    private final UserByPhoneNumberClient userByPhoneNumberClient;
 
     @PostMapping("/create_booking")
     public ResponseEntity<BookingDto> createBooking(@RequestBody BookingDto bookingDto) {
         try {
             // get user by phonenumber
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwaHVjIiwicm9sZXMiOlsiUk9MRV9EUklWRVIiXSwiaXNzIjoiaHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvbG9naW4iLCJleHAiOjE2NjA0MDc2NzV9.C7hcOWM6Em5vz7g9F0fk28EAiPexR3mhE7Re5waXi0k");
+            /*HttpHeaders headers = new HttpHeaders();
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
             ResponseEntity<Integer> response = restTemplate.exchange(
                     "http://localhost:8081/api/v1/users/{phonenumber}", HttpMethod.GET, requestEntity,
-                    Integer.class, bookingDto.getPhonenumber());
-            System.out.println(response.getBody());
+                    Integer.class, bookingDto.getPhonenumber());*/
+            Integer userId = userByPhoneNumberClient.getUserByPhoneNumber(bookingDto.getPhonenumber()).getBody();
             BookingRecord bookingRecord = BookingRecord.builder()
-                     .userId(response.getBody())
+                    .userId(userId)
                     .phonenumber(bookingDto.getPhonenumber())
                     .coordinates(new BookingCoordinate(bookingDto.getLatitude(), bookingDto.getLongtitude()))
                     .typeCar(TypeCar.valueOf(bookingDto.getTypeCar()))
@@ -51,7 +45,7 @@ public class BookingController {
                     .createdAt(new Date())
                     .build();
             bookingService.saveBooking(bookingRecord);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(bookingDto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

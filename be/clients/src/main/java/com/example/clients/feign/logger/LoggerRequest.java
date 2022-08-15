@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @Data
 @ToString
-public class Logger {
+public class LoggerRequest {
     private String requestId;
     private String uri;
     private String method;
@@ -20,6 +20,6 @@ public class Logger {
     private int httpResult;
     private String requestIP;
     private String parameter;
-    private int timeProcess;
+    private String processTime;
 }
 
