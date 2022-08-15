@@ -3,7 +3,6 @@ package com.example.booking.controller;
 import com.example.booking.model.domain.*;
 import com.example.booking.model.dto.*;
 import com.example.booking.model.entity.*;
-<<<<<<< HEAD
 import com.example.booking.service.*;
 
 import java.util.Date;
@@ -15,34 +14,19 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-=======
-import com.example.booking.service.BookingStoreService;
-import com.example.clients.feign.UserByPhoneNumber.UserByPhoneNumberClient;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
->>>>>>> master
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api/v1/booking")
 public class BookingController {
-<<<<<<< HEAD
     @Autowired
     private BookingStoreService bookingService;
     @Autowired
     private RideStoreService rideService;
     @Autowired
     private RestTemplate restTemplate;
-=======
-    private final BookingStoreService bookingService;
-    private final UserByPhoneNumberClient userByPhoneNumberClient;
->>>>>>> master
 
     private HttpHeaders requestHeader;
     private HttpEntity<String> requestEntity;
@@ -60,25 +44,12 @@ public class BookingController {
         bookingRecordMap = new HashMap<>();
         rideRecordMap = new HashMap<>();
     }
-
     @PostMapping("/create_booking")
     public ResponseEntity<BookingRequestDto> createBooking(@RequestBody BookingRequestDto bookingDto) {
         try {
-<<<<<<< HEAD
             // Create booking record and save it to database
             BookingRecord bookingRecord = BookingRecord.builder()
                     .passengerId(bookingDto.getUserId())
-=======
-            // get user by phonenumber
-            /*HttpHeaders headers = new HttpHeaders();
-            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-            ResponseEntity<Integer> response = restTemplate.exchange(
-                    "http://localhost:8081/api/v1/users/{phonenumber}", HttpMethod.GET, requestEntity,
-                    Integer.class, bookingDto.getPhonenumber());*/
-            Integer userId = userByPhoneNumberClient.getUserByPhoneNumber(bookingDto.getPhonenumber()).getBody();
-            BookingRecord bookingRecord = BookingRecord.builder()
-                    .userId(userId)
->>>>>>> master
                     .phonenumber(bookingDto.getPhonenumber())
                     .pickupCoordinate(new MapCoordinate(bookingDto.getPickupLatitude(), bookingDto.getPickupLongitude()))
                     .dropoffCoordinate(new MapCoordinate(bookingDto.getDropoffLatitude(), bookingDto.getDropoffLongitude()))
@@ -88,7 +59,6 @@ public class BookingController {
                     .price(bookingDto.getPrice())
                     .createdAt(new Date())
                     .build();
-<<<<<<< HEAD
             bookingRecord = bookingService.save(bookingRecord);
             bookingRecordMap.put(bookingRecord.getId(), bookingRecord);
 
@@ -99,7 +69,7 @@ public class BookingController {
             jsonObject.put("target", "booking");
             jsonObject.put("title", "New booking");
             jsonObject.put("body", "A new booking is available");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("bookingId", bookingId.toString());
                 put("pickupLatitude", bookingDto.getPickupLatitude().toString());
                 put("pickupLongitude", bookingDto.getPickupLongitude().toString());
@@ -118,10 +88,6 @@ public class BookingController {
 
             // Return success response
             return ResponseEntity.ok().build();
-=======
-            bookingService.saveBooking(bookingRecord);
-            return ResponseEntity.ok(bookingDto);
->>>>>>> master
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -151,7 +117,7 @@ public class BookingController {
             jsonObject.put("target", "booking");
             jsonObject.put("title", "Booking claimed");
             jsonObject.put("body", "The booking has been claimed by another driver");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("bookingId", bookingAcceptanceDto.getBookingId().toString());
             }});
 
@@ -164,7 +130,7 @@ public class BookingController {
             BookingRecord bookingRecord = bookingRecordMap.remove(bookingAcceptanceDto.getBookingId());
             bookingRecord.setState(BookingState.ACCEPTED);
             bookingService.save(bookingRecord);
-            
+
 
             // Create ride record and save it to database
             RideRecord rideRecord = RideRecord.builder()
@@ -184,7 +150,7 @@ public class BookingController {
             jsonObject.put("target", bookingAcceptanceDto.getUserId());
             jsonObject.put("title", "Booking successfully accepted");
             jsonObject.put("body", "You have accepted the booking");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("bookingId", bookingRecord.getId().toString());
                 put("pickupLatitude", bookingRecord.getPickupCoordinate().getLatitude().toString());
                 put("pickupLongitude", bookingRecord.getPickupCoordinate().getLongitude().toString());
@@ -208,7 +174,7 @@ public class BookingController {
             jsonObject.put("target", bookingRecord.getPassengerId());
             jsonObject.put("title", "Booking successfully accepted");
             jsonObject.put("body", "A driver has accepted your booking");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("bookingId", bookingRecord.getId().toString());
                 put("pickupLatitude", bookingRecord.getPickupCoordinate().getLatitude().toString());
                 put("pickupLongitude", bookingRecord.getPickupCoordinate().getLongitude().toString());
@@ -221,6 +187,7 @@ public class BookingController {
                 put("rideId", rideId.toString());
                 put("startTime", startTime.toString());
             }});
+            System.out.println(jsonObject);
 
             requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
             response = restTemplate.exchange(
@@ -249,7 +216,7 @@ public class BookingController {
             jsonObject.put("target", rideRecordMap.get(driverLocationDto.getUserId()).getSecond().getPassengerId());
             jsonObject.put("title", "Update driver location");
             jsonObject.put("body", "The driver's location has been updated");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("rideId", rideRecordMap.get(driverLocationDto.getUserId()).getFirst().toString());
                 put("latitude", driverLocationDto.getLatitude().toString());
                 put("longitude", driverLocationDto.getLongitude().toString());
@@ -290,7 +257,7 @@ public class BookingController {
             jsonObject.put("target", finishRideDto.getUserId());
             jsonObject.put("title", "Ride finished");
             jsonObject.put("body", "The ride has been finished");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("rideId", rideRecord.toString());
                 put("startTime", rideRecord.getStartTime().toString());
                 put("endTime", rideRecord.getEndTime().toString());
@@ -306,23 +273,23 @@ public class BookingController {
             jsonObject.put("target", bookingRecord.getPassengerId());
             jsonObject.put("title", "Ride finished");
             jsonObject.put("body", "The ride has been finished");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("rideId", rideRecord.toString());
                 put("startTime", rideRecord.getStartTime().toString());
                 put("endTime", rideRecord.getEndTime().toString());
             }});
-            
+
             requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
             response = restTemplate.exchange(
                     "http://localhost:8082/fcm/user", HttpMethod.POST, requestEntity, Integer.class);
 
-            
+
             // Re-subscribe the driver to the booking topic
             jsonObject = new JSONObject();
             jsonObject.put("userId", finishRideDto.getUserId());
             jsonObject.put("topic", "booking");
             requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
-            
+
             response = restTemplate.exchange(
                     "http://localhost:8082/fcm/subscribe", HttpMethod.POST, requestEntity, Integer.class);
             requestEntity = new HttpEntity<String>(null, requestHeader);
@@ -363,7 +330,7 @@ public class BookingController {
             jsonObject.put("target", "booking");
             jsonObject.put("title", "Booking cancelled");
             jsonObject.put("body", "The booking has been cancelled");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("bookingId", bookingId.toString());
                 put("createdAt", createdAt.toString());
                 put("endedAt", endedAt.toString());
@@ -378,14 +345,14 @@ public class BookingController {
             bookingRecord.setState(BookingState.CANCELLED);
             bookingRecord.setUpdatedAt(endedAt);
             bookingService.save(bookingRecord);
-            
+
 
             // Send booking cancelled notification to the passenger using FCM service
             jsonObject = new JSONObject();
             jsonObject.put("target", bookingRecord.getPassengerId());
             jsonObject.put("title", "Booking cancelled");
             jsonObject.put("body", "Your booking has been cancelled");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("bookingId", bookingId.toString());
                 put("createdAt", createdAt.toString());
                 put("endedAt", endedAt.toString());
@@ -446,7 +413,7 @@ public class BookingController {
             jsonObject.put("target", "booking");
             jsonObject.put("title", "New booking");
             jsonObject.put("body", "A new booking is available");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("bookingId", bookingRecord.toString());
                 put("pickupLatitude", bookingRecord.getPickupCoordinate().getLatitude().toString());
                 put("pickupLongitude", bookingRecord.getPickupCoordinate().getLongitude().toString());
@@ -472,7 +439,7 @@ public class BookingController {
             jsonObject.put("target", rideRecord.getDriverId());
             jsonObject.put("title", "Ride cancelled");
             jsonObject.put("body", "The ride has been cancelled");
-            jsonObject.put("data", new HashMap<String, String>() {{ 
+            jsonObject.put("data", new HashMap<String, String>() {{
                 put("rideId", rideRecord.getId().toString());
                 put("startTime", rideRecord.getStartTime().toString());
                 put("endTime", rideRecord.getEndTime().toString());
