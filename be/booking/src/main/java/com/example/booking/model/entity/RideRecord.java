@@ -3,6 +3,8 @@ package com.example.booking.model.entity;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.example.booking.model.domain.RideState;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -12,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class RideRecord implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +26,8 @@ public class RideRecord implements Serializable {
     @Column(nullable = false)
     private Integer driverId;
 
-    @Column(nullable = false)
-    private RideStatus status;
+    @Embedded
+    private RideState state;
 
     @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
     @Temporal(TemporalType.TIMESTAMP)
@@ -35,11 +38,4 @@ public class RideRecord implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true)
     private Date endTime;
-}
-
-enum RideStatus {
-    ACCEPTED,
-    STARTED,
-    CANCELLED,
-    COMPLETED
 }

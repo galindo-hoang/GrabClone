@@ -3,6 +3,11 @@ package com.example.booking.model.entity;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.example.booking.model.domain.MapCoordinate;
+import com.example.booking.model.domain.PaymentMethod;
+import com.example.booking.model.domain.BookingState;
+import com.example.booking.model.domain.TypeCar;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -17,32 +22,46 @@ public class BookingRecord implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @Column
     private String phonenumber;
+
+    @AttributeOverrides({
+            @AttributeOverride(name = "latitude", column = @Column(name = "pickupLatitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "pickupLongitude"))
+    })
     @Embedded
-    private BookingCoordinate coordinates;
+    private MapCoordinate pickupCoordinate;
+
+    @AttributeOverrides({
+            @AttributeOverride(name = "latitude", column = @Column(name = "dropoffLatitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "dropoffLongitude"))
+    })
+    @Embedded
+    private MapCoordinate dropoffCoordinate;
+
     @Column
     private TypeCar typeCar;
+
     @Column
-    private StateBooking state;
+    private BookingState state;
+
     @Column
     private PaymentMethod paymentMethod;
+
     @Column
     private Float price;
+
     @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
     @Temporal(TemporalType.TIMESTAMP)
     @Column
     private Date createdAt;
+
     @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
     @Temporal(TemporalType.TIMESTAMP)
     @Column
     private Date updatedAt;
+
     @Column
-    private Integer userId;
-
+    private Integer passengerId;
 }
-
-
-
-
-

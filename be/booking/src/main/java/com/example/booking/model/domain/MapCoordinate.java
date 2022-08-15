@@ -1,4 +1,4 @@
-package com.example.booking.model.entity;
+package com.example.booking.model.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import javax.persistence.Embeddable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingCoordinate {
+public class MapCoordinate {
     private Double latitude;
     private Double longitude;
 }
