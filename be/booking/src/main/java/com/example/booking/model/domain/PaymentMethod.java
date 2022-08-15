@@ -1,4 +1,4 @@
-package com.example.booking.model.entity;
+package com.example.booking.model.domain;
 
 public enum PaymentMethod {
     CASH,

@@ -5,8 +5,6 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class BookingAcceptanceDto {
+public class BookingRideUpdateDto {
     private Integer userId;
-    private Integer bookingId;
 }

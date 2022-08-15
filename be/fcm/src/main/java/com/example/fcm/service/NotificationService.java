@@ -15,7 +15,6 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 
-
 @Slf4j
 @Service
 public class NotificationService {
@@ -65,6 +64,7 @@ public class NotificationService {
                 .setNotification(new Notification(notificationRequest.getTitle(), notificationRequest.getBody()))
                 .putData("content", notificationRequest.getTitle())
                 .putData("body", notificationRequest.getBody())
+                .putAllData(notificationRequest.getData())
                 .build();
 
         String response = null;
@@ -83,6 +83,7 @@ public class NotificationService {
                 .setNotification(new Notification(notificationRequest.getTitle(), notificationRequest.getBody()))
                 .putData("content", notificationRequest.getTitle())
                 .putData("body", notificationRequest.getBody())
+                .putAllData(notificationRequest.getData())
                 .build();
 
         String response = null;

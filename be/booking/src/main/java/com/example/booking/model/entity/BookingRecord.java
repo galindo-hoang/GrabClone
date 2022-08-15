@@ -3,6 +3,11 @@ package com.example.booking.model.entity;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.example.booking.model.domain.MapCoordinate;
+import com.example.booking.model.domain.PaymentMethod;
+import com.example.booking.model.domain.BookingState;
+import com.example.booking.model.domain.TypeCar;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -20,11 +25,13 @@ public class BookingRecord implements Serializable {
     @Column
     private String phonenumber;
     @Embedded
-    private BookingCoordinate coordinates;
+    private MapCoordinate pickupCoordinate;
+    @Embedded
+    private MapCoordinate dropoffCoordinate;
     @Column
     private TypeCar typeCar;
     @Column
-    private StateBooking state;
+    private BookingState state;
     @Column
     private PaymentMethod paymentMethod;
     @Column
@@ -38,11 +45,5 @@ public class BookingRecord implements Serializable {
     @Column
     private Date updatedAt;
     @Column
-    private Integer userId;
-
+    private Integer passengerId;
 }
-
-
-
-
-
