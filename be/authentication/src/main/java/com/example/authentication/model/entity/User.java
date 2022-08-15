@@ -23,7 +23,7 @@ public class User implements Serializable {
     private String password;
     @Column(nullable = false, unique = true)
     private String phonenumber;
-    @Column(nullable = false, unique = true, length = 6)
+    @Column(nullable = false,length = 6)
     private String otp;
     @ManyToMany
     @JoinTable(

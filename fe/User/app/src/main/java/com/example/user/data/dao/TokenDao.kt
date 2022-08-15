@@ -15,7 +15,7 @@ interface TokenDao {
 //    suspend fun updateToken(tokenAuthentication: TokenAuthentication)
 
     @Query("select * from TokenAuthentication where username = :userName")
-    suspend fun fetchTokenByUserName(userName: String): TokenAuthentication
+    suspend fun fetchTokenByUserName(userName: String): TokenAuthentication?
 
     @Query("select * from TokenAuthentication where refreshToken = :refresh")
     suspend fun fetchTokenByRefreshToken(refresh: String): TokenAuthentication

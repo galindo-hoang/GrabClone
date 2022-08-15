@@ -25,7 +25,7 @@ class AuthenticationLocalDataResourceImpl @Inject constructor(
     override suspend fun getUserByUserName(userName: String): User =
         userDao.fetchUserByUserName(userName)
 
-    override suspend fun getTokenByUserName(userName: String): TokenAuthentication =
+    override suspend fun getTokenByUserName(userName: String): TokenAuthentication? =
         tokenDao.fetchTokenByUserName(userName)
 
     override suspend fun getTokenByRefreshToken(refreshToken: String): TokenAuthentication =

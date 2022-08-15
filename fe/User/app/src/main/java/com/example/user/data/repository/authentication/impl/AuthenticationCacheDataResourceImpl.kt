@@ -21,7 +21,19 @@ class AuthenticationCacheDataResourceImpl @Inject constructor(): AuthenticationC
     }
 
     override fun getRefreshToken(): String = token?.refreshToken ?: ""
+    override fun updateRefreshToken(refreshToken: String) {
+        token?.let { it.refreshToken = refreshToken }
+    }
+
     override fun getAccessToken(): String = token?.accessToken ?: ""
+    override fun updateAccessToken(accessToken: String) {
+        token?.let { it.accessToken = accessToken }
+    }
+
     override fun getPhoneNumber(): String = userDto?.phoneNumber ?: ""
+    override fun updatePhoneNumber(phoneNumber: String) {
+        userDto?.let { it.phoneNumber = phoneNumber }
+    }
+
     override fun getUserName(): String = userDto?.username ?: ""
 }

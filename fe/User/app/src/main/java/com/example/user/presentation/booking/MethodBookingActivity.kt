@@ -2,8 +2,8 @@ package com.example.user.presentation.booking
 
 import android.os.Bundle
 import android.util.Log
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.user.data.api.AuthenticationApi
 import com.example.user.data.dto.Payment
 import com.example.user.data.dto.Vehicle
 import com.example.user.databinding.ActivityMethodBookingBinding
@@ -21,6 +21,8 @@ class MethodBookingActivity : BaseActivity() {
     lateinit var vehicleAdapter: VehicleAdapter
     @Inject
     lateinit var paymentAdapter: PaymentAdapter
+    @Inject
+    lateinit var authenticationApi: AuthenticationApi
     private lateinit var binding: ActivityMethodBookingBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
