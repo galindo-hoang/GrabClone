@@ -64,7 +64,7 @@ class ApplicationModule {
             return Retrofit
                 .Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://192.168.1.11:8085")
+                .baseUrl("http://34.142.192.100:8085")
 //                .baseUrl("http://192.168.1.75:8085")
 //                .baseUrl("http://192.168.223.107:8080")
                 .client(
@@ -80,7 +80,7 @@ class ApplicationModule {
         Retrofit
             .Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("http://192.168.1.11:8085")
+            .baseUrl("http://34.142.192.100:8085")
 //            .baseUrl("http://192.168.1.75:8085")
             .build()
             .create(RenewAccessTokenApi::class.java)
@@ -90,7 +90,7 @@ class ApplicationModule {
     fun providesBookingApi(checkAccessTokenInterceptor: CheckAccessTokenInterceptor): BookingApi =
         Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("http://192.168.1.11:8085")
+            .baseUrl("http://34.142.192.100:8085")
 //            .baseUrl("http://192.168.1.75:8085")
             .client(
                 OkHttpClient.Builder()
