@@ -2,21 +2,14 @@ package com.example.user.presentation.main
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.R
 import com.example.user.databinding.ActivityMainBinding
 import com.example.user.presentation.BaseActivity
-import com.example.user.presentation.main.adapter.BookingAdapter
-import com.example.user.presentation.main.adapter.PromptAdapter
-import com.example.user.presentation.main.adapter.VoucherAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
     lateinit var binding: ActivityMainBinding
-    private lateinit var bookingAdapter: BookingAdapter
-    private lateinit var promptAdapter: PromptAdapter
-    private lateinit var voucherAdapter: VoucherAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)

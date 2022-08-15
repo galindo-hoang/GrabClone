@@ -1,6 +1,5 @@
 package com.example.user.presentation.login
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.user.data.dto.Login
@@ -18,7 +17,7 @@ class LogInViewModel @Inject constructor(
     private var _isLogin: MutableLiveData<Int> = MutableLiveData()
     val isLogin get() = _isLogin
 
-    fun login(){
+    fun login() {
         if(_userName.value != null || _password.value != null){
             runBlocking {
                 val user = loginUseCase.invoke(Login(_userName.value!!,_password.value!!))

@@ -30,138 +30,145 @@
     </androidx.appcompat.widget.Toolbar>
 
 
-    <LinearLayout
-        android:layout_marginTop="16dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <LinearLayout
-            android:id="@+id/selector_1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:layout_weight="1">
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/selector_1"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:text="GoRide"
-                android:textColor="@color/black"/>
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/selector_2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:layout_weight="1">
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/selector_2"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:text="GoCar Protect"
-                android:textColor="@color/black"/>
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/selector_3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:layout_weight="1">
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/selector_3"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:text="GoFood"
-                android:textColor="@color/black"/>
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/selector_4"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:layout_weight="1">
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/selector_4"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:text="GoSend"
-                android:textColor="@color/black"/>
-        </LinearLayout>
-    </LinearLayout>
-
-
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_voucher"
+    <Button
+        android:id="@+id/btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="16dp"
-        tools:listitem="@layout/item_card_voucher"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:orientation="horizontal" />
+        android:text="hello"
+        android:layout_gravity="center"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Booking your position here!"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_marginHorizontal="15dp"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Choose from a wide range of Locations"
-        android:textColor="@color/black"
-        android:layout_marginHorizontal="15dp"/>
+<!--    <LinearLayout-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal">-->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/selector_1"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="vertical"-->
+<!--            android:layout_weight="1">-->
+<!--            <ImageView-->
+<!--                android:layout_width="50dp"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:background="@drawable/selector_1"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:scaleType="centerCrop"/>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textSize="12sp"-->
+<!--                android:text="GoRide"-->
+<!--                android:textColor="@color/black"/>-->
+<!--        </LinearLayout>-->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/selector_2"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="vertical"-->
+<!--            android:layout_weight="1">-->
+<!--            <ImageView-->
+<!--                android:layout_width="50dp"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:background="@drawable/selector_2"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:scaleType="centerCrop"/>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textSize="12sp"-->
+<!--                android:text="GoCar Protect"-->
+<!--                android:textColor="@color/black"/>-->
+<!--        </LinearLayout>-->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/selector_3"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="vertical"-->
+<!--            android:layout_weight="1">-->
+<!--            <ImageView-->
+<!--                android:layout_width="50dp"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:background="@drawable/selector_3"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:scaleType="centerCrop"/>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textSize="12sp"-->
+<!--                android:text="GoFood"-->
+<!--                android:textColor="@color/black"/>-->
+<!--        </LinearLayout>-->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/selector_4"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="vertical"-->
+<!--            android:layout_weight="1">-->
+<!--            <ImageView-->
+<!--                android:layout_width="50dp"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:background="@drawable/selector_4"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:scaleType="centerCrop"/>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textSize="12sp"-->
+<!--                android:text="GoSend"-->
+<!--                android:textColor="@color/black"/>-->
+<!--        </LinearLayout>-->
+<!--    </LinearLayout>-->
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_prompt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="15dp"
-        tools:listitem="@layout/item_card_prompt"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_booking_now"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:listitem="@layout/item_card_booking"
-        android:layout_marginTop="16dp"
-        android:layout_marginHorizontal="15dp"/>
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/rv_voucher"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="15dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        tools:listitem="@layout/item_card_voucher"-->
+<!--        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+<!--        android:orientation="horizontal" />-->
+
+<!--    <TextView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:text="Booking your position here!"-->
+<!--        android:textStyle="bold"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:layout_marginHorizontal="15dp"/>-->
+<!--    <TextView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:text="Choose from a wide range of Locations"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:layout_marginHorizontal="15dp"/>-->
+
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/rv_prompt"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_marginStart="15dp"-->
+<!--        tools:listitem="@layout/item_card_prompt"/>-->
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/rv_booking_now"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:listitem="@layout/item_card_booking"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_marginHorizontal="15dp"/>-->
 
 </LinearLayout>

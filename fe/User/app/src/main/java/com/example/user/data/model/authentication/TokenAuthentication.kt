@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 @Entity
 data class TokenAuthentication(
     @PrimaryKey
-    val username: String,
-    val accessToken: String,
-    val refreshToken: String,
+    var username: String,
+    var accessToken: String,
+    var refreshToken: String,
 //    val expired: Long
 )

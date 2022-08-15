@@ -2,8 +2,8 @@ package com.example.user.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.user.data.api.AuthenticationApi
-import com.example.user.data.api.RouteNavigationApi
+import com.example.user.data.api.*
+import com.example.user.data.api.interceptor.CheckAccessTokenInterceptor
 import com.example.user.data.dao.TokenDao
 import com.example.user.data.dao.UserDao
 import com.example.user.data.database.BackEndDatabase
@@ -14,12 +14,16 @@ import com.example.user.data.repository.authentication.AuthenticationRepositoryI
 import com.example.user.data.repository.authentication.impl.AuthenticationCacheDataResourceImpl
 import com.example.user.data.repository.authentication.impl.AuthenticationLocalDataResourceImpl
 import com.example.user.data.repository.authentication.impl.AuthenticationRemoteDataResourceImpl
+import com.example.user.data.repository.booking.BookingRemoteDataResource
+import com.example.user.data.repository.booking.BookingRepositoryImpl
+import com.example.user.data.repository.booking.impl.BookingRemoteDataResourceImpl
 import com.example.user.data.repository.route.RouteNavigationCacheDataResource
 import com.example.user.data.repository.route.RouteNavigationRemoteDataSource
 import com.example.user.data.repository.route.RouteNavigationRepositoryImpl
 import com.example.user.data.repository.route.impl.RouteNavigationCacheDataResourceImpl
 import com.example.user.data.repository.route.impl.RouteNavigationRemoteDataSourceImpl
 import com.example.user.domain.repository.AuthenticationRepository
+import com.example.user.domain.repository.BookingRepository
 import com.example.user.domain.repository.RouteNavigationRepository
 import dagger.Module
 import dagger.Provides
@@ -52,28 +56,49 @@ class ApplicationModule {
 
     @Provides
     @Singleton
-    fun providesBackendApi(
-        routeNavigationApi: RouteNavigationApi
-    ): AuthenticationApi
+    fun providesAuthenticationApi(): AuthenticationApi
         {
             val logging= HttpLoggingInterceptor().apply {
                 this.level = HttpLoggingInterceptor.Level.BODY
-            }
-
-//            val check = Check(routeNavigationApi)
-            val xclient= OkHttpClient.Builder().apply {
-                this.addInterceptor(logging)
             }
             return Retrofit
                 .Builder()
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl("http://192.168.1.11:8085")
-//                .baseUrl("http://192.168.1.63:8080")
+//                .baseUrl("http://192.168.1.75:8085")
 //                .baseUrl("http://192.168.223.107:8080")
-                .client(xclient.build())
+                .client(
+                    OkHttpClient.Builder().apply { this.addInterceptor(logging) }.build()
+                )
                 .build()
                 .create(AuthenticationApi::class.java)
         }
+
+    @Provides
+    @Singleton
+    fun providesRenewAccessTokenApi(): RenewAccessTokenApi =
+        Retrofit
+            .Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl("http://192.168.1.11:8085")
+//            .baseUrl("http://192.168.1.75:8085")
+            .build()
+            .create(RenewAccessTokenApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providesBookingApi(checkAccessTokenInterceptor: CheckAccessTokenInterceptor): BookingApi =
+        Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl("http://192.168.1.11:8085")
+//            .baseUrl("http://192.168.1.75:8085")
+            .client(
+                OkHttpClient.Builder()
+                    .apply { this.addInterceptor(checkAccessTokenInterceptor) }
+                    .build()
+            )
+            .build()
+            .create(BookingApi::class.java)
 
     @Provides
     @Singleton
@@ -127,9 +152,10 @@ class ApplicationModule {
     @Provides
     @Singleton
     fun providesAuthenticationRemoteDataResource(
-        authenticationApi: AuthenticationApi
+        authenticationApi: AuthenticationApi,
+        renewAccessTokenApi: RenewAccessTokenApi
     ): AuthenticationRemoteDataResource =
-        AuthenticationRemoteDataResourceImpl(authenticationApi)
+        AuthenticationRemoteDataResourceImpl(authenticationApi,renewAccessTokenApi)
 
     @Provides
     @Singleton
@@ -143,4 +169,16 @@ class ApplicationModule {
             authenticationLocalDataResource,
             authenticationRemoteDataResource
         )
+
+    @Provides
+    @Singleton
+    fun providesBookingRemoteDataSource(
+        bookingApi: BookingApi
+    ): BookingRemoteDataResource = BookingRemoteDataResourceImpl(bookingApi)
+
+    @Provides
+    @Singleton
+    fun providesBookingRepository(
+        bookingRemoteDataResource: BookingRemoteDataResource
+    ): BookingRepository = BookingRepositoryImpl(bookingRemoteDataResource)
 }

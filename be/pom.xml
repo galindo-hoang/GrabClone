@@ -23,7 +23,6 @@
         <module>sms</module>
         <module>fcm</module>
         <module>rabbit-mq</module>
-        <module>logger</module>
         <module>clients</module>
         <module>booking</module>
     </modules>

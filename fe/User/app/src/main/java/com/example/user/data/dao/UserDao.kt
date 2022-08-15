@@ -22,6 +22,9 @@ interface UserDao {
     @Query("select * from User where username = :userName")
     suspend fun fetchUserByUserName(userName: String): User
 
+    @Query("select count(*) from User")
+    suspend fun fetchCountUser(): Int
+
     @Query("delete from User")
     suspend fun clearAll()
 }

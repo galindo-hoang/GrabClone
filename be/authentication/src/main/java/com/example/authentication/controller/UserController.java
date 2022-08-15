@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @GetMapping("/{phoneNumber}")
-    public ResponseEntity<Integer> getUser(@PathVariable String phoneNumber) {
+    public ResponseEntity<Integer> getUserByPhoneNumber(@PathVariable String phoneNumber) {
         return ResponseEntity.ok(modelMapper.map(userService.findByUserByPhoneNumber(phoneNumber).getId(), Integer.class));
     }
 

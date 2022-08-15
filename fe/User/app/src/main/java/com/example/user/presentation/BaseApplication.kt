@@ -3,7 +3,10 @@ package com.example.user.presentation
 import android.app.Application
 import android.content.Intent
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.user.service.BackgroundService
 import dagger.hilt.android.HiltAndroidApp
 
@@ -16,16 +19,15 @@ class BaseApplication: Application(),LifecycleObserver {
 //        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
     }
 
-
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onAppBackgrounded() {
-        stopService(inten)
+//        stopService(inten)
         Log.e("MyApp", "App in background")
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onAppForegrounded() {
-        startService(inten)
+//        startService(inten)
         Log.e("MyApp", "App in foreground")
     }
 
