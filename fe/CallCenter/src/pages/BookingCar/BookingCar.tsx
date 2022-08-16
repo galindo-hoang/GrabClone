@@ -14,6 +14,8 @@ import {coordinate} from "../../@types/map";
 import {Col, Row} from "react-bootstrap";
 import type { ColumnsType } from 'antd/es/table';
 import {useDebounce} from "../../hooks/useDebounce";
+import {notification} from "../../service/Fcm/FcmService";
+
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 const mapStateToProps = state => ({})
 
@@ -40,7 +42,6 @@ const BookingCar = (props: Props) => {
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [carType,setCarType]=useState("");
-
   const [departure, setDeparture] = useState<featuresLocation>({
     value: undefined,
     coordinate: undefined,
@@ -114,6 +115,9 @@ const BookingCar = (props: Props) => {
     })
   }, [destination.value]);
 
+  useEffect(()=> {
+    notification();
+  },[])
   const onSelectedDeparture = (address) => {
     const temp: { value: string; coordinate: coordinate }[] | undefined = departureAutocomplete?.filter(index => (
       index.value === address
@@ -189,12 +193,12 @@ const BookingCar = (props: Props) => {
                 onChange={onChangeCarType}
               />
               <Row>
-                <Col xs lg md="12">
+                <Col xs lg md sm="12">
                   <label className="float-left mb-1">Địa chỉ đón</label>
                 </Col>
               </Row>
               <Row style={{position: "relative", width: "500px"}}>
-                <Col xs lg md="8">
+                <Col xs lg md sm="8">
                   <AutoComplete
                     className="form-control form-control-lg mb-3"
                     options={departureAutocomplete}
@@ -207,19 +211,19 @@ const BookingCar = (props: Props) => {
                     }}
                   />
                 </Col>
-                <Col xs lg="4" className="">
+                <Col xs lg md sm="4" className="">
                   <button className="btn  btn-info btn-md" onClick={()=>setVisibleDeparture(true)}>
                     Lịch sử đón
                   </button>
                 </Col>
               </Row>
               <Row>
-                <Col xs lg="12">
+                <Col xs lg md sm="12">
                   <label className="float-left mb-1">Địa chỉ đến</label>
                 </Col>
               </Row>
               <Row style={{position: "relative", width: "500px"}}>
-                <Col xs lg="8">
+                <Col xs lg md sm="8">
                   <AutoComplete
                     className="form-control form-control-lg mb-3"
                     options={destinationAutocomplete}
@@ -232,7 +236,7 @@ const BookingCar = (props: Props) => {
                     }}
                   />
                 </Col>
-                <Col xs lg="4" className="">
+                <Col xs lg md sm="4" className="">
                   <button className="btn  btn-info btn-md" onClick={()=>setVisibleDesination(true)}>
                     Lịch sử đến
                   </button>

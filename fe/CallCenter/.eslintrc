@@ -15,5 +15,8 @@
       }
     ],
     "no-console": "warn"
+  },
+  "globals": {
+    "importScripts": true
   }
 }

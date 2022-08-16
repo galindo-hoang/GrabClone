@@ -63,12 +63,21 @@ const mapDispatchToProps = {}
 const connector = connect(mapStateToProps, mapDispatchToProps);
 interface Props extends ConnectedProps<typeof connector> {}
 
+
+enum StateBooking{
+  CanCel=-1,
+  LookingDriver,
+  DriverAccepted,
+  GuestSuccess,
+  GuestPay
+}
 const Map = (props:Props) => {
   const {closeSideNav,location} = props;
   const [viewCoordinate,setViewCoordinate]=useState<coordinate>({
     longitude:location.departure.coordinate.longitude as number,
     latitude:location.departure.coordinate.latitude as number,
   });
+  const [state,setState]=useState(0)
   const [zoom, setZoom] = useState(18)
   const [loadMap, setLoadMap] = useState(false)
   const [lineValue, setLineValue] = useState([] as coordinate)
