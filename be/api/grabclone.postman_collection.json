@@ -45,6 +45,18 @@
 							"port": "8085",
 							"path": [
 								"login"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "phuc",
+									"disabled": true
+								},
+								{
+									"key": "b",
+									"value": "1",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -57,7 +69,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwaHVjIiwicm9sZXMiOlsiUk9MRV9EUklWRVIiXSwiaXNzIjoiaHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvbG9naW4iLCJleHAiOjE2NTk5ODI2NjR9.MUC3A1asndXp0sMHQvcCAQkfAU3hq4zts7hlRZZOkTA",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwaHVjIiwiaXNzIjoiaHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvbG9naW4iLCJleHAiOjE2NjA0NjYyNjZ9.QZPUWQyKp3QcZTDtWpH_gYfFTXyGdPnPsC2iZXjmOQQ",
 								"type": "text"
 							}
 						],
@@ -89,7 +101,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\":\"huyml\",\r\n    \"password\":\"12235\",\r\n    \"phonenumber\":\"14124123\",\r\n    \"otp\":\"123456\"\r\n}",
+							"raw": "{\r\n    \"username\":\"abc3c\",\r\n    \"password\":\"1234\",\r\n    \"phonenumber\":\"hau23421234hua\",\r\n    \"otp\":\"335615\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -97,14 +109,79 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8085/register",
+							"raw": "http://localhost:8085/user/register",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8085",
 							"path": [
+								"user",
 								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register_driver",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwaHVjIiwicm9sZXMiOlsiUk9MRV9EUklWRVIiXSwiaXNzIjoiaHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvbG9naW4iLCJleHAiOjE2NTk5ODI2NjR9.MUC3A1asndXp0sMHQvcCAQkfAU3hq4zts7hlRZZOkTA",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"abc3c\",\r\n    \"password\":\"1234\",\r\n    \"phonenumber\":\"hau23421234hua\",\r\n    \"otp\":\"335615\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8085/driver/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"driver",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "phonenumber_user",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwaHVjIiwicm9sZXMiOlsiUk9MRV9EUklWRVIiXSwiaXNzIjoiaHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvbG9naW4iLCJleHAiOjE2NjA1NjYzMTB9.bm6ukaZjt77M6elInseMwjegnsGYMOtOndVuDcqr32A",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8085/api/v1/users/0833759409",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"0833759409"
 							]
 						}
 					},
@@ -122,7 +199,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwaHVjIiwicm9sZXMiOlsiUk9MRV9EUklWRVIiXSwiaXNzIjoiaHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvbG9naW4iLCJleHAiOjE2NTk5Nzc0MjN9.Kmy69E0RKoGs-YtNvZQBAosWtKHP_v6mIUSga8fR4GU",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwaHVjIiwicm9sZXMiOlsiUk1MRV9EUklWRVIiXSwiaXNzIjoiaHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvbG9naW4iLCJleHAiOjE2NjAzMjk0NTJ9.z8CuhhPFO7G_XH_1ShVC2Da9WoJ7qQEizVM7iI0v8xM",
 								"type": "text",
 								"disabled": true
 							}
@@ -137,10 +214,13 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8085/api/v1/sms/register",
+							"raw": "http://34.142.192.100:8085/api/v1/sms/register",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"34",
+								"142",
+								"192",
+								"100"
 							],
 							"port": "8085",
 							"path": [
@@ -167,7 +247,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"phonenumber\":\"+84833759409\",\r\n    \"onceTimePassword\":\"143403\"\r\n}",
+							"raw": "{\r\n    \"phonenumber\":\"+84833759409\",\r\n    \"onceTimePassword\":\"335615\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -186,6 +266,177 @@
 								"v1",
 								"sms",
 								"validate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "booking-service",
+			"item": [
+				{
+					"name": "createBooking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwaHVjIiwicm9sZXMiOlsiUk9MRV9EUklWRVIiXSwiaXNzIjoiaHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvbG9naW4iLCJleHAiOjE2NjA2NTQxNTB9.3xZNK405Jj-3pk8C_Aj9h81HrpxXK7mKsulh5qg0rJM",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phonenumber\": \"0987654321\",\r\n    \"pickupLatitude\": 0.0,\r\n    \"pickupLongitude\": 0.0,\r\n    \"dropoffLatitude\": 100.0,\r\n    \"dropoffLongitude\": 100.0,\r\n    \"typeCar\": \"MOTORCYCLE\",\r\n    \"paymentMethod\": \"CREDIT_CARD\",\r\n    \"price\": 100000,\r\n    \"userId\":123\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8085/api/v1/booking/create_booking",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"api",
+								"v1",
+								"booking",
+								"create_booking"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "fcm-service",
+			"item": [
+				{
+					"name": "fcm-register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fcmToken\":\"fk55D6T3u-t2rE3aqvKXNH:APA91bHJX3WlFjU9Nu6ZUZaRpkmfT8cfHJgkav0rKg1NhpiQ8uTg6w6Co9PPt41N82NZYl-kqA9zxpQNb1jpEuQFI3r_AsGOEi3rWAD9F2Ga7Et38xetjfjQyevXz5oeD9AazVCTjoMH\",\r\n    \"userId\":456\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/api/v1/fcm/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"api",
+								"v1",
+								"fcm",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fcm-subscribe",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"topicName\":\"booking\",\r\n    \"userId\":123\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/api/v1/fcm/subscribe",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"api",
+								"v1",
+								"fcm",
+								"subscribe"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fcm-topic",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"target\":\"booking\",\r\n    \"title\":\"New booking\",\r\n    \"body\":\"A new booking is available\",\r\n    \"data\":{\r\n        \"bookingId\":5,\r\n        \"pickupLatitude\": 0.0,\r\n        \"pickupLongitude\": 0.0,\r\n        \"dropoffLatitude\": 100.0,\r\n        \"dropoffLongitude\": 100.0,\r\n        \"typeCar\": \"MOTORCYCLE\",\r\n        \"paymentMethod\": \"CREDIT_CARD\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/api/v1/fcm/topic",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"api",
+								"v1",
+								"fcm",
+								"topic"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fcm-user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n    {\r\n    \"target\":456,\r\n    \"title\":\"New booking\",\r\n    \"body\":\"A new booking is available\",\r\n    \"data\":{\r\n        \"bookingId\":5,\r\n        \"pickupLatitude\": 0.0,\r\n        \"pickupLongitude\": 0.0,\r\n        \"dropoffLatitude\": 100.0,\r\n        \"dropoffLongitude\": 100.0,\r\n        \"typeCar\": \"MOTORCYCLE\",\r\n        \"paymentMethod\": \"CREDIT_CARD\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/api/v1/fcm/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"api",
+								"v1",
+								"fcm",
+								"user"
 							]
 						}
 					},
