@@ -112,6 +112,10 @@ class AuthenticationRepositoryImpl @Inject constructor(
         return userDto
     }
 
+    override suspend fun getNumberAccount(): Int = authenticationLocalDataResource.getAllUser().size
+
+    override suspend fun getNumberToken(): Int = authenticationLocalDataResource.getAllToken().size
+
     private suspend fun getAccountFromLocal(): UserDto {
         val users = authenticationLocalDataResource.getAllUser()
         if(users.isEmpty()) throw Exception("Please Login Account")

@@ -24,10 +24,10 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".CheckingActivity"
+            android:name=".presentation.splash.SplashActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.booking.BookingActivity"
+            android:name=".presentation.login.LogInActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.main.MainActivity"
@@ -47,7 +47,7 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.login.LogInActivity"
+            android:name=".presentation.booking.BookingActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
