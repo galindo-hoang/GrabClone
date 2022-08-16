@@ -2,6 +2,7 @@ package com.example.apigateway.config;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.example.apigateway.config.logger.model.Logger;
 import com.example.apigateway.config.logger.service.LoggerService;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -17,6 +20,8 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DefaultDataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -44,7 +49,8 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
     long startTime;
     @Autowired
     private LoggerService loggerService;
-
+    @Value("${api.constant.elementWithoutToken}")
+    private List<String> apiEndpointsWithoutToken;
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String uri = exchange.getRequest().getURI().toString();
@@ -52,12 +58,7 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
         ServerHttpResponse response = exchange.getResponse();
         startTime = System.currentTimeMillis();
         ServerHttpRequest request = exchange.getRequest();
-        final List<String> apiEndpoints = List.of("/refresh-token",
-                "/login",
-                "/register",
-                "/api/v1/sms/register",
-                "/api/v1/sms/validate");
-        if (!apiEndpoints.contains(path)) {
+        if (!apiEndpointsWithoutToken.contains(path)) {
             if (!request.getHeaders().containsKey("Authorization")) {
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
                 logger = new Logger();
