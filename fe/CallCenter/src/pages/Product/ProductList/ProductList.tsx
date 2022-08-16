@@ -20,7 +20,6 @@ const connector = connect(mapStateToProps, mapDispatchToProps)
 interface Props extends ConnectedProps<typeof connector> {}
 const ProductList = (props: Props) => {
   const { getProductList, productList } = props
-
   useEffect(() => {
     getProductList()
   }, [getProductList])
@@ -40,7 +39,7 @@ const ProductList = (props: Props) => {
             </tr>
           </thead>
           <tbody>
-            {productList.map((product, index) => (
+            {productList?.map((product, index) => (
               <tr key={product.id}>
                 <th>{index + 1}</th>
                 <td>{product.name}</td>

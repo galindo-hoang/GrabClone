@@ -44,10 +44,10 @@ public class AuthController {
         this.modelMapper = modelMapper;
         ModelMapperGenerator.getUserTypeMap(modelMapper);
     }
-    @PostMapping("/register")
+    @PostMapping("/user/register")
     public ResponseEntity<UserDto> saveUser(@RequestBody UserDto user) {
         //Get current resource url
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toUriString());
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/register").toUriString());
         User userSaving = modelMapper.map(user, User.class);
         userSaving.setPassword(user.getPassword());
         userSaving.setRoles(List.of(roleService.findByName(Role.RoleName.ROLE_USER)));
@@ -55,7 +55,17 @@ public class AuthController {
                 modelMapper.map(userService.saveUser(userSaving)
                         , UserDto.class));
     }
-
+    @PostMapping("/driver/register")
+    public ResponseEntity<UserDto> saveDriver(@RequestBody UserDto user) {
+        //Get current resource url
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/driver/register").toUriString());
+        User userSaving = modelMapper.map(user, User.class);
+        userSaving.setPassword(user.getPassword());
+        userSaving.setRoles(List.of(roleService.findByName(Role.RoleName.ROLE_DRIVER)));
+        return ResponseEntity.created(uri).body(
+                modelMapper.map(userService.saveUser(userSaving)
+                        , UserDto.class));
+    }
     @GetMapping("/test")
     public ResponseEntity<String> ss(){
         log.info("test");

@@ -7,5 +7,7 @@ export const BREAKPOINT = {
 }
 
 export const COLOR = {
-  BLUE: "#0d6efd"
+  BLUE: "#0d6efd",
+  MAIN:"#138496",
+  INFO:"#d1f6ff"
 }

@@ -25,7 +25,8 @@ instance.interceptors.response.use(async response =>{
     })
   }
   if(error?.response?.status===403){
-
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
   }
 })
 

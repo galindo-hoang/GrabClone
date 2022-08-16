@@ -2,6 +2,7 @@ package com.example.apigateway.config;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.example.apigateway.config.logger.model.Logger;
 import com.example.apigateway.config.logger.service.LoggerService;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -17,12 +20,17 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DefaultDataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,23 +46,37 @@ import java.util.function.Predicate;
 @Component
 public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter {
     private Logger logger;
+    long startTime;
     @Autowired
     private LoggerService loggerService;
-
+    @Value("${api.constant.elementWithoutToken}")
+    private List<String> apiEndpointsWithoutToken;
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String path = exchange.getRequest().getURI().toString();
+        String uri = exchange.getRequest().getURI().toString();
+        String path = exchange.getRequest().getPath().toString();
         ServerHttpResponse response = exchange.getResponse();
+        startTime = System.currentTimeMillis();
         ServerHttpRequest request = exchange.getRequest();
-        final List<String> apiEndpoints = List.of("http://localhost:8085/refresh-token", "" +
-                "http://localhost:8085/login",
-                "http://localhost:8085/register",
-                "http://localhost:8085/api/v1/sms/register",
-                "http://localhost:8085/api/v1/sms/validate");
-        if (!apiEndpoints.contains(path)) {
+        if (!apiEndpointsWithoutToken.contains(path)) {
             if (!request.getHeaders().containsKey("Authorization")) {
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                return response.setComplete();
+                logger = new Logger();
+                logger.setHttpResult(HttpStatus.UNAUTHORIZED.value());
+                logger.setUri(uri);
+                logger.setRequestId(request.getId());
+                logger.setHeaderRequest(request.getHeaders().toString());
+                logger.setHeaderResponse(response.getHeaders().toString());
+                logger.setParameter(request.getQueryParams().toString());
+                logger.setRequestData(request.getBody().toString());
+                logger.setResponseData("Authorization header is missing");
+                String elapsedTime = String.valueOf(System.currentTimeMillis() - startTime);
+                logger.setProcessTime(elapsedTime);
+                logger.setMethod(request.getMethodValue());
+                logger.setParameter(request.getQueryParams().toString());
+                loggerService.saveLogger(logger);
+                return response.writeWith(Mono.just(response.bufferFactory().wrap(
+                        "Authorization header is missing".getBytes())));
             }
             final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
             try {
@@ -64,7 +86,22 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
                 verifier.verify(tokenGetter); //decode jwt
             } catch (Exception e) {
                 response.setStatusCode(HttpStatus.BAD_REQUEST);
-                return response.setComplete();
+                logger = new Logger();
+                logger.setHttpResult(HttpStatus.BAD_REQUEST.value());
+                logger.setUri(uri);
+                logger.setRequestId(request.getId());
+                logger.setHeaderRequest(request.getHeaders().toString());
+                logger.setHeaderResponse(response.getHeaders().toString());
+                logger.setParameter(request.getQueryParams().toString());
+                logger.setRequestData(request.getBody().toString());
+                logger.setResponseData("Authorization header is missing");
+                String elapsedTime = String.valueOf(System.currentTimeMillis() - startTime);
+                logger.setProcessTime(elapsedTime);
+                logger.setMethod(request.getMethodValue());
+                logger.setParameter(request.getQueryParams().toString());
+                loggerService.saveLogger(logger);
+                return response.writeWith(Mono.just(response.bufferFactory().wrap(
+                        "Invalid token".getBytes())));
             }
         }
         DataBufferFactory dataBufferFactory = response.bufferFactory();
@@ -91,18 +128,21 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
                         String responseBody = new String(content, StandardCharsets.UTF_8);//MODIFY RESPONSE and Return the Modified response
                         log.info("requestId: {}, method: {}, url: {}, \nresponse body :{}", request.getId(), request.getMethodValue(), request.getURI(), responseBody);
                         logger.setResponseData(responseBody);
-                        System.out.println(logger);
+                        String elapsedTime = String.valueOf(System.currentTimeMillis() - startTime);
+                        logger.setProcessTime(elapsedTime);
                         loggerService.saveLogger(logger);
-                        Logger logger1=loggerService.findLogger(40).orElse(null);
-                        System.out.println("HUY Mo"+logger1);
                         return dataBufferFactory.wrap(responseBody.getBytes());
                     })).onErrorResume(err -> {
                         logger.setResponseData(err.getMessage());
                         log.error("error while decorating Response: {}", err.getMessage());
+                        String elapsedTime = String.valueOf(System.currentTimeMillis() - startTime);
+                        logger.setProcessTime(elapsedTime);
                         loggerService.saveLogger(logger);
                         return Mono.empty();
                     });
                 }
+                String elapsedTime = String.valueOf(System.currentTimeMillis() - startTime);
+                logger.setProcessTime(elapsedTime);
                 loggerService.saveLogger(logger);
                 return super.writeWith(body);
             }

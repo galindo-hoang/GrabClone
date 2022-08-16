@@ -1,0 +1,1 @@
+export const BOOKING_CAR_REQUEST = "views/booking/BOOKING_REQUESTED"
