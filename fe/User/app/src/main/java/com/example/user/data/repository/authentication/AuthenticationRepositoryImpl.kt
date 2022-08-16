@@ -1,13 +1,15 @@
 package com.example.user.data.repository.authentication
 
+import android.util.Log
+import com.example.user.data.dto.Login
 import com.example.user.data.dto.UserDto
 import com.example.user.data.dto.ValidateOTP
-import com.example.user.data.model.authentication.BodyRegisterSaveAccount
-import com.example.user.data.model.authentication.ResponseLogin
-import com.example.user.data.model.authentication.BodyValidateOrRegister
-import com.example.user.data.model.authentication.TokenAuthentication
+import com.example.user.data.model.authentication.*
+import com.example.user.data.model.converter.TokenConverter
+import com.example.user.data.model.mapper.UserMapper
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.utils.Constant.convertTimeLongToDateTime
+import com.example.user.utils.Constant.getCurrentDate
 import com.example.user.utils.Constant.getPayloadDataFromJWTAccessToken
 import com.example.user.utils.Constant.getPayloadDataFromJWTRefreshToken
 import okhttp3.RequestBody
@@ -15,7 +17,8 @@ import retrofit2.Response
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
-
+// update remote CALL(->) local CALL(->) cache
+// maybe don't need expose function get refreshToken
 @Singleton
 class AuthenticationRepositoryImpl @Inject constructor(
     private val authenticationCacheDataResource: AuthenticationCacheDataResource,
@@ -37,56 +40,38 @@ class AuthenticationRepositoryImpl @Inject constructor(
     ): Response<BodyValidateOrRegister> =
         authenticationRemoteDataResource.getResponseValidatePhoneNumber(validateOTP)
 
-    override suspend fun getRefreshToken(): String = getRefreshTokenFromCache()
-    private suspend fun getRefreshTokenFromCache():String{
-        var refreshToken = authenticationCacheDataResource.getRefreshToken()
-        if(refreshToken == ""){
-            val token = getRefreshTokenFromLocal()
-            authenticationCacheDataResource.updateToken(token)
-            refreshToken = token.refreshToken
-        }
-        return refreshToken
-    }
-    private suspend fun getRefreshTokenFromLocal(): TokenAuthentication{
-        val localToken = authenticationLocalDataResource.getToken()
-        if(localToken.isEmpty()){
-            throw Exception("Cant get refresh token")
-        }
-        return localToken[0]
-    }
+    private suspend fun getTokenFromLocal(userName: String): TokenAuthentication =
+        authenticationLocalDataResource.getTokenByUserName(userName)
+            ?: throw Exception("Cant get token from Local Database")
 
     override suspend fun getAccessToken(): String {
         var accessToken = authenticationCacheDataResource.getAccessToken()
-        var localToken: List<TokenAuthentication> = listOf()
         if(accessToken.isEmpty()){
-            localToken = authenticationLocalDataResource.getToken()
-            if(localToken.isEmpty()){
-                throw Exception("cant get token from local database")
-            }else{
-                accessToken = localToken[0].accessToken
-            }
+            //if cant get user throw exception in function getAccount()
+            try {
+                this.getAccount().username.let {
+                    authenticationCacheDataResource.updateToken(getTokenFromLocal(it!!))
+                }
+                accessToken = authenticationCacheDataResource.getAccessToken()
+            }catch (e: Exception) { throw e }
         }
-        val currentDate = Date()
         val bodyAccessToken = getPayloadDataFromJWTAccessToken(accessToken)
-        if(currentDate >= convertTimeLongToDateTime(bodyAccessToken.exp)){
-            if(localToken.isEmpty()){
-                localToken = authenticationLocalDataResource.getToken()
-                if(localToken.isEmpty()) throw Exception("cant get token from local database")
+        if(getCurrentDate() >= convertTimeLongToDateTime(bodyAccessToken.exp)){
+            Log.e("checking----","hello")
+            val refreshToken = authenticationCacheDataResource.getRefreshToken()
+            val bodyRefreshToken = getPayloadDataFromJWTRefreshToken(refreshToken)
+            if(getCurrentDate() >= convertTimeLongToDateTime(bodyRefreshToken.exp)){
+                throw Exception("Please Login Account again")
             }
-            val bodyRefreshToken = getPayloadDataFromJWTRefreshToken(localToken[0].refreshToken)
-            if(currentDate >= convertTimeLongToDateTime(bodyRefreshToken.exp)){
-                throw Exception("Refresh token is expired")
-            }
-            accessToken = getAccessTokenFromRemote(localToken[0].refreshToken)
-            val newToken = TokenAuthentication(
-                username = authenticationCacheDataResource.getUserName(),
-                refreshToken = localToken[0].refreshToken,
-                accessToken = accessToken)
-            authenticationLocalDataResource.saveToken(newToken)
-            authenticationCacheDataResource.updateToken(newToken)
+            try {
+                accessToken = getAccessTokenFromRemote(refreshToken)
+                authenticationCacheDataResource.updateAccessToken(accessToken)
+                authenticationLocalDataResource.saveToken(authenticationCacheDataResource.getToken()!!)
+            } catch (e: Exception) { throw e }
         }
         return accessToken
     }
+
     private suspend fun getAccessTokenFromRemote(refreshToken: String): String{
         val response = authenticationRemoteDataResource.getAccessToken(refreshToken)
         return when(response.code()){
@@ -94,31 +79,25 @@ class AuthenticationRepositoryImpl @Inject constructor(
                 val body = response.body()
                 body?.accessToken ?: throw Exception("Backend Error")
             }
+            // never go to this branch
             403 -> throw Exception("refresh token is expired")
             else -> throw Exception("cant connect to database")
         }
     }
-
-    override fun updateAccessToken(accessToken: String): String {
-        TODO("Not yet implemented")
+    override fun updateAccount(responseLogin: ResponseLogin): UserDto {
+        updateAccountToLocal(responseLogin.user)
+        updateTokenToLocal(TokenConverter.convertFromNetwork(responseLogin))
+        return UserMapper.mapFromEntity(responseLogin.user)
     }
 
-    override suspend fun updateAccount(responseLogin: ResponseLogin): UserDto {
-        val newToken = TokenAuthentication(
-            username = responseLogin.user.username,
-            refreshToken = responseLogin.refreshToken,
-            accessToken = responseLogin.accessToken
-        )
-        val newUser = UserDto(
-            password = responseLogin.user.password,
-            username = responseLogin.user.username,
-            phoneNumber = responseLogin.user.phoneNumber
-        )
-        authenticationCacheDataResource.updateToken(newToken)
-        authenticationCacheDataResource.updateUser(newUser)
-        authenticationLocalDataResource.saveToken(newToken)
-        authenticationLocalDataResource.saveUser(responseLogin.user)
-        return newUser
+    private fun updateAccountToLocal(user: User) {
+        authenticationLocalDataResource.saveUser(user)
+        authenticationCacheDataResource.updateUser(UserMapper.mapFromEntity(user))
+    }
+
+    private fun updateTokenToLocal(tokenAuthentication: TokenAuthentication){
+        authenticationCacheDataResource.updateToken(tokenAuthentication)
+        authenticationLocalDataResource.saveToken(tokenAuthentication)
     }
 
     override suspend fun postAccountLogin(requestBody: RequestBody): Response<ResponseLogin> =
@@ -126,17 +105,18 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     override suspend fun getAccount(): UserDto {
         var userDto = authenticationCacheDataResource.getUser()
-        if(userDto == null){
-            val user = authenticationLocalDataResource.getAllUser()
-            if(user.isEmpty()) throw Exception("cant get account from local database")
-            userDto = UserDto(
-                username = user[0].username,
-                password = user[0].password,
-                phoneNumber = user[0].phoneNumber
-            )
-            authenticationCacheDataResource.updateUser(userDto)
+        if(userDto == null) {
+            try { userDto = getAccountFromLocal() }
+            catch (e: Exception) { throw e }
         }
         return userDto
+    }
+
+    private suspend fun getAccountFromLocal(): UserDto {
+        val users = authenticationLocalDataResource.getAllUser()
+        if(users.isEmpty()) throw Exception("Please Login Account")
+        authenticationCacheDataResource.updateUser(UserMapper.mapFromEntity(users[0]))
+        return  authenticationCacheDataResource.getUser()!!
     }
 
     override suspend fun clearAll() {
