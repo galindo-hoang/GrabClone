@@ -5,8 +5,14 @@ import com.example.booking.model.dto.*;
 import com.example.booking.model.entity.*;
 import com.example.booking.service.*;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -46,6 +52,98 @@ public class BookingController {
         requestEntity = new HttpEntity<String>(null, requestHeader);
         bookingRecordMap = new HashMap<>();
         rideRecordMap = new HashMap<>();
+    }
+
+    @PostMapping("/top_arrival")
+    public ResponseEntity<TopCoorRespDto> getTopArrivals(@RequestBody TopCoorReqDto topArrivalDto) {
+        try {
+            // Reject if number of arrivals is too large or < 1
+            if (topArrivalDto.getCount() > 10 || topArrivalDto.getCount() < 1) {
+                return ResponseEntity.badRequest().build();
+            }
+
+
+            // Get the top arrivals
+            List<BookingRecord> bookingRecords = bookingService.findByUserIdAndPhoneNumber(topArrivalDto.getUserId(), topArrivalDto.getPhoneNumber());
+            HashMap<MapCoordinate, Integer> mapCoordinateCount = new HashMap<>();
+
+            for (BookingRecord bookingRecord : bookingRecords) {
+                MapCoordinate dropoffCoordinate = bookingRecord.getDropoffCoordinate();
+                if (mapCoordinateCount.containsKey(dropoffCoordinate)) {
+                    mapCoordinateCount.put(dropoffCoordinate, mapCoordinateCount.get(dropoffCoordinate) + 1);
+                } else {
+                    mapCoordinateCount.put(dropoffCoordinate, 1);
+                }
+            }
+
+            // Sort the map by value
+            HashMap<MapCoordinate, Integer> sortedMap = mapCoordinateCount.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+            // Get the top topArrivalDto
+            TopCoorRespDto topCoorRespDto = new TopCoorRespDto();
+            int count = 0;
+            for (Map.Entry<MapCoordinate, Integer> entry : sortedMap.entrySet()) {
+                if (count >= topArrivalDto.getCount()) {
+                    break;
+                }
+                topCoorRespDto.getTopCoordinates().add(entry.getKey());
+                count++;
+            }
+
+
+            // Return the top topArrivalDto
+            return ResponseEntity.ok(topCoorRespDto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/top_destinations")
+    public ResponseEntity<TopCoorRespDto> getTopDestinations(@RequestBody TopCoorReqDto topDestinationDto) {
+        try {
+            // Reject if number of destinations is too large or < 1
+            if (topDestinationDto.getCount() > 10 || topDestinationDto.getCount() < 1) {
+                return ResponseEntity.badRequest().build();
+            }
+
+
+            // Get the top destinations
+            List<BookingRecord> bookingRecords = bookingService.findByUserIdAndPhoneNumber(topDestinationDto.getUserId(), topDestinationDto.getPhoneNumber());
+            HashMap<MapCoordinate, Integer> mapCoordinateCount = new HashMap<>();
+
+            for (BookingRecord bookingRecord : bookingRecords) {
+                MapCoordinate dropoffCoordinate = bookingRecord.getDropoffCoordinate();
+                if (mapCoordinateCount.containsKey(dropoffCoordinate)) {
+                    mapCoordinateCount.put(dropoffCoordinate, mapCoordinateCount.get(dropoffCoordinate) + 1);
+                } else {
+                    mapCoordinateCount.put(dropoffCoordinate, 1);
+                }
+            }
+
+            // Sort the map by value
+            HashMap<MapCoordinate, Integer> sortedMap = mapCoordinateCount.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+            // Get the top destinations
+            TopCoorRespDto topCoorRespDto = new TopCoorRespDto();
+            int count = 0;
+            for (Map.Entry<MapCoordinate, Integer> entry : sortedMap.entrySet()) {
+                if (count >= topDestinationDto.getCount()) {
+                    break;
+                }
+                topCoorRespDto.getTopCoordinates().add(entry.getKey());
+                count++;
+            }
+
+
+            // Return the top destinations
+            return ResponseEntity.ok(topCoorRespDto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/create_booking")
