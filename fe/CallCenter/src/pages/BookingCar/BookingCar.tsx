@@ -8,13 +8,21 @@ import "antd/dist/antd.css";
 import {AutoComplete, Button, Modal, Table} from 'antd';
 import {connect, ConnectedProps} from "react-redux"
 import {bookingCar} from "./BookingCar.thunks";
-import {featuresLocation, info2Location} from "../../@types/bookingcar";
+import {featuresLocation, info2Location, timestamp} from "../../@types/bookingcar";
 import BookingService from "../../service/BookingCar/BookingService";
 import {coordinate} from "../../@types/map";
+import {recentPhoneNumber} from "../../@types/bookingcar";
 import {Col, Row} from "react-bootstrap";
-import type { ColumnsType } from 'antd/es/table';
+import type {ColumnsType} from 'antd/es/table';
 import {useDebounce} from "../../hooks/useDebounce";
-import {notification} from "../../service/Fcm/FcmService";
+import {
+  addPhoneRecent,
+  convertDateFireBase,
+  databaseFireBase,
+  notification
+} from "../../service/FireBase/FirebaseService";
+import {collection, getDocs,addDoc} from 'firebase/firestore'
+import firebase from "firebase/compat";
 
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 const mapStateToProps = state => ({})
@@ -36,16 +44,32 @@ const connector = connect(mapStateToProps, mapDispatchToProps)
 
 interface Props extends ConnectedProps<typeof connector> {
 }
-
 const BookingCar = (props: Props) => {
   const {bookingCar} = props
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [carType,setCarType]=useState("");
+  const [carType, setCarType] = useState("");
   const [departure, setDeparture] = useState<featuresLocation>({
     value: undefined,
     coordinate: undefined,
   });
+  const userCollection = collection(databaseFireBase , "HistoryPhoneNumber");
+  const [recentPhoneNumber, setRecentPhoneNumber] = useState<object[]>([]);
+  useEffect(() => {
+    const getData = async () => {
+      const data = await getDocs(userCollection);
+      const array=data.docs.map((doc)=>{
+        const arr:recentPhoneNumber={
+          date: convertDateFireBase(doc.data()?.date),
+          phonenumber:doc.data()?.phonenumber
+        }
+        return arr
+      });
+      setRecentPhoneNumber(array)
+    }
+    getData()
+  }, []);
+  console.log(recentPhoneNumber)
   const [departureAutocomplete, setDepartureAutocomplete] = useState<{ value: string, coordinate: coordinate }[]>([]);
 
   const [destination, setDestination] = useState<featuresLocation>({
@@ -53,12 +77,12 @@ const BookingCar = (props: Props) => {
     coordinate: undefined,
   });
   const [destinationAutocomplete, setDestinationAutocomplete] = useState<{ value: string, coordinate: coordinate }[]>([]);
-  const [visibleDesination,setVisibleDesination]=useState(false)
-  const [visibleDeparture,setVisibleDeparture]=useState(false)
+  const [visibleDesination, setVisibleDesination] = useState(false)
+  const [visibleDeparture, setVisibleDeparture] = useState(false)
   const [note, setNote] = useState("");
   const history = useHistory();
-  const debounceDestination=useDebounce(destination.value,500)
-  const debounceDeparture=useDebounce(departure.value,500)
+  const debounceDestination = useDebounce(destination.value, 500)
+  const debounceDeparture = useDebounce(departure.value, 500)
   useEffect(() => {
     let isApi = true;
     const getAutoCompleteDeparture = async () => {
@@ -76,8 +100,7 @@ const BookingCar = (props: Props) => {
           }))
           setDepartureAutocomplete(data)
         })
-      }
-      else{
+      } else {
         setDepartureAutocomplete([])
       }
     }
@@ -104,8 +127,7 @@ const BookingCar = (props: Props) => {
           }));
           setDestinationAutocomplete(data)
         })
-      }
-      else{
+      } else {
         setDestinationAutocomplete([])
       }
     }
@@ -115,9 +137,9 @@ const BookingCar = (props: Props) => {
     })
   }, [destination.value]);
 
-  useEffect(()=> {
+  useEffect(() => {
     notification();
-  },[])
+  }, [])
   const onSelectedDeparture = (address) => {
     const temp: { value: string; coordinate: coordinate }[] | undefined = departureAutocomplete?.filter(index => (
       index.value === address
@@ -157,7 +179,7 @@ const BookingCar = (props: Props) => {
   const onChangeNote = (event) => {
     setNote(event?.target?.value)
   }
-  const onChangeCarType=(event)=>{
+  const onChangeCarType = (event) => {
     setCarType(event?.target?.value)
   }
   const submit = event => {
@@ -212,7 +234,7 @@ const BookingCar = (props: Props) => {
                   />
                 </Col>
                 <Col xs lg md sm="4" className="">
-                  <button className="btn  btn-info btn-md" onClick={()=>setVisibleDeparture(true)}>
+                  <button className="btn  btn-info btn-md" onClick={() => setVisibleDeparture(true)}>
                     Lịch sử đón
                   </button>
                 </Col>
@@ -237,7 +259,7 @@ const BookingCar = (props: Props) => {
                   />
                 </Col>
                 <Col xs lg md sm="4" className="">
-                  <button className="btn  btn-info btn-md" onClick={()=>setVisibleDesination(true)}>
+                  <button className="btn  btn-info btn-md" onClick={() => setVisibleDesination(true)}>
                     Lịch sử đến
                   </button>
                 </Col>
@@ -256,9 +278,14 @@ const BookingCar = (props: Props) => {
                     destination: destination
                   }
                   bookingCar(position)
+                  // const recentPhoneNumber:recentPhoneNumber={
+                  //   date:convertDateFireBase({seconds:new Date().getTime() / 1000,nanoseconds:} as timestamp),
+                  //   phonenumber:phoneNumber
+                  // }
+                  // addPhoneRecent(collection(databaseFireBase , "HistoryPhoneNumber"),recentPhoneNumber)
                   history.push(PATH.MAP);
                 } else {
-                 const message=MessageWarningService.getInstance("Vui lòng điền đầy đủ thông tin")
+                  const message = MessageWarningService.getInstance("Vui lòng điền đầy đủ thông tin")
                 }
               }}>
                 Xác nhận
@@ -294,8 +321,6 @@ const BookingCar = (props: Props) => {
 }
 
 
-
-
 interface DataType {
   key: React.Key;
   phoneNumber: string;
@@ -307,12 +332,12 @@ const columns: ColumnsType<DataType> = [
   {
     title: 'Số điện thoại',
     dataIndex: 'phoneNumber',
-    render: text => <a >{text}</a>,
+    render: text => <a>{text}</a>,
   },
   {
     title: 'Địa chỉ',
     dataIndex: 'address',
-    render: text => <a style={{color:'blue',textDecorationLine:"underline"}}>{text}</a>,
+    render: text => <a style={{color: 'blue', textDecorationLine: "underline"}}>{text}</a>,
   },
   {
     title: 'Thời gian đặt',
@@ -355,15 +380,15 @@ const HistoryItem = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
+      <div style={{marginBottom: 16}}>
         <Button type="primary" onClick={start} disabled={!hasSelected} loading={loading}>
           Reload
         </Button>
-        <span style={{ marginLeft: 8 }}>
+        <span style={{marginLeft: 8}}>
           {hasSelected ? `Selected ${selectedRowKeys.length} items` : ''}
         </span>
       </div>
-      <Table rowSelection={rowSelection} columns={columns} dataSource={data}  />
+      <Table rowSelection={rowSelection} columns={columns} dataSource={data}/>
     </div>
   );
 };
