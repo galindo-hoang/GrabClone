@@ -7,6 +7,7 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.fcm.model.domain.*;
@@ -14,6 +15,7 @@ import com.example.fcm.model.dto.*;
 import com.example.fcm.model.entity.*;
 import com.example.fcm.service.*;
 
+@RequestMapping("/api/v1/fcm")
 @RestController
 @Slf4j
 public class NotificationController {
@@ -121,13 +123,17 @@ public class NotificationController {
             FcmTokenRecord tokenRecord = tokenStoreService
                     .findByUserId(Integer.parseInt(notificationRequestDto.getTarget()));
             if (tokenRecord != null) {
-                NotificationRequest notificationRequest = new NotificationRequest(tokenRecord.getFcmToken(),
-                        notificationRequestDto.getTitle(), notificationRequestDto.getBody());
+                NotificationRequest notificationRequest = new NotificationRequest(
+                        tokenRecord.getFcmToken(),
+                        notificationRequestDto.getTitle(),
+                        notificationRequestDto.getBody(),
+                        notificationRequestDto.getData());
                 String response = notificationService.sendPnsToDevice(notificationRequest);
                 if (response != null) {
-                    log.info("Send PNS to device: {} for userId: {}, title: {}, body: {} success",
+                    log.info("Send PNS to device: {} for userId: {}, title: {}, body: {}, data: {} success",
                             tokenRecord.getFcmToken(), notificationRequestDto.getTarget(),
-                            notificationRequestDto.getTitle(), notificationRequestDto.getBody());
+                            notificationRequestDto.getTitle(), notificationRequestDto.getBody(),
+                            notificationRequestDto.getData());
                     return response;
                 } else {
                     log.info("No response from FCM for userId: {}", notificationRequestDto.getTarget());
@@ -149,7 +155,8 @@ public class NotificationController {
                 NotificationRequest notificationRequest = new NotificationRequest(
                         notificationRequestDto.getTarget(),
                         notificationRequestDto.getTitle(),
-                        notificationRequestDto.getBody());
+                        notificationRequestDto.getBody(),
+                        notificationRequestDto.getData());
                 log.info("Send PNS to topic: {} success", notificationRequestDto.getTarget());
                 return notificationService.sendPnsToTopic(notificationRequest);
             } else {
