@@ -20,3 +20,13 @@ export interface info2Location{
   destination?:featuresLocation,
   departure?:featuresLocation
 }
+
+export interface recentPhoneNumber{
+  phonenumber?:string,
+  date?:any
+}
+
+export interface timestamp{
+  seconds: number,
+  nanoseconds: number,
+}
