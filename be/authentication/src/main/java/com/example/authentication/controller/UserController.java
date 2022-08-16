@@ -53,6 +53,11 @@ public class UserController {
         return ResponseEntity.ok(modelMapper.map(userService.findByUserByPhoneNumber(phoneNumber).getId(), Integer.class));
     }
 
+    @GetMapping("/username/{username}")
+    public ResponseEntity<Integer> getUserByUserName(@PathVariable String username) {
+        return ResponseEntity.ok(modelMapper.map(userService.findByUserByUserName(username).getId(), Integer.class));
+    }
+
 }
 
 @Data

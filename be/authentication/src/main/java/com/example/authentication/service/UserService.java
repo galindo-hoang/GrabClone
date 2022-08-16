@@ -14,4 +14,5 @@ public interface UserService {
     User saveUser(User user);
 
     User findByUserByPhoneNumber(String phonenumber);
+    User findByUserByUserName(String username);
 }
