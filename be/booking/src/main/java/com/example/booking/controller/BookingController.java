@@ -7,6 +7,9 @@ import com.example.booking.service.*;
 
 import java.util.Date;
 import java.util.HashMap;
+
+import com.example.clients.feign.NotificationRequest.NotificationRequestClient;
+import com.example.clients.feign.NotificationRequest.NotificationRequestDto;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -27,7 +30,8 @@ public class BookingController {
     private RideStoreService rideService;
     @Autowired
     private RestTemplate restTemplate;
-
+    @Autowired
+    private NotificationRequestClient notificationRequestClient;
     private HttpHeaders requestHeader;
     private HttpEntity<String> requestEntity;
 
@@ -37,13 +41,10 @@ public class BookingController {
     private HashMap<Integer, Pair<RideRecord, BookingRecord>> rideRecordMap;
 
     public BookingController() {
-        requestHeader = new HttpHeaders();
-        requestHeader.setContentType(MediaType.APPLICATION_JSON);
-        requestHeader.set("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwaHVjIiwicm9sZXMiOlsiUk9MRV9EUklWRVIiXSwiaXNzIjoiaHR0cDovL2hvc3QuZG9ja2VyLmludGVybmFsOjgwODEvbG9naW4iLCJleHAiOjE2NjA0MDc2NzV9.C7hcOWM6Em5vz7g9F0fk28EAiPexR3mhE7Re5waXi0k");
-        requestEntity = new HttpEntity<String>(null, requestHeader);
         bookingRecordMap = new HashMap<>();
         rideRecordMap = new HashMap<>();
     }
+
     @PostMapping("/create_booking")
     public ResponseEntity<BookingRequestDto> createBooking(@RequestBody BookingRequestDto bookingDto) {
         try {
@@ -65,27 +66,26 @@ public class BookingController {
 
             // Send booking notification to all drivers using FCM service
             Integer bookingId = bookingRecord.getId();
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("target", "booking");
-            jsonObject.put("title", "New booking");
-            jsonObject.put("body", "A new booking is available");
-            jsonObject.put("data", new HashMap<String, String>() {{
-                put("bookingId", bookingId.toString());
-                put("pickupLatitude", bookingDto.getPickupLatitude().toString());
-                put("pickupLongitude", bookingDto.getPickupLongitude().toString());
-                put("dropoffLatitude", bookingDto.getDropoffLatitude().toString());
-                put("dropoffLongitude", bookingDto.getDropoffLongitude().toString());
-                put("typeCar", bookingDto.getTypeCar());
-                put("price", bookingDto.getPrice().toString());
-                put("paymentMethod", bookingDto.getPaymentMethod());
-            }});
 
-            requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
-            ResponseEntity<Integer> response = restTemplate.exchange(
-                    "http://localhost:8082/fcm/topic", HttpMethod.POST, requestEntity, Integer.class);
-            requestEntity = new HttpEntity<String>(null, requestHeader);
-
-
+            // Create notification request
+            NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
+                    .target("booking")
+                    .title("New booking")
+                    .body("A new booking is available")
+                    .data(new HashMap<String, String>() {
+                        {
+                            put("bookingId", bookingId.toString());
+                            put("pickupLatitude", bookingDto.getPickupLatitude().toString());
+                            put("pickupLongitude", bookingDto.getPickupLongitude().toString());
+                            put("dropoffLatitude", bookingDto.getDropoffLatitude().toString());
+                            put("dropoffLongitude", bookingDto.getDropoffLongitude().toString());
+                            put("typeCar", bookingDto.getTypeCar());
+                            put("price", bookingDto.getPrice().toString());
+                            put("paymentMethod", bookingDto.getPaymentMethod());
+                        }
+                    }).build();
+            // Send notification request to FCM service
+            String fcmResponse = notificationRequestClient.sendPnsToUser(notificationRequestDto);
             // Return success response
             return ResponseEntity.ok().build();
         } catch (Exception e) {
