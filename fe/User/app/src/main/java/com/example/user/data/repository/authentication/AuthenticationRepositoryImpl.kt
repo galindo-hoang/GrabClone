@@ -8,6 +8,7 @@ import com.example.user.data.model.authentication.*
 import com.example.user.data.model.converter.TokenConverter
 import com.example.user.data.model.mapper.UserMapper
 import com.example.user.domain.repository.AuthenticationRepository
+import com.example.user.exception.ExpiredRefreshTokenExceptionCustom
 import com.example.user.utils.Constant.convertTimeLongToDateTime
 import com.example.user.utils.Constant.getCurrentDate
 import com.example.user.utils.Constant.getPayloadDataFromJWTAccessToken
@@ -57,11 +58,10 @@ class AuthenticationRepositoryImpl @Inject constructor(
         }
         val bodyAccessToken = getPayloadDataFromJWTAccessToken(accessToken)
         if(getCurrentDate() >= convertTimeLongToDateTime(bodyAccessToken.exp)){
-            Log.e("checking----","hello")
             val refreshToken = authenticationCacheDataResource.getRefreshToken()
             val bodyRefreshToken = getPayloadDataFromJWTRefreshToken(refreshToken)
             if(getCurrentDate() >= convertTimeLongToDateTime(bodyRefreshToken.exp)){
-                throw Exception("Please Login Account again")
+                throw ExpiredRefreshTokenExceptionCustom(this.getAccount().username!!)
             }
             try {
                 accessToken = getAccessTokenFromRemote(refreshToken)
@@ -112,6 +112,10 @@ class AuthenticationRepositoryImpl @Inject constructor(
         return userDto
     }
 
+    override suspend fun getNumberAccount(): Int = authenticationLocalDataResource.getAllUser().size
+
+    override suspend fun getNumberToken(): Int = authenticationLocalDataResource.getAllToken().size
+
     private suspend fun getAccountFromLocal(): UserDto {
         val users = authenticationLocalDataResource.getAllUser()
         if(users.isEmpty()) throw Exception("Please Login Account")
@@ -120,10 +124,14 @@ class AuthenticationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun clearAll() {
-        authenticationLocalDataResource.clearAllToken()
-        authenticationLocalDataResource.clearAllUser()
-        authenticationCacheDataResource.updateUser(null)
-        authenticationCacheDataResource.updateToken(null)
+        try {
+            authenticationLocalDataResource.clearAllToken()
+            authenticationLocalDataResource.clearAllUser()
+            authenticationCacheDataResource.updateUser(null)
+            authenticationCacheDataResource.updateToken(null)
+        } catch (e: Exception) {
+            throw Exception("cant log out")
+        }
     }
 
 }
