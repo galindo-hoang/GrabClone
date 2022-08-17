@@ -19,6 +19,9 @@ interface AuthenticationRepository {
     suspend fun postAccountLogin(requestBody: RequestBody): Response<ResponseLogin>
     // after login
     suspend fun getAccount(): UserDto
+    // open app
+    suspend fun getNumberAccount(): Int
+    suspend fun getNumberToken(): Int
     // clear
     suspend fun clearAll()
 

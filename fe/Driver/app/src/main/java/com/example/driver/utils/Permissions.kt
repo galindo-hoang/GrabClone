@@ -1,4 +1,4 @@
-package com.example.user.utils
+package com.example.driver.utils
 
 import android.Manifest
 import android.app.Activity

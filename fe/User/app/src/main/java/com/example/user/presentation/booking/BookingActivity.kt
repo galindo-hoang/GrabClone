@@ -20,11 +20,13 @@ import com.example.user.utils.Constant.decodePoly
 import com.example.user.utils.Status
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.*
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -58,23 +60,23 @@ class BookingActivity : BaseActivity() {
 
 
 
-//        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-//            if (!task.isSuccessful) {
-//                Log.e("TAG", "Fetching FCM registration token failed", task.exception)
-//                return@OnCompleteListener
-//            }
-//            val msg = task.result
-//            Log.e("TAG", msg)
-//            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-//        })
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.e("TAG", "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+            val msg = task.result
+            Log.e("TAG", msg)
+            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+        })
 
-        if(!Places.isInitialized())
-            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
-        placesClient = Places.createClient(this)
-
-        setupLoadPlaceFromGoogleMap()
-        setupHandleEventListener()
-        registerObserve()
+//        if(!Places.isInitialized())
+//            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
+//        placesClient = Places.createClient(this)
+//
+//        setupLoadPlaceFromGoogleMap()
+//        setupHandleEventListener()
+//        registerObserve()
     }
 
     private fun setupHandleEventListener() {

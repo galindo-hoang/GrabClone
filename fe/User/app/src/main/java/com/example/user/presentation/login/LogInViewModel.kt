@@ -21,8 +21,8 @@ class LogInViewModel @Inject constructor(
         if(_userName.value != null || _password.value != null){
             runBlocking {
                 val user = loginUseCase.invoke(Login(_userName.value!!,_password.value!!))
-                if(user == null) isLogin.postValue(-1)
-                else isLogin.postValue(1)
+                if(user == null) _isLogin.postValue(-1)
+                else _isLogin.postValue(1)
             }
         }else _isLogin.postValue(0)
     }

@@ -12,6 +12,11 @@ class BookingRemoteDataResourceImpl @Inject constructor(
 ): BookingRemoteDataResource {
     override suspend fun bookingDriver(): Response<Int> {
         Log.e("checking----------","a")
-        return bookingApi.checkk()
+        try {
+            return bookingApi.checkk()
+        }catch (e:Exception) {
+            Log.e("+++++",e.message.toString())
+            throw e
+        }
     }
 }
