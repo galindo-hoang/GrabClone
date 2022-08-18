@@ -1,6 +1,18 @@
 import * as actions from "./BookingCar.actions"
-import {location,info2Location} from "../../@types/bookingcar"
-export const bookingCar = (location: info2Location) => async dispatch => {
-  localStorage.setItem("location", JSON.stringify(location))
-  return dispatch(actions.bookingCarRequested(location));
+import {location, info2Location, bookingCarForm, createBooking} from "../../@types/bookingcar"
+import ProcessBookingService from "../../service/BookingCar/ProcessBookingService";
+export const saveBookinfCar = (booking: bookingCarForm) => async dispatch => {
+  localStorage.setItem("location", JSON.stringify(booking.address))
+  localStorage.setItem("userName",booking.fullName as string)
+  localStorage.setItem("carType",booking.typeCar as string);
+  localStorage.setItem("phoneNumber",booking.phoneNumber as string);
+  return dispatch(actions.saveBookingCar(booking));
+}
+
+
+export const createBookingCar = (payload:createBooking) => async dispatch => {
+  ProcessBookingService.createBooking(payload)
+    .then(reponse=>{console.log(reponse)})
+    .catch(error=>console.log(error))
+  return dispatch(actions.createBookingCar(payload));
 }

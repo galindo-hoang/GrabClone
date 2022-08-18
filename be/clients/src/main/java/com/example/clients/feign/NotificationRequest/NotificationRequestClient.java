@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient("FCM")
 public interface NotificationRequestClient {
-    @PostMapping(path = "api/v1/topic")
+    @PostMapping(path = "api/v1/fcm/topic")
     String sendPnsToUser(@RequestBody NotificationRequestDto notificationRequestDto);
 }

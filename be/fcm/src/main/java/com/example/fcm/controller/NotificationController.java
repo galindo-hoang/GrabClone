@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.fcm.model.domain.*;
 import com.example.fcm.model.dto.*;
@@ -18,6 +15,7 @@ import com.example.fcm.service.*;
 @RequestMapping("/api/v1/fcm")
 @RestController
 @Slf4j
+@CrossOrigin(origins = "http://localhost:3000")
 public class NotificationController {
     @Autowired
     private NotificationService notificationService;
@@ -150,6 +148,7 @@ public class NotificationController {
 
     @PostMapping("/topic")
     public String sendPnsToTopic(@RequestBody NotificationRequestDto notificationRequestDto) {
+        System.out.println("hahhahaha"+notificationRequestDto);
         try {
             if (topicNameService.findByTopicName(notificationRequestDto.getTarget()) != null) {
                 NotificationRequest notificationRequest = new NotificationRequest(

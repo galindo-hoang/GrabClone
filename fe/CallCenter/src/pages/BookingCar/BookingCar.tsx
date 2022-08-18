@@ -5,10 +5,10 @@ import {PATH} from "../../constants/paths";
 import {useHistory} from "react-router-dom";
 import {MessageWarningService} from "src/service/Message/MessageService";
 import "antd/dist/antd.css";
-import {AutoComplete, Button, Modal, Table} from 'antd';
+import {AutoComplete, Button, Dropdown, Menu, MenuProps, Modal, Space, Table} from 'antd';
 import {connect, ConnectedProps} from "react-redux"
-import {bookingCar} from "./BookingCar.thunks";
-import {featuresLocation, info2Location, timestamp} from "../../@types/bookingcar";
+import {createBookingCar, saveBookinfCar} from "./BookingCar.thunks";
+import {bookingCarForm, createBooking, featuresLocation, info2Location, timestamp} from "../../@types/bookingcar";
 import BookingService from "../../service/BookingCar/BookingService";
 import {coordinate} from "../../@types/map";
 import {recentPhoneNumber} from "../../@types/bookingcar";
@@ -23,12 +23,16 @@ import {
 } from "../../service/FireBase/FirebaseService";
 import {collection, getDocs,addDoc} from 'firebase/firestore'
 import firebase from "firebase/compat";
+import DownOutlined from "@ant-design/icons/lib/icons/DownOutlined";
+import {saveBookingCar} from "./BookingCar.actions";
+import ProcessBookingService from "../../service/BookingCar/ProcessBookingService";
 
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 const mapStateToProps = state => ({})
 
 const mapDispatchToProps = {
-  bookingCar
+  saveBookingCar,
+  createBookingCar
 }
 
 const isBlank = (index: string) => {
@@ -41,13 +45,15 @@ const isBlank = (index: string) => {
   return false;
 }
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface Props extends ConnectedProps<typeof connector> {
 }
+
+
+
 const BookingCar = (props: Props) => {
-  const {bookingCar} = props
+  const {saveBookingCar,createBookingCar} = props
   const [fullName, setFullName] = useState("");
-  const [carType, setCarType] = useState("");
+  const [carType, setCarType] = useState("Chọn loại xe");
   const userCollection = collection(databaseFireBase , "HistoryPhoneNumber");
   const [recentPhoneNumber, setRecentPhoneNumber] = useState<object[]>([]);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -80,10 +86,10 @@ const BookingCar = (props: Props) => {
   const [destinationAutocomplete, setDestinationAutocomplete] = useState<{ value: string, coordinate: coordinate }[]>([]);
   const [visibleDesination, setVisibleDesination] = useState(false)
   const [visibleDeparture, setVisibleDeparture] = useState(false)
-  const [note, setNote] = useState("");
+  const [dropdownTypeCar,setDropdownTypeCar]=useState<any>();
   const history = useHistory();
   const debounceDestination = useDebounce(destination.value, 500)
-  const debounceDeparture = useDebounce(departure.value, 500)
+  const debounceDeparture = useDebounce(departure.value, 500);
 
   useEffect(() => {
     let isApi = true;
@@ -112,7 +118,6 @@ const BookingCar = (props: Props) => {
     })
   }, [departure.value])
 
-
   useEffect(() => {
     let isApi = true;
     const getAutoCompleteDestination = async () => {
@@ -139,7 +144,35 @@ const BookingCar = (props: Props) => {
       isApi = false;
     })
   }, [destination.value]);
-
+  useEffect(()=>{
+    const menu = (
+      <Menu
+        onClick={onClick}
+        items={[
+          {
+            key: 'MOTORCYCLE',
+            label: (
+              <a target="_blank"  >
+                MOTORCYCLE
+              </a>
+            ),
+          },
+          {
+            key: 'CAR',
+            label: (
+              <a target="_blank" >
+                CAR
+              </a>
+            ),
+          },
+        ]}
+      />
+    );
+    setDropdownTypeCar(menu)
+  },[]);
+  const onClick: MenuProps['onClick'] = ({ key }) => {
+    setCarType(key);
+  };
   const onSelectedPhoneNumber=(phoneNumber)=>{
     const temp=recentPhoneNumber.filter((index:recentPhoneNumber)=> {
       if(index.phonenumber === phoneNumber){
@@ -184,12 +217,6 @@ const BookingCar = (props: Props) => {
       value: data
     });
   }
-  const onChangeNote = (event) => {
-    setNote(event?.target?.value)
-  }
-  const onChangeCarType = (event) => {
-    setCarType(event?.target?.value)
-  }
 
   return (
     <MainLayout>
@@ -220,13 +247,22 @@ const BookingCar = (props: Props) => {
                 onSelect={onSelectedPhoneNumber}
                 placeholder="Điền số điện thoại"
               />
+              <Row>
+                <Col xs lg md sm="12">
               <label className="float-left mb-1">Loại xe</label>
-              <input
-                type="text"
-                placeholder="Điền loại xe"
-                className="form-control form-control-lg mb-3"
-                onChange={onChangeCarType}
-              />
+                </Col>
+              </Row>
+              <Row style={{position: "relative", width: "500px"}}>
+                <Col xs lg md sm="12">
+                  <Dropdown.Button
+                    className="float-left mb-1"
+                    icon={<DownOutlined />}
+                    overlay={dropdownTypeCar}
+                  >
+                    {carType}
+                  </Dropdown.Button>
+                </Col>
+              </Row>
               <Row>
                 <Col xs lg md sm="12">
                   <label className="float-left mb-1">Địa chỉ đón</label>
@@ -277,20 +313,31 @@ const BookingCar = (props: Props) => {
                   </button>
                 </Col>
               </Row>
-              <label className="float-left mb-1">Ghi chú</label>
-              <input
-                type="text"
-                placeholder="Điền ghi chú"
-                className="form-control form-control-lg mb-3"
-                onChange={onChangeNote}
-              />
               <button type="submit" className="btn btn-block btn-info btn-lg" onClick={() => {
                 if (isBlank(destination.value as string) === false && isBlank(departure.value as string) === false) {
                   const position: info2Location = {
                     departure: departure,
                     destination: destination
                   }
-                  bookingCar(position)
+                  const bookingCarForm:bookingCarForm={
+                    address:position,
+                    typeCar:carType,
+                    phoneNumber:phoneNumber,
+                    fullName:fullName
+                  }
+                  const createBooking:createBooking={
+                    phonenumber:phoneNumber,
+                    userId:123,
+                    typeCar:carType,
+                    pickupLatitude:position.departure?.coordinate?.latitude,
+                    pickupLongitude:position.departure?.coordinate?.longitude,
+                    dropoffLatitude:position.destination?.coordinate?.latitude,
+                    dropoffLongitude:position.destination?.coordinate?.longitude,
+                    paymentMethod:"CREDIT_CARD",
+                    price:100000
+                  }
+                  saveBookingCar(bookingCarForm as bookingCarForm);
+                  createBookingCar(createBooking as createBooking)
                   const recentPhoneNumber:recentPhoneNumber={
                     date:firebase.firestore.Timestamp.fromDate(new Date()),
                     phonenumber:phoneNumber
@@ -298,6 +345,7 @@ const BookingCar = (props: Props) => {
                   addPhoneRecent(collection(databaseFireBase , "HistoryPhoneNumber"),recentPhoneNumber)
                   history.push(PATH.MAP);
                 } else {
+                  ProcessBookingService.finishBooking().then(payoad=>console.log(payoad))
                   const message = MessageWarningService.getInstance("Vui lòng điền đầy đủ thông tin")
                 }
               }}>

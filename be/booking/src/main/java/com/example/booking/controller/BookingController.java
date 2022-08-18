@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/v1/booking")
 public class BookingController {
     @Autowired
@@ -47,6 +48,7 @@ public class BookingController {
 
     @PostMapping("/create_booking")
     public ResponseEntity<BookingRequestDto> createBooking(@RequestBody BookingRequestDto bookingDto) {
+        System.out.println("test"+bookingDto);
         try {
             // Create booking record and save it to database
             BookingRecord bookingRecord = BookingRecord.builder()
@@ -215,8 +217,6 @@ public class BookingController {
             if (!rideRecordMap.containsKey(driverLocationDto.getUserId())) {
                 return ResponseEntity.notFound().build();
             }
-
-
             // Push the driver's location to the passenger
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("target", rideRecordMap.get(driverLocationDto.getUserId()).getSecond().getPassengerId());
@@ -227,13 +227,10 @@ public class BookingController {
                 put("latitude", driverLocationDto.getLatitude().toString());
                 put("longitude", driverLocationDto.getLongitude().toString());
             }});
-
             requestEntity = new HttpEntity<String>(jsonObject.toString(), requestHeader);
             ResponseEntity<Integer> response = restTemplate.exchange(
                     "http://localhost:8082/fcm/user", HttpMethod.POST, requestEntity, Integer.class);
             requestEntity = new HttpEntity<String>(null, requestHeader);
-
-
             // Return success response
             return ResponseEntity.ok().build();
         } catch (Exception e) {

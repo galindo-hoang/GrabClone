@@ -7,6 +7,7 @@ import {collection, getDocs,addDoc} from 'firebase/firestore'
 import {recentPhoneNumber, timestamp} from "../../@types/bookingcar";
 import axios from "axios";
 import { sendRegister } from "src/@types/fcm";
+import {instance} from "../Interceptor/ApiService";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 const vapidKey ="BGJAvRpdq0x88UOpB12JeMFx8GbZsttxJXxMuT2Glad3lneOAtTsAS4R1XyvngzWmLBmfo9f8A1Hz5gaITQbofU"
@@ -21,12 +22,22 @@ firebase.initializeApp( {
 });
 
 const POST_REGISTER_FCM="http://localhost:8082/api/v1/fcm/register";
+
+const configHeader={
+  headers:{
+    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    'Content-Type': 'multipart/form-data',
+  }
+}
+
+
 export const message = firebase.messaging();
 export const registerNotification=()=> {
   Notification.requestPermission().then((permisson) => {
     if(permisson==='granted') {
       message.getToken({vapidKey: vapidKey}).then(async token => {
-        console.log(token)
+        await axios.post(POST_REGISTER_FCM,{fcmToken:token,userId:456}as sendRegister).then(response=>console.log(response))
+          .catch(ex=>console.log("haha"))
         return token
       })
     }

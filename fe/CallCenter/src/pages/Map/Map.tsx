@@ -55,6 +55,7 @@ const mapStateToProps = state => ({
   closeSideNav: state.app.closeSideNav,
   departure: state.bookingCar?.departure,
   destination: state.bookingCar?.destination,
+  payloadFCM:state.app.payloadFCM||null,
   location:JSON.parse(localStorage.getItem("location") as string),
 })
 
@@ -65,14 +66,19 @@ interface Props extends ConnectedProps<typeof connector> {}
 
 
 enum StateBooking{
-  CanCel=-1,
-  LookingDriver,
-  DriverAccepted,
-  GuestSuccess,
-  GuestPay
+  CREATED,
+  CANCELLED,
+  REJECTED,
+  ACCEPTED
+}
+ enum RideState {
+  STARTED,
+  CANCELLED,
+  FINISHED
 }
 const Map = (props:Props) => {
-  const {closeSideNav,location} = props;
+  const {closeSideNav,location,payloadFCM} = props;
+  const [payloadFCMValue,setPayloadFCMValue]=useState<Object>(payloadFCM);
   const [viewCoordinate,setViewCoordinate]=useState<coordinate>({
     longitude:location.departure.coordinate.longitude as number,
     latitude:location.departure.coordinate.latitude as number,
@@ -97,6 +103,11 @@ const Map = (props:Props) => {
     destination:location.destination.value,
     departure:location.departure.value
   }
+
+  useEffect(()=>{
+    setPayloadFCMValue(payloadFCM);
+    console.log(payloadFCMValue)
+  },[payloadFCM])
 
   useEffect(() => {
     const checkDistance = async () => {

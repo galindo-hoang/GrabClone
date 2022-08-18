@@ -4,7 +4,8 @@ import produce from "immer"
 
 const initialState = {
   isAuthenticated: false,
-  closeSideNav: false
+  closeSideNav: false,
+  payloadFCM:Object
 }
 
 export const AppReducer = (state = initialState, action) =>
@@ -15,6 +16,10 @@ export const AppReducer = (state = initialState, action) =>
         localStorage.removeItem("refreshToken")
         draft.isAuthenticated = false
         break
+      case types.RECEIVED_FCM:
+        console.log(action.payload)
+        draft.payloadFCM=action.payload
+        break;
       case LOGIN_SUCCESS:
         draft.isAuthenticated = true
         break

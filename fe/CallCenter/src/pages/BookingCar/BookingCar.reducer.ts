@@ -13,6 +13,8 @@ export const bookingCarReducer=(state=initialState,action)=>
         draft.departure = action.payload.departure;
         draft.destination= action.payload.destination;
         break
+      case types.CREATE_BOOKING_CAR:
+
       default:
         return state;
     }

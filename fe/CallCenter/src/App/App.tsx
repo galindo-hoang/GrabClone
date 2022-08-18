@@ -8,30 +8,30 @@ import  Snackbar, {SnackbarOrigin} from '@material-ui/core/Snackbar';
 import axios from "axios";
 import {MessageLoadMapService} from "../service/Message/MessageService";
 import {NotificationService} from "../service/Notification/NotificationService";
-function Alert(props: AlertProps) {
-  return <MuiAlert  variant="filled" {...props} />;
-}
+import {connect, ConnectedProps} from "react-redux";
+import {saveBookinfCar} from "../pages/BookingCar/BookingCar.thunks";
+import {receivedPayload} from "./App.thunk";
 
-export interface State extends SnackbarOrigin {
-  open: boolean;
-  severity: "error" | "success" | "info" | "warning" | undefined
-}
 
-function App() {
-  const [stateData, setStateData] = useState<State>({
-    open: false,
-    vertical: 'bottom',
-    horizontal: 'left',
-    severity: 'success'
-  });
-  const [dataNotify, setDataNotify] = useState<Notification>({title: '', body: ''}as Notification);
+const mapStateToProps = state => ({})
+
+const mapDispatchToProps = {
+  receivedPayload
+}
+const connector = connect(mapStateToProps, mapDispatchToProps)
+interface Props extends ConnectedProps<typeof connector> {
+}
+const App=(props: Props) =>{
+  const {receivedPayload} = props;
   useEffect(()=>{
     registerNotification();
+    console.log("register")
   },[]);
+  useEffect(()=>{
     message.onMessage((payload) => {
-
-      console.log( payload.notification);
+      console.log(payload)
       const notification= NotificationService.getInstance(payload.notification.title,payload.notification.body);
+      receivedPayload(payload.data);
       // if (!payload?.notification) {
       //   setStateData({...stateData, open: true, severity: 'error'})
       //   return;
@@ -40,9 +40,7 @@ function App() {
       // setStateData({...stateData, open: true, severity: 'success'})
       // setDataNotify({title: notification.title, body: notification.body} as Notification)
     });
-  const handleClose = useCallback((event?: React.SyntheticEvent, reason?: string) => {
-    setStateData({ ...stateData, open: false });
-  }, [stateData]);
+  },[])
 
   return (
     <div>
@@ -54,4 +52,4 @@ function App() {
   )
 }
 
-export default App
+export default connector(App)
