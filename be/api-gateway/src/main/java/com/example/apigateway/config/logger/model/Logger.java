@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(schema = "public")
@@ -43,4 +45,10 @@ public class Logger {
     private String parameter;
     @Column
     private String processTime;
+
+    @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+
 }

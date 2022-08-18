@@ -19,12 +19,15 @@ public class GatewayConfig {
                 .route("sms", r -> r.path("/api/v1/sms/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://SMS"))
-                .route("sms", r -> r.path("/api/v1/users/**")
+                .route("authentication", r -> r.path("/api/v1/users/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://AUTHENTICATION"))
                 .route("booking", r -> r.path("/api/v1/booking/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://BOOKING"))
+                .route("fcm", r -> r.path("/api/v1/fcm-publish/**")
+                        .filters(f -> f.filter(filter))
+                        .uri("lb://FCM"))
                 .build();
 
     }
