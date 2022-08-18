@@ -13,7 +13,6 @@ import com.example.fcm.model.domain.*;
 import com.example.fcm.model.dto.*;
 import com.example.fcm.model.entity.*;
 import com.example.fcm.service.*;
-@CrossOrigin("localhost:3000")
 @RequestMapping("/api/v1/fcm")
 @RestController
 @Slf4j

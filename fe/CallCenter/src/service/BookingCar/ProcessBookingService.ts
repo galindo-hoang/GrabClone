@@ -7,6 +7,7 @@ const FINISH_BOOKING_URL="http://localhost:8085/api/v1/booking/finish_ride";
 
 class ProcessBookingService {
   createBooking= async (payload:createBooking)=>{
+    console.log(payload)
     return await instance.post(CREATE_BOOKING_URL,payload,{
       headers:{
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

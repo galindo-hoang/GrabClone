@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 @RestController
-@CrossOrigin("localhost:3000")
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1/booking")
 public class BookingController {
     @Autowired
@@ -48,6 +48,7 @@ public class BookingController {
 
     // Create a booking for a client vs call center
     @PostMapping("/create_booking")
+    @CrossOrigin("http://localhost:3000")
     public ResponseEntity<BookingRecord> createBooking(@RequestBody BookingRequestDto bookingDto) {
         try {
             // Create booking record and save it to database

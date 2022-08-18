@@ -29,6 +29,7 @@ export const registerNotification=()=> {
   Notification.requestPermission().then((permisson) => {
     if(permisson==='granted') {
       message.getToken({vapidKey: vapidKey}).then(async token => {
+        console.log({fcmToken:token,username:localStorage.getItem("userName") as string})
         await instance.post(POST_REGISTER_FCM,{fcmToken:token,username:localStorage.getItem("userName") as string}as sendRegister,{
           headers:{
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
