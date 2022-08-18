@@ -1,4 +1,4 @@
-package com.example.fcm.model.dto;
+package com.example.clients.feign.NotificationRequest;
 
 import lombok.Data;
 

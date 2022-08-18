@@ -7,7 +7,7 @@ import com.example.fcm.model.entity.FcmTokenRecord;
 
 @Repository
 public interface FCMTokenRepository extends JpaRepository<FcmTokenRecord, Integer> {
-    FcmTokenRecord findByUserId(Integer userId);
+    FcmTokenRecord findByUsername(String username);
 
     FcmTokenRecord findByFcmToken(String fcmToken);
 }
