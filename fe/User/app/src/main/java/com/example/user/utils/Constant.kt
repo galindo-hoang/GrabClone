@@ -12,6 +12,8 @@ import java.util.*
 
 
 object Constant {
+    const val SEARCHING_ROUTE: String = "Searching route"
+    const val CONTINUE: String = "Continue"
     const val SERVICE_ACCESS_TOKEN: String = "SERVICE_ACCESS_TOKEN"
     const val SERVICE_ACCESS_TOKEN_BOOLEAN: String = "SERVICE_ACCESS_TOKEN"
     const val REQUEST_CURRENT_LOCATION = 1
