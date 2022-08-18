@@ -11,7 +11,7 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface AuthenticationApi {
-    @POST("/register")
+    @POST("/user/register")
     suspend fun postResponseRegisterSaveAccount(
         @Body userDto: UserDto
     ): Response<BodyRegisterSaveAccount>
