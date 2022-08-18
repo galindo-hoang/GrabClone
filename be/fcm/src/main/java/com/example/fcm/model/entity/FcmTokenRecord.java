@@ -19,7 +19,7 @@ public class FcmTokenRecord implements Serializable {
     private Integer id;
 
     @Column(nullable = false, unique = true)
-    private Integer userId;
+    private String username;
 
     @Column(nullable = false, unique = true)
     private String fcmToken;

@@ -39,6 +39,7 @@ import reactor.core.scheduler.Schedulers;
 import java.io.ByteArrayOutputStream;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -74,6 +75,7 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
                 logger.setProcessTime(elapsedTime);
                 logger.setMethod(request.getMethodValue());
                 logger.setParameter(request.getQueryParams().toString());
+                logger.setCreatedAt(new Date());
                 loggerService.saveLogger(logger);
                 return response.writeWith(Mono.just(response.bufferFactory().wrap(
                         "Authorization header is missing".getBytes())));
@@ -99,6 +101,7 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
                 logger.setProcessTime(elapsedTime);
                 logger.setMethod(request.getMethodValue());
                 logger.setParameter(request.getQueryParams().toString());
+                logger.setCreatedAt(new Date());
                 loggerService.saveLogger(logger);
                 return response.writeWith(Mono.just(response.bufferFactory().wrap(
                         "Invalid token".getBytes())));
@@ -130,6 +133,7 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
                         logger.setResponseData(responseBody);
                         String elapsedTime = String.valueOf(System.currentTimeMillis() - startTime);
                         logger.setProcessTime(elapsedTime);
+                        logger.setCreatedAt(new Date());
                         loggerService.saveLogger(logger);
                         return dataBufferFactory.wrap(responseBody.getBytes());
                     })).onErrorResume(err -> {
@@ -137,12 +141,14 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
                         log.error("error while decorating Response: {}", err.getMessage());
                         String elapsedTime = String.valueOf(System.currentTimeMillis() - startTime);
                         logger.setProcessTime(elapsedTime);
+                        logger.setCreatedAt(new Date());
                         loggerService.saveLogger(logger);
                         return Mono.empty();
                     });
                 }
                 String elapsedTime = String.valueOf(System.currentTimeMillis() - startTime);
                 logger.setProcessTime(elapsedTime);
+                logger.setCreatedAt(new Date());
                 loggerService.saveLogger(logger);
                 return super.writeWith(body);
             }

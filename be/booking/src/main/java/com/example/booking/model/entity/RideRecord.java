@@ -24,10 +24,7 @@ public class RideRecord implements Serializable {
     private Integer bookingId;
 
     @Column(nullable = false)
-    private Integer driverId;
-
-    @Embedded
-    private RideState state;
+    private String driverUsername;
 
     @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
     @Temporal(TemporalType.TIMESTAMP)
@@ -36,6 +33,9 @@ public class RideRecord implements Serializable {
 
     @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = true)
+    @Column
     private Date endTime;
+
+    @Enumerated(EnumType.STRING)
+    private RideState rideState;
 }
