@@ -4,17 +4,17 @@ import {createBooking, location} from "../../@types/bookingcar"
 const initialState= {
   departure:null,
   destination:null,
-  // bookingForm:{
-  //   username:undefined,
-  //   price:undefined,
-  //   paymentMethod:undefined,
-  //   dropoffLongitude:undefined,
-  //   dropoffLatitude:undefined,
-  //   typeCar:undefined,
-  //   pickupLongitude:undefined,
-  //   pickupLatitude:undefined,
-  //   phonenumber:undefined
-  // } as createBooking
+  bookingForm:{
+    username:undefined,
+    price:undefined,
+    paymentMethod:undefined,
+    dropoffLongitude:undefined,
+    dropoffLatitude:undefined,
+    typeCar:undefined,
+    pickupLongitude:undefined,
+    pickupLatitude:undefined,
+    phonenumber:undefined
+  } as createBooking
 }
 
 export const bookingCarReducer=(state=initialState,action)=>
@@ -25,7 +25,7 @@ export const bookingCarReducer=(state=initialState,action)=>
         draft.destination= action.payload.address.destination;
         break
       case types.CREATE_BOOKING_CAR:
-        // draft.bookingForm=action.payload
+        draft.bookingForm=action.payload
         break
       default:
         return state;
