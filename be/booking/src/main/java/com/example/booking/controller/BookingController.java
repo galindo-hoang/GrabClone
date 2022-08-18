@@ -1,26 +1,31 @@
 package com.example.booking.controller;
 
-import com.example.booking.model.domain.*;
-import com.example.booking.model.dto.*;
-import com.example.booking.model.entity.*;
-import com.example.booking.service.*;
-
-import java.util.Date;
-import java.util.HashMap;
-
+import com.example.booking.model.domain.BookingState;
+import com.example.booking.model.domain.PaymentMethod;
+import com.example.booking.model.domain.RideState;
+import com.example.booking.model.domain.TypeCar;
+import com.example.booking.model.dto.BookingAcceptanceDto;
+import com.example.booking.model.dto.BookingRequestDto;
+import com.example.booking.model.dto.BookingRideUpdateDto;
+import com.example.booking.model.dto.DriverLocationDto;
+import com.example.booking.model.entity.BookingRecord;
+import com.example.booking.model.entity.RideRecord;
+import com.example.booking.service.BookingStoreService;
+import com.example.booking.service.RideStoreService;
 import com.example.clients.feign.NotificationRequest.NotificationRequestClient;
 import com.example.clients.feign.NotificationRequest.NotificationRequestDto;
 import com.example.clients.feign.NotificationRequest.SubscriptionRequestDto;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Date;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/v1/booking")
@@ -31,7 +36,7 @@ public class BookingController {
     private RideStoreService rideService;
     @Autowired
     private NotificationRequestClient notificationRequestClient;
-
+    private ObjectMapper Obj = new ObjectMapper();
 
     // The key is the booking id
     private HashMap<Integer, BookingRecord> bookingRecordMap;
@@ -51,8 +56,8 @@ public class BookingController {
             BookingRecord bookingRecord = BookingRecord.builder()
                     .passengerUsername(bookingDto.getUsername())
                     .phonenumber(bookingDto.getPhonenumber())
-                    .pickupCoordinate(new MapCoordinate(bookingDto.getPickupLatitude(), bookingDto.getPickupLongitude()))
-                    .dropoffCoordinate(new MapCoordinate(bookingDto.getDropoffLatitude(), bookingDto.getDropoffLongitude()))
+                    .pickupCoordinate(bookingDto.getPickupLocation())
+                    .dropoffCoordinate(bookingDto.getDropoffLocation())
                     .typeCar(TypeCar.valueOf(bookingDto.getTypeCar()))
                     .state(BookingState.CREATED)
                     .paymentMethod(PaymentMethod.valueOf(bookingDto.getPaymentMethod()))
@@ -71,16 +76,16 @@ public class BookingController {
                     .data(new HashMap<>() {
                         {
                             put("bookingId", bookingRecordSaving.toString());
-                            put("pickupLatitude", bookingDto.getPickupLatitude().toString());
-                            put("pickupLongitude", bookingDto.getPickupLongitude().toString());
-                            put("dropoffLatitude", bookingDto.getDropoffLatitude().toString());
-                            put("dropoffLongitude", bookingDto.getDropoffLongitude().toString());
+                            put("pickupLocation", Obj.writeValueAsString(bookingDto.getPickupLocation()));
+                            put("dropoffLocation", Obj.writeValueAsString(bookingDto.getDropoffLocation()));
                             put("typeCar", bookingDto.getTypeCar());
                             put("price", bookingDto.getPrice().toString());
                             put("paymentMethod", bookingDto.getPaymentMethod());
                         }
                     }).build();
 
+            // Send notification request to FCM service
+            notificationRequestClient.sendPnsToTopic(notificationRequestDto);
             // Return success response
             return ResponseEntity.ok(bookingRecordSaving);
         } catch (Exception e) {
@@ -146,16 +151,14 @@ public class BookingController {
             Date startTime = rideRecordSaving.getStartTime();
             NotificationRequestDto notificationForDriverAcceptBooking =
                     NotificationRequestDto.builder()
-                            .target(bookingAcceptanceDto.getUsername().toString())
+                            .target(bookingAcceptanceDto.getUsername())
                             .title("Booking successfully accepted")
                             .body("You have accepted the booking")
                             .data(new HashMap<>() {
                                 {
                                     put("bookingId", bookingRecordSaving.getId().toString());
-                                    put("pickupLatitude", bookingRecordSaving.getPickupCoordinate().getLatitude().toString());
-                                    put("pickupLongitude", bookingRecordSaving.getPickupCoordinate().getLongitude().toString());
-                                    put("dropoffLatitude", bookingRecordSaving.getDropoffCoordinate().getLatitude().toString());
-                                    put("dropoffLongitude", bookingRecordSaving.getDropoffCoordinate().getLongitude().toString());
+                                    put("pickupLocation", Obj.writeValueAsString(bookingRecordSaving.getPickupCoordinate()));
+                                    put("dropoffLocation", Obj.writeValueAsString(bookingRecordSaving.getDropoffCoordinate()));
                                     put("typeCar", bookingRecordSaving.getTypeCar().toString());
                                     put("price", bookingRecordSaving.getPrice().toString());
                                     put("paymentMethod", bookingRecordSaving.getPaymentMethod().toString());
@@ -173,12 +176,10 @@ public class BookingController {
                             .target(bookingRecordSaving.getPassengerUsername().toString())
                             .title("Booking successfully accepted")
                             .body("A driver has accepted your booking")
-                            .data(new HashMap<String, String>() {{
+                            .data(new HashMap<>() {{
                                 put("bookingId", bookingRecordSaving.getId().toString());
-                                put("pickupLatitude", bookingRecordSaving.getPickupCoordinate().getLatitude().toString());
-                                put("pickupLongitude", bookingRecordSaving.getPickupCoordinate().getLongitude().toString());
-                                put("dropoffLatitude", bookingRecordSaving.getDropoffCoordinate().getLatitude().toString());
-                                put("dropoffLongitude", bookingRecordSaving.getDropoffCoordinate().getLongitude().toString());
+                                put("pickupLocation", Obj.writeValueAsString(bookingRecordSaving.getPickupCoordinate()));
+                                put("dropoffLocation", Obj.writeValueAsString(bookingRecordSaving.getDropoffCoordinate()));
                                 put("typeCar", bookingRecordSaving.getTypeCar().toString());
                                 put("price", bookingRecordSaving.getPrice().toString());
                                 put("paymentMethod", bookingRecordSaving.getPaymentMethod().toString());
@@ -212,8 +213,8 @@ public class BookingController {
                     .data(new HashMap<>() {
                         {
                             put("rideId", rideRecordMap.get(driverLocationDto.getUsername()).getFirst().toString());
-                            put("latitude", driverLocationDto.getLatitude().toString());
-                            put("longitude", driverLocationDto.getLongitude().toString());
+                            put("driverLocation", Obj.writeValueAsString(driverLocationDto.getLocation()));
+
                         }
                     }).build();
 
@@ -398,10 +399,8 @@ public class BookingController {
                     .data(new HashMap<>() {
                         {
                             put("bookingId", bookingRecordSaving.toString());
-                            put("pickupLatitude", bookingRecordSaving.getPickupCoordinate().getLatitude().toString());
-                            put("pickupLongitude", bookingRecordSaving.getPickupCoordinate().getLongitude().toString());
-                            put("dropoffLatitude", bookingRecordSaving.getDropoffCoordinate().getLatitude().toString());
-                            put("dropoffLongitude", bookingRecordSaving.getDropoffCoordinate().getLongitude().toString());
+                            put("pickupLocation", Obj.writeValueAsString(bookingRecordSaving.getPickupCoordinate()));
+                            put("dropoffLocation", Obj.writeValueAsString(bookingRecordSaving.getDropoffCoordinate()));
                             put("typeCar", bookingRecordSaving.getTypeCar().toString());
                             put("paymentMethod", bookingRecordSaving.getPaymentMethod().toString());
                             put("price", bookingRecordSaving.getPrice().toString());
