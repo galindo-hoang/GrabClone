@@ -10,9 +10,9 @@ import javax.inject.Singleton
 class FCMRemoteDataResourceImpl @Inject constructor(
     private val fcmApi: FCMApi
 ) : FCMRemoteDataResource {
-    override suspend fun subscribeTopic(subscribeBody: SubscribeBody) =
-        fcmApi.subscribeTopic(subscribeBody)
-
-    override suspend fun unsubscribeTopic(subscribeBody: SubscribeBody) =
-        fcmApi.unsubscribeTopic(subscribeBody)
+//    override suspend fun subscribeTopic(subscribeBody: SubscribeBody) =
+//        fcmApi.subscribeTopic(subscribeBody)
+//
+//    override suspend fun unsubscribeTopic(subscribeBody: SubscribeBody) =
+//        fcmApi.unsubscribeTopic(subscribeBody)
 }

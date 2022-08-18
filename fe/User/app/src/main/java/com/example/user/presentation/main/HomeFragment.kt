@@ -2,24 +2,17 @@ package com.example.user.presentation.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.user.data.api.BookingApi
 import com.example.user.databinding.FragmentHomeBinding
-import com.example.user.exception.ExpiredRefreshTokenExceptionCustom
 import com.example.user.presentation.main.adapter.BookingAdapter
 import com.example.user.presentation.main.adapter.PromptAdapter
 import com.example.user.presentation.main.adapter.VoucherAdapter
 import com.example.user.presentation.searching.SearchingActivity
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.WithFragmentBindings
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment: Fragment() {
@@ -27,8 +20,6 @@ class HomeFragment: Fragment() {
     private lateinit var bookingAdapter: BookingAdapter
     private lateinit var promptAdapter: PromptAdapter
     private lateinit var voucherAdapter: VoucherAdapter
-    @Inject
-    lateinit var bookingViewModel: BookingViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,20 +30,6 @@ class HomeFragment: Fragment() {
         setRecycleView()
         registerClickListener()
         registerViewChangeListener()
-
-        bookingViewModel.bookingRider.observe(viewLifecycleOwner){
-            Log.e("-------------", it.data.toString())
-        }
-
-
-//        binding.btn.setOnClickListener {
-//            try {
-//                bookingViewModel.searchingDriver()
-//            }catch (e:ExpiredRefreshTokenExceptionCustom){
-//                Log.e("-------","hello")
-//                (activity as MainActivity).showExpiredTokenDialog(e.message.toString())
-//            }
-//        }
         return binding.root
     }
 

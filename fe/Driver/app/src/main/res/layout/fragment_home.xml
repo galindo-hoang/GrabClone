@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".presentation.main.HomeFragment">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tb"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/green"
+        android:gravity="center_horizontal">
+<!--        <androidx.appcompat.widget.AppCompatTextView-->
+<!--            android:id="@+id/et_search_place"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginHorizontal="20dp"-->
+<!--            android:paddingVertical="5dp"-->
+<!--            android:paddingHorizontal="10dp"-->
+<!--            android:drawablePadding="6dp"-->
+<!--            android:layout_gravity="start"-->
+<!--            android:hint="Welcome"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textSize="20sp"/>-->
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_starting_listening"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Starting Listening"
+        android:layout_marginTop="50dp"
+        android:background="@color/light_green"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:layout_gravity="center"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_stop_listening"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop Listening"
+        android:layout_marginTop="50dp"
+        android:background="@color/light_green"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:layout_gravity="center"/>
+
+</LinearLayout>

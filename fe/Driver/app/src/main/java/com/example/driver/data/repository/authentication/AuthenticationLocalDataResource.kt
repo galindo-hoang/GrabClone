@@ -9,7 +9,7 @@ interface AuthenticationLocalDataResource {
     suspend fun getUserByUserName(userName: String): User
     suspend fun getTokenByUserName(userName: String): TokenAuthentication?
     suspend fun getTokenByRefreshToken(refreshToken: String): TokenAuthentication
-    suspend fun getToken(): List<TokenAuthentication>
+    suspend fun getAllToken(): List<TokenAuthentication>
     fun saveUser(user: User)
     fun saveToken(tokenAuthentication: TokenAuthentication)
     fun clearAllUser()

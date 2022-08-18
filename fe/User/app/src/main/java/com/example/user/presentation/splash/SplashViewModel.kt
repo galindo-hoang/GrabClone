@@ -18,16 +18,14 @@ class SplashViewModel @Inject constructor(
 ): ViewModel() {
     private val _checking = MutableLiveData<MutableList<Permission>>()
 
-    fun checkLogin() = liveData{
+    fun checkLogin() = liveData(Dispatchers.IO){
         emit(Response.loading(null))
-        runBlocking(Dispatchers.IO) {
-            val response = splashUseCase.invoke()
-            if(response == 1) emit(Response.success(true))
-            else {
-                val logout = logOutUseCase.invoke()
-                if(logout.data == 1) emit(Response.success(false))
-                else emit(Response.error(null,"cant acces local database"))
-            }
+        val response = splashUseCase.invoke()
+        if(response == 1) emit(Response.success(true))
+        else {
+            val logout = logOutUseCase.invoke()
+            if(logout.data == 1) emit(Response.success(false))
+            else emit(Response.error(null,"cant acces local database"))
         }
     }
 }

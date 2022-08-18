@@ -14,7 +14,7 @@ class LogOutUseCase @Inject constructor(
             Response.success(1)
         }catch (e:Exception){
             Log.e("----------",e.message.toString())
-            Response.error(-1,e.message.toString())
+            Response.error(-1,400,e.message.toString())
         }
     }
 }

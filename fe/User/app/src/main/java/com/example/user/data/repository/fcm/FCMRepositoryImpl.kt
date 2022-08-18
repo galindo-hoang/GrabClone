@@ -9,11 +9,11 @@ import javax.inject.Singleton
 class FCMRepositoryImpl @Inject constructor(
     private val fcmRemoteDataResource: FCMRemoteDataResource
 ): FCMRepository {
-    override suspend fun postSubscribe(subscribeBody: SubscribeBody) {
-        fcmRemoteDataResource.subscribeTopic(subscribeBody)
-    }
-
-    override suspend fun postUnSubscribe(subscribeBody: SubscribeBody) {
-        fcmRemoteDataResource.unsubscribeTopic(subscribeBody)
-    }
+//    override suspend fun postSubscribe(subscribeBody: SubscribeBody) {
+//        fcmRemoteDataResource.subscribeTopic(subscribeBody)
+//    }
+//
+//    override suspend fun postUnSubscribe(subscribeBody: SubscribeBody) {
+//        fcmRemoteDataResource.unsubscribeTopic(subscribeBody)
+//    }
 }
