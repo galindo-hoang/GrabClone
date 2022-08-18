@@ -4,7 +4,7 @@ import {Title} from "./Map.styles"
 import ReactMapGL, {GeolocateControl, Layer, Marker, NavigationControl, Popup, Source, useControl} from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css'
 import MapService from "src/service/Map/MapService";
-import {coordinate} from "src/@types/map";
+import {coordinate, initialCreateBooking} from "src/@types/map";
 import 'antd/dist/antd.css';
 import {MessageLoadMapService} from "src/service/Message/MessageService";
 import {CarOutlined, EnvironmentOutlined} from '@ant-design/icons'
@@ -13,12 +13,14 @@ import {useSpring,animated} from 'react-spring'
 import MapBoxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import {connect, ConnectedProps, useSelector} from "react-redux"
 import {location, info2Location, featuresLocation} from "src/@types/bookingcar";
+import { Drawer } from "antd";
+import bookingCar from "../BookingCar/BookingCar";
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 
 
 
 const Menu = (props:any) => {
-  const {location}=props;
+  const {location,drawer}=props;
   const [toggle, setToggle] = useState(false);
   const fade=useSpring({
     opacity:toggle?0:1
@@ -28,6 +30,7 @@ const Menu = (props:any) => {
       style={{position: "absolute",left:'5px',top:'5px',maxWidth: "320px"}}
     >
       <button className="btn  btn-info btn-sm" style={{position: "relative",width:'120px'}} onClick={() => setToggle(!toggle)}>{toggle?'Hiện thông tin':'Ẩn thông tin'}</button>
+      <button className="btn  btn-info btn-sm ml-2" onClick={drawer}>Hiện trạng thái đặt xe</button>
       <animated.form style={fade} className="p-5 rounded-sm shadow text-center info-background" hidden={toggle}>
         <Title>Thông tin đặt xe</Title>
         <label className="float-left mb-1">Địa điểm đón <CarOutlined/> </label>
@@ -53,9 +56,9 @@ const Menu = (props:any) => {
 }
 const mapStateToProps = state => ({
   closeSideNav: state.app.closeSideNav,
-  departure: state.bookingCar?.departure,
-  destination: state.bookingCar?.destination,
-  location:JSON.parse(localStorage.getItem("location") as string),
+  payloadFCM:state.app.payloadFCM||null,
+  bookingCarForm:state.bookingCar,
+
 })
 
 const mapDispatchToProps = {}
@@ -65,18 +68,25 @@ interface Props extends ConnectedProps<typeof connector> {}
 
 
 enum StateBooking{
-  CanCel=-1,
-  LookingDriver,
-  DriverAccepted,
-  GuestSuccess,
-  GuestPay
+  CREATED,
+  CANCELLED,
+  REJECTED,
+  ACCEPTED
+}
+ enum RideState {
+  STARTED,
+  CANCELLED,
+  FINISHED
 }
 const Map = (props:Props) => {
-  const {closeSideNav,location} = props;
+  const {closeSideNav,payloadFCM,bookingCarForm} = props;
+
+  const [payloadFCMValue,setPayloadFCMValue]=useState<Object>(payloadFCM);
   const [viewCoordinate,setViewCoordinate]=useState<coordinate>({
-    longitude:location.departure.coordinate.longitude as number,
-    latitude:location.departure.coordinate.latitude as number,
+    longitude:bookingCarForm?.departure.coordinate?.longitude as number,
+    latitude:bookingCarForm?.departure.coordinate?.latitude as number,
   });
+  const [visibleState, setVisibleState] = useState<boolean>(false);
   const [state,setState]=useState(0)
   const [zoom, setZoom] = useState(18)
   const [loadMap, setLoadMap] = useState(false)
@@ -84,19 +94,28 @@ const Map = (props:Props) => {
   const [showPopupDestination, setShowPopupDestination] = useState(false);
   const [showPopupDeparture, setShowPopupDeparture] = useState(false);
 
+  const showDrawerState = () => {
+    setVisibleState(true);
+  };
+  const onCloseDrawer = () => {
+    setVisibleState(false);
+  };
   const [destinationCoordinate,setDestinationCoordinate]=useState<featuresLocation>({
-    value:location.destination.value,
-    coordinate:location.destination.coordinate
+    value:bookingCarForm.destination.value,
+    coordinate:bookingCarForm.destination.coordinate as coordinate
   });
   const [departureCoordinate,setDepartureCoordinate]=useState<featuresLocation>({
-    value:location.departure.value,
-    coordinate:location.departure.coordinate
+    value:bookingCarForm.departure.value,
+    coordinate:bookingCarForm.departure.coordinate as coordinate
   });
-
   const locationBooking:location={
-    destination:location.destination.value,
-    departure:location.departure.value
+    destination:bookingCarForm.destination.value,
+    departure:bookingCarForm.departure.value
   }
+  useEffect(()=>{
+    setPayloadFCMValue(payloadFCM);
+    console.log(payloadFCMValue)
+  },[payloadFCM])
 
   useEffect(() => {
     const checkDistance = async () => {
@@ -228,8 +247,23 @@ const Map = (props:Props) => {
       </Marker>
       <GeolocateControl position='top-right'/>
       <NavigationControl position='top-right'/>
-      <Menu location={locationBooking}/>
+      <Menu location={locationBooking} drawer={()=>setVisibleState(prevState => !prevState)}/>
     </ReactMapGL>
+
+
+
+    <Drawer
+      title="Trạng thái đặt xe"
+      placement='bottom'
+      closable={false}
+      onClose={onCloseDrawer}
+      visible={visibleState}
+    >
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+    </Drawer>
+
   </MainLayout>
 }
 

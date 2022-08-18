@@ -1,6 +1,6 @@
 export interface sendRegister{
   fcmToken?:string,
-  userId?:number
+  username?: string
 }
 export interface Notification {
   title: any,

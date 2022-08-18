@@ -5,10 +5,10 @@ import {PATH} from "../../constants/paths";
 import {useHistory} from "react-router-dom";
 import {MessageWarningService} from "src/service/Message/MessageService";
 import "antd/dist/antd.css";
-import {AutoComplete, Button, Modal, Table} from 'antd';
+import {AutoComplete, Button, Dropdown, Menu, MenuProps, Modal, Space, Table} from 'antd';
 import {connect, ConnectedProps} from "react-redux"
-import {bookingCar} from "./BookingCar.thunks";
-import {featuresLocation, info2Location, timestamp} from "../../@types/bookingcar";
+import {createBookingCar, saveAddressBooking} from "./BookingCar.thunks";
+import {bookingCarForm, createBooking, featuresLocation, info2Location, timestamp} from "../../@types/bookingcar";
 import BookingService from "../../service/BookingCar/BookingService";
 import {coordinate} from "../../@types/map";
 import {recentPhoneNumber} from "../../@types/bookingcar";
@@ -18,17 +18,20 @@ import {useDebounce} from "../../hooks/useDebounce";
 import {
   addPhoneRecent,
   convertDateFireBase,
-  databaseFireBase,
-  notification
+  databaseFireBase, getPhoneNumber,
+  registerNotification
 } from "../../service/FireBase/FirebaseService";
 import {collection, getDocs,addDoc} from 'firebase/firestore'
 import firebase from "firebase/compat";
+import DownOutlined from "@ant-design/icons/lib/icons/DownOutlined";
+import ProcessBookingService from "../../service/BookingCar/ProcessBookingService";
 
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 const mapStateToProps = state => ({})
 
 const mapDispatchToProps = {
-  bookingCar
+  saveAddressBooking,
+  createBookingCar
 }
 
 const isBlank = (index: string) => {
@@ -41,37 +44,39 @@ const isBlank = (index: string) => {
   return false;
 }
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface Props extends ConnectedProps<typeof connector> {
 }
+
+
+
 const BookingCar = (props: Props) => {
-  const {bookingCar} = props
-  const [fullName, setFullName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [carType, setCarType] = useState("");
+  const {saveAddressBooking,createBookingCar} = props
+  const [carType, setCarType] = useState("Chọn loại xe");
+  const userCollection = collection(databaseFireBase , "HistoryPhoneNumber");
+  const [recentPhoneNumber, setRecentPhoneNumber] = useState<object[]>([]);
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  useEffect(() => {
+      const getData = async () => {
+          const data = await getDocs(userCollection);
+          const array = data.docs.map((doc) => {
+            const arr: recentPhoneNumber = {
+              date: convertDateFireBase(doc.data()?.date),
+              phonenumber: doc.data()?.phonenumber
+            }
+            return arr
+          });
+          setRecentPhoneNumber(getPhoneNumber(array));
+        }
+      getData();
+    return (()=>{
+    })
+  },[]);
+
   const [departure, setDeparture] = useState<featuresLocation>({
     value: undefined,
     coordinate: undefined,
   });
-  const userCollection = collection(databaseFireBase , "HistoryPhoneNumber");
-  const [recentPhoneNumber, setRecentPhoneNumber] = useState<object[]>([]);
-  useEffect(() => {
-    const getData = async () => {
-      const data = await getDocs(userCollection);
-      const array=data.docs.map((doc)=>{
-        const arr:recentPhoneNumber={
-          date: convertDateFireBase(doc.data()?.date),
-          phonenumber:doc.data()?.phonenumber
-        }
-        return arr
-      });
-      setRecentPhoneNumber(array)
-    }
-    getData()
-  }, []);
-  console.log(recentPhoneNumber)
   const [departureAutocomplete, setDepartureAutocomplete] = useState<{ value: string, coordinate: coordinate }[]>([]);
-
   const [destination, setDestination] = useState<featuresLocation>({
     value: undefined,
     coordinate: undefined,
@@ -79,10 +84,11 @@ const BookingCar = (props: Props) => {
   const [destinationAutocomplete, setDestinationAutocomplete] = useState<{ value: string, coordinate: coordinate }[]>([]);
   const [visibleDesination, setVisibleDesination] = useState(false)
   const [visibleDeparture, setVisibleDeparture] = useState(false)
-  const [note, setNote] = useState("");
+  const [dropdownTypeCar,setDropdownTypeCar]=useState<any>();
   const history = useHistory();
   const debounceDestination = useDebounce(destination.value, 500)
-  const debounceDeparture = useDebounce(departure.value, 500)
+  const debounceDeparture = useDebounce(departure.value, 500);
+
   useEffect(() => {
     let isApi = true;
     const getAutoCompleteDeparture = async () => {
@@ -136,10 +142,43 @@ const BookingCar = (props: Props) => {
       isApi = false;
     })
   }, [destination.value]);
-
-  useEffect(() => {
-    notification();
-  }, [])
+  useEffect(()=>{
+    const menu = (
+      <Menu
+        onClick={onClick}
+        items={[
+          {
+            key: 'MOTORCYCLE',
+            label: (
+              <a target="_blank"  >
+                MOTORCYCLE
+              </a>
+            ),
+          },
+          {
+            key: 'CAR',
+            label: (
+              <a target="_blank" >
+                CAR
+              </a>
+            ),
+          },
+        ]}
+      />
+    );
+    setDropdownTypeCar(menu)
+  },[]);
+  const onClick: MenuProps['onClick'] = ({ key }) => {
+    setCarType(key);
+  };
+  const onSelectedPhoneNumber=(phoneNumber)=>{
+    const temp=recentPhoneNumber.filter((index:recentPhoneNumber)=> {
+      if(index.phonenumber === phoneNumber){
+        return index.phonenumber as string;
+      }
+    }) as recentPhoneNumber
+    setPhoneNumber(temp[0]?.phonenumber)
+  }
   const onSelectedDeparture = (address) => {
     const temp: { value: string; coordinate: coordinate }[] | undefined = departureAutocomplete?.filter(index => (
       index.value === address
@@ -159,12 +198,8 @@ const BookingCar = (props: Props) => {
     })
   }
 
-
-  const onChangeFullName = (event) => {
-    setFullName(event?.target?.value)
-  }
-  const onChangePhoneNumber = (event) => {
-    setPhoneNumber(event?.target?.value)
+  const onChangePhoneNumber = (data) => {
+    setPhoneNumber(data)
   }
   const onChangeDeparture = (data) => {
     setDeparture({
@@ -176,14 +211,6 @@ const BookingCar = (props: Props) => {
       value: data
     });
   }
-  const onChangeNote = (event) => {
-    setNote(event?.target?.value)
-  }
-  const onChangeCarType = (event) => {
-    setCarType(event?.target?.value)
-  }
-  const submit = event => {
-  }
 
   return (
     <MainLayout>
@@ -193,27 +220,36 @@ const BookingCar = (props: Props) => {
             <div className="p-5 rounded-sm shadow text-center info-background">
               <Title>Đặt xe</Title>
               <p className="text-muted">Vui lòng điền đầy đủ thông tin </p>
-              <label className="float-left mb-1">Họ và tên</label>
-              <input
-                type="text"
-                placeholder="Điền đầy đủ họ tên"
-                className="form-control form-control-lg mb-3"
-                onChange={onChangeFullName}
-              />
               <label className="float-left mb-1">Số điện thoại</label>
-              <input
-                type="text"
-                placeholder="Điền số điện thoại"
+              <AutoComplete
                 className="form-control form-control-lg mb-3"
+                options={recentPhoneNumber.map((index:recentPhoneNumber)=>{const object= {
+                  value:index.phonenumber
+                }
+                return object
+                })
+                }
+                value={phoneNumber}
                 onChange={onChangePhoneNumber}
+                onSelect={onSelectedPhoneNumber}
+                placeholder="Điền số điện thoại"
               />
+              <Row>
+                <Col xs lg md sm="12">
               <label className="float-left mb-1">Loại xe</label>
-              <input
-                type="text"
-                placeholder="Điền loại xe"
-                className="form-control form-control-lg mb-3"
-                onChange={onChangeCarType}
-              />
+                </Col>
+              </Row>
+              <Row style={{position: "relative", width: "500px"}}>
+                <Col xs lg md sm="12">
+                  <Dropdown.Button
+                    className="float-left mb-1"
+                    icon={<DownOutlined />}
+                    overlay={dropdownTypeCar}
+                  >
+                    {carType}
+                  </Dropdown.Button>
+                </Col>
+              </Row>
               <Row>
                 <Col xs lg md sm="12">
                   <label className="float-left mb-1">Địa chỉ đón</label>
@@ -264,27 +300,44 @@ const BookingCar = (props: Props) => {
                   </button>
                 </Col>
               </Row>
-              <label className="float-left mb-1">Ghi chú</label>
-              <input
-                type="text"
-                placeholder="Điền ghi chú"
-                className="form-control form-control-lg mb-3"
-                onChange={onChangeNote}
-              />
               <button type="submit" className="btn btn-block btn-info btn-lg" onClick={() => {
                 if (isBlank(destination.value as string) === false && isBlank(departure.value as string) === false) {
                   const position: info2Location = {
                     departure: departure,
                     destination: destination
                   }
-                  bookingCar(position)
-                  // const recentPhoneNumber:recentPhoneNumber={
-                  //   date:convertDateFireBase({seconds:new Date().getTime() / 1000,nanoseconds:} as timestamp),
-                  //   phonenumber:phoneNumber
-                  // }
-                  // addPhoneRecent(collection(databaseFireBase , "HistoryPhoneNumber"),recentPhoneNumber)
+                  const bookingCarForm:bookingCarForm={
+                    address:position,
+                    typeCar:carType,
+                    phoneNumber:phoneNumber,
+                  }
+                  const createBooking:createBooking={
+                    phonenumber:phoneNumber,
+                    username:localStorage.getItem("userName") as string,
+                    typeCar:carType,
+                    dropoffLocation:{
+                      longitude:position.destination?.coordinate?.longitude,
+                      latitude:position.destination?.coordinate?.latitude
+                    },
+                    pickupLocation:{
+                      longitude:position.departure?.coordinate?.longitude,
+                      latitude:position.departure?.coordinate?.latitude
+                    },
+                    paymentMethod:"CREDIT_CARD",
+                    price:100000
+                  }
+                  saveAddressBooking(bookingCarForm as bookingCarForm);
+                  createBookingCar(createBooking as createBooking)
+                  const recentPhoneNumber:recentPhoneNumber={
+                    date:firebase.firestore.Timestamp.fromDate(new Date()),
+                    phonenumber:phoneNumber
+                  }
+                  addPhoneRecent(collection(databaseFireBase , "HistoryPhoneNumber"),recentPhoneNumber)
                   history.push(PATH.MAP);
                 } else {
+                  ProcessBookingService.finishBooking()
+                    .then(payoad=>console.log(payoad))
+                    .catch(ex=>console.log(ex))
                   const message = MessageWarningService.getInstance("Vui lòng điền đầy đủ thông tin")
                 }
               }}>

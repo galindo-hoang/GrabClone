@@ -19,15 +19,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.HashMap;
 
 @RestController
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1/booking")
 public class BookingController {
     @Autowired
@@ -50,6 +48,7 @@ public class BookingController {
 
     // Create a booking for a client vs call center
     @PostMapping("/create_booking")
+    @CrossOrigin("http://localhost:3000")
     public ResponseEntity<BookingRecord> createBooking(@RequestBody BookingRequestDto bookingDto) {
         try {
             // Create booking record and save it to database
