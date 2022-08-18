@@ -15,6 +15,8 @@ import {connect, ConnectedProps, useSelector} from "react-redux"
 import {location, info2Location, featuresLocation} from "src/@types/bookingcar";
 import { Drawer } from "antd";
 import bookingCar from "../BookingCar/BookingCar";
+import {BODYSTATES} from "../../constants/states";
+import {objectTraps} from "immer/dist/core/proxy";
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 
 
@@ -80,7 +82,6 @@ enum StateBooking{
 }
 const Map = (props:Props) => {
   const {closeSideNav,payloadFCM,bookingCarForm} = props;
-
   const [payloadFCMValue,setPayloadFCMValue]=useState<Object>(payloadFCM);
   const [viewCoordinate,setViewCoordinate]=useState<coordinate>({
     longitude:bookingCarForm?.departure.coordinate?.longitude as number,
@@ -112,10 +113,28 @@ const Map = (props:Props) => {
     destination:bookingCarForm.destination.value,
     departure:bookingCarForm.departure.value
   }
+  const [driverCoordinate,setDriverCoordinate]=useState<coordinate>({
+    longitude:undefined,
+    latitude:undefined
+  });
+  /*const [finishSuccess,setFinishSuccess]=useState<object>();*/
+ /* const [driverAccepted,setDriverAccepted]=useState<object>();*/
   useEffect(()=>{
+    if(payloadFCM.body.includes(BODYSTATES.DRIVER_ACCEPTED)){
+
+    }
+    else if(payloadFCM.body.includes(BODYSTATES.DRIVER_UPDATE_LOCATION)){
+      setDriverCoordinate(JSON.parse(payloadFCM.driverLocation) as coordinate)
+      console.log(JSON.parse(payloadFCM.driverLocation))
+    }
+    else if(payloadFCM.body.includes(BODYSTATES.FINISH_SUCCESS)){
+      setDriverCoordinate({longitude:undefined,latitude:undefined} as coordinate);
+      /*setFinishSuccess(JSON.parse(payloadFCM))*/
+    }
     setPayloadFCMValue(payloadFCM);
     console.log(payloadFCMValue)
   },[payloadFCM])
+
 
   useEffect(() => {
     const checkDistance = async () => {
@@ -225,6 +244,18 @@ const Map = (props:Props) => {
         </Popup>
       )}
 
+      {
+        (driverCoordinate?.latitude!==undefined&&driverCoordinate?.longitude!==undefined)?
+        <Marker
+          latitude={driverCoordinate?.latitude||undefined}
+          longitude={driverCoordinate?.longitude||undefined}>
+          <img
+            onClick={() => setShowPopupDestination(true)}
+            style={{height: 50, width: 50}}
+            src="https://xuonginthanhpho.com/wp-content/uploads/2020/03/map-marker-icon.png"
+          />
+        </Marker>:""
+      }
 
       <Marker
         latitude={destinationCoordinate?.coordinate?.latitude}

@@ -85,6 +85,7 @@ public class NotificationController {
 
     @PostMapping("/user")
     public ResponseEntity<String> sendPnsToUser(@RequestBody NotificationRequestDto notificationRequestDto) {
+
         try {
             FcmTokenRecord tokenRecord = tokenStoreService
                     .findByUsername(notificationRequestDto.getTarget());

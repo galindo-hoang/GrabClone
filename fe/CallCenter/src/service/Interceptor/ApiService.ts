@@ -5,7 +5,6 @@ import {PATH} from "../../constants/paths";
 
 export const instance =axios.create({
   headers:{
-
   }
 })
 instance.interceptors.response.use(async response =>{

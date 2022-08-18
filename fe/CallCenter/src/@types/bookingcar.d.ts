@@ -42,3 +42,22 @@ export interface createBooking {
   price?: number,
   username?: string,
 }
+
+export interface responseCreateBooking {
+  createdAt?: string,
+  pickupLocation?: coordinate,
+  dropoffLocation?:coordinate,
+  id:?number,
+  phonenumber?:string,
+  state?:string,
+  updatedAt?:string
+  typeCar?: string,
+  paymentMethod?: string,
+  price?: number,
+  passengerUsername?: string,
+}
+
+export interface responseUpdateLocationDriver{
+  driverLocation:coordinate,
+  rideId
+}

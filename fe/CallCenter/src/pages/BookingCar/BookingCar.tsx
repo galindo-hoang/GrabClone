@@ -301,7 +301,8 @@ const BookingCar = (props: Props) => {
                 </Col>
               </Row>
               <button type="submit" className="btn btn-block btn-info btn-lg" onClick={() => {
-                if (isBlank(destination.value as string) === false && isBlank(departure.value as string) === false) {
+                if (isBlank(destination.value as string) === false && isBlank(departure.value as string) === false
+                  && isBlank(phoneNumber as string) === false && isBlank(carType as string) === false) {
                   const position: info2Location = {
                     departure: departure,
                     destination: destination

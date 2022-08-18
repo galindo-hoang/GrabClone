@@ -64,6 +64,7 @@ public class BookingController {
                     .createdAt(new Date())
                     .build();
             BookingRecord bookingRecordSaving = bookingService.save(bookingRecord);
+            System.out.println(bookingRecordSaving.getId());
             bookingRecordMap.put(bookingRecordSaving.getId(), bookingRecordSaving);
 
 
@@ -197,6 +198,7 @@ public class BookingController {
 
     @PostMapping("/update_driver_location")
     public ResponseEntity<String> updateDriverLocation(@RequestBody DriverLocationDto driverLocationDto) {
+        System.out.println();
         try {
             // Return not found if ride record not found
             if (!rideRecordMap.containsKey(driverLocationDto.getUsername())) {
