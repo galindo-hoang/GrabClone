@@ -31,7 +31,7 @@ class AuthenticationLocalDataResourceImpl @Inject constructor(
     override suspend fun getTokenByRefreshToken(refreshToken: String): TokenAuthentication =
         tokenDao.fetchTokenByRefreshToken(refreshToken)
 
-    override suspend fun getToken(): List<TokenAuthentication> =
+    override suspend fun getAllToken(): List<TokenAuthentication> =
         tokenDao.fetchToken()
 
     override fun saveUser(user: User) {
