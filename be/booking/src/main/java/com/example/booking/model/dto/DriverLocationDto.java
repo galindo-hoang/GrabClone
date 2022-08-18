@@ -1,5 +1,6 @@
 package com.example.booking.model.dto;
 
+import com.example.booking.model.domain.MapCoordinate;
 import lombok.*;
 
 @Data
@@ -7,6 +8,5 @@ import lombok.*;
 @NoArgsConstructor
 public class DriverLocationDto {
     private String username;
-    private Double latitude;
-    private Double longitude;
+    private MapCoordinate location;
 }
