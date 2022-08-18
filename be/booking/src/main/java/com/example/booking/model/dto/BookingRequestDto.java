@@ -1,5 +1,6 @@
 package com.example.booking.model.dto;
 
+import com.example.booking.model.domain.MapCoordinate;
 import lombok.*;
 
 @Data
@@ -8,13 +9,13 @@ import lombok.*;
 @Builder
 public class BookingRequestDto {
     private String phonenumber;
-    private Double pickupLatitude;
-    private Double pickupLongitude;
-    private Double dropoffLatitude;
-    private Double dropoffLongitude;
+    private MapCoordinate pickupLocation;
+    private MapCoordinate dropoffLocation;
     private String typeCar;
     private String state;
     private String paymentMethod;
     private Float price;
     private String username;
 }
+
+
