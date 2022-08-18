@@ -6,7 +6,8 @@ import firebase from "firebase/compat";
 import {collection, getDocs,addDoc} from 'firebase/firestore'
 import {recentPhoneNumber, timestamp} from "../../@types/bookingcar";
 import axios from "axios";
-import {sendRegister} from "../../@types/fcm";
+import { sendRegister } from "src/@types/fcm";
+import {instance} from "../Interceptor/ApiService";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 const vapidKey ="BGJAvRpdq0x88UOpB12JeMFx8GbZsttxJXxMuT2Glad3lneOAtTsAS4R1XyvngzWmLBmfo9f8A1Hz5gaITQbofU"
@@ -20,19 +21,49 @@ firebase.initializeApp( {
   measurementId: "G-25ETJ96ZRC"
 });
 
-const POST_REGISTER_FCM="http://localhost:8082/api/v1/fcm/register";
+const POST_REGISTER_FCM="http://localhost:8085/api/v1/fcm-publish/register";
+
+
 export const message = firebase.messaging();
 export const registerNotification=()=> {
-  Notification.requestPermission().then((token) => {
-    return message.getToken({vapidKey:vapidKey})
-  }).then(async token => {
-    console.log(token)
-    // return await axios.post(POST_REGISTER_FCM,{fcmToken:token,userId:123} as sendRegister).then(payload=>{
-    //
-    // })
-    return token
+  Notification.requestPermission().then((permisson) => {
+    if(permisson==='granted') {
+      message.getToken({vapidKey: vapidKey}).then(async token => {
+        console.log({fcmToken:token,username:localStorage.getItem("userName") as string})
+        await instance.post(POST_REGISTER_FCM,{fcmToken:token,username:localStorage.getItem("userName") as string}as sendRegister,{
+          headers:{
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          }
+        }).then(response=>console.log(response))
+          .catch(ex=>console.log("haha"))
+        console.log(token)
+        return token
+      })
+    }
+    else{
+      console.log("error")
+    }
   })
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const config={
     apiKey: "AIzaSyCL7Loiq6LmpS-VA2q0USjcaqRgeFLjFxQ",
     authDomain: "grabclone-19ktpm.firebaseapp.com",
@@ -50,13 +81,30 @@ export const addPhoneRecent= async (collection:any,recentPhoneNumber:recentPhone
   return await addDoc(collection,recentPhoneNumber);
 }
 
+
+export const getPhoneNumber=(arr:object[])=>{
+  let temp=(new Set(arr.map((index:recentPhoneNumber)=>index.phonenumber)));
+  const arrTemp:recentPhoneNumber[]=[];
+  temp.forEach(u=>{
+    const object:recentPhoneNumber={
+      phonenumber:u,
+    }
+    arrTemp.push(object);
+  });
+  if(arrTemp.length>=5){
+    return arrTemp.splice(5)
+  }
+  else{
+    return arrTemp;
+  }
+}
 export const convertDateFireBase=(time:timestamp)=>{
   const fireBaseTime = new Date(
     time.seconds * 1000 + time.nanoseconds / 1000000,
   );
   const date = fireBaseTime.toDateString();
   const atTime = fireBaseTime.toLocaleTimeString();
-  return date + atTime
+  return (date + atTime)
 }
 
 
