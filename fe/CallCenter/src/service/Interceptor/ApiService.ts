@@ -1,5 +1,8 @@
 import axios from 'axios';
 import LoginService from '../Login/LoginService';
+import {useHistory} from "react-router-dom";
+import {PATH} from "../../constants/paths";
+
 
 export const instance =axios.create({
   headers: {
@@ -24,6 +27,8 @@ instance.interceptors.response.use(async response =>{
     })
   }
   if(error?.response?.status===403){
+    const history = useHistory();
+    history.push(PATH.LOGIN);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
   }

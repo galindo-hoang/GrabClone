@@ -36,7 +36,7 @@ export const registerNotification=()=> {
   Notification.requestPermission().then((permisson) => {
     if(permisson==='granted') {
       message.getToken({vapidKey: vapidKey}).then(async token => {
-        await axios.post(POST_REGISTER_FCM,{fcmToken:token,userId:456}as sendRegister).then(response=>console.log(response))
+        await axios.post(POST_REGISTER_FCM,{fcmToken:token,username:localStorage.getItem("userName") as string}as sendRegister).then(response=>console.log(response))
           .catch(ex=>console.log("haha"))
         return token
       })

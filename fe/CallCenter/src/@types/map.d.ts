@@ -3,4 +3,8 @@ export interface coordinate {
   latitude?: number
 }
 
+export interface drawerBooking{
+  
+}
+
 

@@ -1,7 +1,6 @@
 import {coordinate} from "./map";
 
 export interface bookingCarForm {
-  fullName?: string
   phoneNumber?: string
   address?: info2Location
   typeCar?: string
@@ -43,5 +42,5 @@ export interface createBooking {
   typeCar?: string,
   paymentMethod?: string,
   price?: number,
-  userId?: number,
+  username?: string,
 }

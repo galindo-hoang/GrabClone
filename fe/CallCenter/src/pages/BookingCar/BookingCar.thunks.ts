@@ -3,7 +3,6 @@ import {location, info2Location, bookingCarForm, createBooking} from "../../@typ
 import ProcessBookingService from "../../service/BookingCar/ProcessBookingService";
 export const saveBookinfCar = (booking: bookingCarForm) => async dispatch => {
   localStorage.setItem("location", JSON.stringify(booking.address))
-  localStorage.setItem("userName",booking.fullName as string)
   localStorage.setItem("carType",booking.typeCar as string);
   localStorage.setItem("phoneNumber",booking.phoneNumber as string);
   return dispatch(actions.saveBookingCar(booking));

@@ -52,7 +52,6 @@ interface Props extends ConnectedProps<typeof connector> {
 
 const BookingCar = (props: Props) => {
   const {saveBookingCar,createBookingCar} = props
-  const [fullName, setFullName] = useState("");
   const [carType, setCarType] = useState("Chọn loại xe");
   const userCollection = collection(databaseFireBase , "HistoryPhoneNumber");
   const [recentPhoneNumber, setRecentPhoneNumber] = useState<object[]>([]);
@@ -200,10 +199,6 @@ const BookingCar = (props: Props) => {
     })
   }
 
-
-  const onChangeFullName = (event) => {
-    setFullName(event?.target?.value)
-  }
   const onChangePhoneNumber = (data) => {
     setPhoneNumber(data)
   }
@@ -226,13 +221,6 @@ const BookingCar = (props: Props) => {
             <div className="p-5 rounded-sm shadow text-center info-background">
               <Title>Đặt xe</Title>
               <p className="text-muted">Vui lòng điền đầy đủ thông tin </p>
-              <label className="float-left mb-1">Họ và tên</label>
-              <input
-                type="text"
-                placeholder="Điền đầy đủ họ tên"
-                className="form-control form-control-lg mb-3"
-                onChange={onChangeFullName}
-              />
               <label className="float-left mb-1">Số điện thoại</label>
               <AutoComplete
                 className="form-control form-control-lg mb-3"
@@ -323,11 +311,10 @@ const BookingCar = (props: Props) => {
                     address:position,
                     typeCar:carType,
                     phoneNumber:phoneNumber,
-                    fullName:fullName
                   }
                   const createBooking:createBooking={
                     phonenumber:phoneNumber,
-                    userId:123,
+                    username:localStorage.getItem("userName") as string,
                     typeCar:carType,
                     pickupLatitude:position.departure?.coordinate?.latitude,
                     pickupLongitude:position.departure?.coordinate?.longitude,
