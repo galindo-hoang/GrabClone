@@ -6,5 +6,5 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingRideUpdateDto {
-    private Integer userId;
+    private String username;
 }

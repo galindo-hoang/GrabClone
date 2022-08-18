@@ -7,6 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class BookingAcceptanceDto {
-    private Integer userId;
+    private String username;
     private Integer bookingId;
 }

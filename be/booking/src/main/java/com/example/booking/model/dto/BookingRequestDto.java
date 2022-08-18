@@ -16,5 +16,5 @@ public class BookingRequestDto {
     private String state;
     private String paymentMethod;
     private Float price;
-    private Integer userId;
+    private String username;
 }

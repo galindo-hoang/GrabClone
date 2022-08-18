@@ -62,6 +62,6 @@ public class BookingRecord implements Serializable {
     @Column
     private Date updatedAt;
 
-    @Column
-    private Integer passengerId;
+    @Column(nullable = false)
+    private String passengerUsername;
 }
