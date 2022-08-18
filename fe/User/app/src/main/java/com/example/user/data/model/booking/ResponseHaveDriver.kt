@@ -1,15 +1,22 @@
 package com.example.user.data.model.booking
 
+import com.example.user.data.dto.LatLong
+import com.example.user.utils.PaymentMethod
+import com.example.user.utils.TypeCar
+import com.google.gson.annotations.SerializedName
+import java.util.*
+
 data class ResponseHaveDriver(
     val body: String,
-    val bookingId: Int,
     val content: String,
-    val createdAt: String,
-    val dropoffLocation: DropoffLocation,
-    val paymentMethod: String,
-    val pickupLocation: PickupLocation,
+    val createdAt: Date,
+    @SerializedName("dropoffLocation")
+    val destination: LatLong,
+    val paymentMethod: PaymentMethod,
+    @SerializedName("pickupLocation")
+    val origin: LatLong,
     val price: Double,
     val rideId: Int,
-    val startTime: String,
-    val typeCar: String
+    val startTime: Date,
+    val typeCar: TypeCar
 )

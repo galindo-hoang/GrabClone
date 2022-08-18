@@ -10,11 +10,13 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
+import com.example.user.BuildConfig
 import com.example.user.R
 import com.example.user.data.api.AuthenticationApi
 import com.example.user.data.model.googlemap.ResultPlaceClient
 import com.example.user.databinding.ActivitySearchingRouteBinding
 import com.example.user.presentation.BaseActivity
+import com.example.user.utils.Constant
 import com.example.user.utils.Constant.decodePoly
 import com.example.user.utils.Status
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
+import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
@@ -66,16 +69,12 @@ class SearchingRouteActivity : BaseActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_searching_route)
         binding.lifecycleOwner = this
         binding.viewModel = searchingRouteViewModel
-
-        Log.e("---------","hello")
-
-//        if(!Places.isInitialized())
-//            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
-//        placesClient = Places.createClient(this)
-//
-//        setupLoadPlaceFromGoogleMap()
-//        setupHandleEventListener()
-//        registerObserve()
+        if(!Places.isInitialized())
+            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
+        placesClient = Places.createClient(this)
+        setupLoadPlaceFromGoogleMap()
+        setupHandleEventListener()
+        registerObserve()
     }
 
     private fun setupHandleEventListener() {
@@ -96,62 +95,71 @@ class SearchingRouteActivity : BaseActivity() {
     private fun registerObserve(){
         searchingRouteViewModel.resultPlaceClient.observe(this){
             when(it.status){
-                Status.LOADING -> Toast.makeText(this,"Loading...",Toast.LENGTH_LONG).show()
-                Status.ERROR -> Toast.makeText(this,"Cant load data",Toast.LENGTH_LONG).show()
+                Status.LOADING -> this.showProgressDialog("Please waiting...")
+                Status.ERROR -> {
+                    this.hideProgressDialog()
+                    Toast.makeText(this, "Cant load data", Toast.LENGTH_LONG).show()
+                }
                 Status.SUCCESS -> {
+                    this.hideProgressDialog()
                     if(isOrigin == true) {
                         searchingRouteViewModel.setOrigin(it.data)
-                        it.data?.let { rps ->
-                            binding.etOrigin.text = rps.formatted_address
-                        }
+                        it.data?.let { rps -> binding.etOrigin.text = rps.formatted_address }
                     }
                     else if (isOrigin == false) {
                         searchingRouteViewModel.setDestination(it.data)
-                        it.data?.let { rps ->
-                            binding.etDestination.text = rps.formatted_address
-                        }
+                        it.data?.let { rps -> binding.etDestination.text = rps.formatted_address }
                     }
                     isOrigin = null
                 }
             }
         }
-        searchingRouteViewModel.routes.observe(this){ routes ->
-            if(routes?.isNotEmpty() == true){
-                val points = mutableListOf<LatLng>()
-                routes.forEach { route ->
-                    route.legs.forEach { leg ->
-                        leg.steps.forEach { step ->
-                            points.addAll(decodePoly(step.polyline.points))
+        searchingRouteViewModel.routes.observe(this) { response ->
+            when(response.status) {
+                Status.LOADING -> this.showProgressDialog("Please waiting...")
+                Status.ERROR -> {
+                    this.hideProgressDialog()
+                    Toast.makeText(this, response.message, Toast.LENGTH_LONG).show()
+                }
+                Status.SUCCESS -> {
+                    this.hideProgressDialog()
+                    val routes = response.data!!
+                    val points = mutableListOf<LatLng>()
+                    routes.forEach { route ->
+                        route.legs.forEach { leg ->
+                            leg.steps.forEach { step ->
+                                points.addAll(decodePoly(step.polyline.points))
+                            }
                         }
                     }
+                    PolylineOptions()
+                        .apply {
+                            this.addAll(points)
+                            this.width(10f)
+                            this.color(Color.RED)
+                            this.geodesic(true)
+                        }
+                        .let { map.addPolyline(it) }
+                    val bounds = LatLngBounds.Builder()
+                    addMarker(bounds,searchingRouteViewModel.origin!!,"Marker 1")
+                    addMarker(bounds,searchingRouteViewModel.destination!!,"Marker 2")
+                    val point = Point()
+                    windowManager.defaultDisplay.getSize(point)
+                    map.animateCamera(
+                        CameraUpdateFactory
+                            .newLatLngBounds(
+                                bounds.build(),
+                                point.x,
+                                550,
+                                230
+                            )
+                    )
+                    searchingRouteViewModel.labelButton.postValue(Constant.CONTINUE)
                 }
-                PolylineOptions().apply {
-                    this.addAll(points)
-                    this.width(10f)
-                    this.color(Color.RED)
-                    this.geodesic(true)
-                }.let {
-                    map.addPolyline(it)
-                }
-                val bounds = LatLngBounds.Builder()
-
-                addMarker(bounds,searchingRouteViewModel.origin!!,"Marker 1")
-                addMarker(bounds,searchingRouteViewModel.destination!!,"Marker 2")
-
-                val point = Point()
-                windowManager.defaultDisplay.getSize(point)
-                map.animateCamera(
-                    CameraUpdateFactory
-                        .newLatLngBounds(
-                            bounds.build(),
-                            point.x,
-                            550,
-                            230
-                        )
-                )
-            }else{
-                Log.e("5","hello")
             }
+        }
+        searchingRouteViewModel.continuation.observe(this) {
+            if(it) startActivity(Intent(this,MethodBookingActivity::class.java))
         }
     }
 
@@ -171,9 +179,7 @@ class SearchingRouteActivity : BaseActivity() {
                             Log.i("TAG", status.statusMessage ?: "")
                         }
                     }
-                    Activity.RESULT_CANCELED -> {
-                        // The user canceled the operation.
-                    }
+                    Activity.RESULT_CANCELED -> {}
                 }
             }
     }
