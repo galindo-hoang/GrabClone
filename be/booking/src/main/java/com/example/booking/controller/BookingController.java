@@ -85,7 +85,7 @@ public class BookingController {
                     }).build();
 
             // Send notification request to FCM service
-            notificationRequestClient.sendPnsToUser(notificationRequestDto);
+            notificationRequestClient.sendPnsToTopic(notificationRequestDto);
             // Return success response
             return ResponseEntity.ok(bookingRecordSaving);
         } catch (Exception e) {
