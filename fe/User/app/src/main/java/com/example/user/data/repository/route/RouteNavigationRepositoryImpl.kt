@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.user.data.model.googlemap.PlaceClient
 import com.example.user.data.model.googlemap.RouteNavigation
 import com.example.user.domain.repository.RouteNavigationRepository
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,19 +17,8 @@ class RouteNavigationRepositoryImpl @Inject constructor(
         origin: String,
         destination: String,
         mode: String
-    ): RouteNavigation {
-        val routeNavigation = RouteNavigation(listOf(),"404")
-        try {
-            val response = routeNavigationRemoteDataSource.getRoutes(origin, destination, mode)
-            Log.e("3",response.toString())
-            routeNavigation.status = response.code().toString()
-            if(response.body() != null) routeNavigation.routes = response.body()!!.routes
-        } catch (e: Exception){
-            e.printStackTrace()
-            routeNavigation.status = "500"
-        }
-        return routeNavigation
-    }
+    ): Response<RouteNavigation> =
+        routeNavigationRemoteDataSource.getRoutes(origin, destination, mode)
 
     override suspend fun getAddressFromPlaceId(placeId: String): PlaceClient {
         val placeClient = PlaceClient(status = "404")

@@ -2,16 +2,19 @@ package com.example.user.presentation.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.databinding.FragmentHomeBinding
+import com.example.user.presentation.booking.SearchingRouteActivity
 import com.example.user.presentation.main.adapter.BookingAdapter
 import com.example.user.presentation.main.adapter.PromptAdapter
 import com.example.user.presentation.main.adapter.VoucherAdapter
 import com.example.user.presentation.searching.SearchingActivity
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,9 +30,12 @@ class HomeFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
-        setRecycleView()
-        registerClickListener()
-        registerViewChangeListener()
+//        setRecycleView()
+//        registerClickListener()
+//        registerViewChangeListener()
+        FirebaseMessaging.getInstance().token.addOnCompleteListener {
+            Log.e("---",it.result)
+        }
         return binding.root
     }
 
@@ -43,7 +49,11 @@ class HomeFragment: Fragment() {
         }
     }
 
-    private fun registerClickListener() {}
+    private fun registerClickListener() {
+        binding.selector1.setOnClickListener {
+            startActivity(Intent(activity,SearchingRouteActivity::class.java))
+        }
+    }
 
     private fun setRecycleView() {
         bookingAdapter = BookingAdapter(listOf())

@@ -4,10 +4,7 @@ import com.example.booking.model.domain.BookingState;
 import com.example.booking.model.domain.PaymentMethod;
 import com.example.booking.model.domain.RideState;
 import com.example.booking.model.domain.TypeCar;
-import com.example.booking.model.dto.BookingAcceptanceDto;
-import com.example.booking.model.dto.BookingRequestDto;
-import com.example.booking.model.dto.BookingRideUpdateDto;
-import com.example.booking.model.dto.DriverLocationDto;
+import com.example.booking.model.dto.*;
 import com.example.booking.model.entity.BookingRecord;
 import com.example.booking.model.entity.RideRecord;
 import com.example.booking.service.BookingStoreService;
@@ -16,7 +13,8 @@ import com.example.clients.feign.NotificationRequest.NotificationRequestClient;
 import com.example.clients.feign.NotificationRequest.NotificationRequestDto;
 import com.example.clients.feign.NotificationRequest.SubscriptionRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jdk.javadoc.doclet.Taglet;
+import com.google.gson.Gson;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
@@ -169,24 +167,39 @@ public class BookingController {
                             }).build();
             notificationRequestClient.sendPnsToUser(notificationForDriverAcceptBooking);
 
+            BookingRecordDto bookingRecordDto = BookingRecordDto.builder()
+                    .bookingId(bookingRecordSaving.getId())
+                    .pickupLocation(bookingRecordSaving.getPickupCoordinate())
+                    .dropoffLocation(bookingRecordSaving.getDropoffCoordinate())
+                    .typeCar(bookingRecordSaving.getTypeCar())
+                    .price(bookingRecordSaving.getPrice())
+                    .paymentMethod(bookingRecordSaving.getPaymentMethod())
+                    .createdAt(bookingRecordSaving.getCreatedAt())
+                    .rideId(rideId)
+                    .startTime(startTime)
+                    .build();
+//            HashMap<String,String> a = new HashMap<>() {
+//                {
+//                    put("bookingId", bookingRecordSaving.getId().toString());
+//                    put("pickupLocation", Obj.writeValueAsString());
+//                    put("dropoffLocation", Obj.writeValueAsString(bookingRecordSaving.getDropoffCoordinate()));
+//                    put("typeCar", bookingRecordSaving.getTypeCar().toString());
+//                    put("price", bookingRecordSaving.getPrice().toString());
+//                    put("paymentMethod", bookingRecordSaving.getPaymentMethod().toString());
+//                    put("createdAt", bookingRecordSaving.getCreatedAt().toString());
+//                    put("rideId", rideId.toString());
+//                    put("startTime", startTime.toString());
+//                }
+//            };
+            String jsonBookingRecordDto = new Gson().toJson(bookingRecordDto);
 
             // Send booking successfully accepted notification to the passenger using FCM service
             NotificationRequestDto notificationForUserBooking =
                     NotificationRequestDto.builder()
-                            .target(bookingRecordSaving.getPassengerUsername().toString())
+                            .target(bookingRecordSaving.getPassengerUsername())
                             .title("Booking successfully accepted")
                             .body("A driver has accepted your booking")
-                            .data(new HashMap<>() {{
-                                put("bookingId", bookingRecordSaving.getId().toString());
-                                put("pickupLocation", Obj.writeValueAsString(bookingRecordSaving.getPickupCoordinate()));
-                                put("dropoffLocation", Obj.writeValueAsString(bookingRecordSaving.getDropoffCoordinate()));
-                                put("typeCar", bookingRecordSaving.getTypeCar().toString());
-                                put("price", bookingRecordSaving.getPrice().toString());
-                                put("paymentMethod", bookingRecordSaving.getPaymentMethod().toString());
-                                put("createdAt", bookingRecordSaving.getCreatedAt().toString());
-                                put("rideId", rideId.toString());
-                                put("startTime", startTime.toString());
-                            }}).build();
+                            .data(new HashMap<>() {{put("AcceptBooking",jsonBookingRecordDto);}}).build();
 
 
             // Return accepted response
