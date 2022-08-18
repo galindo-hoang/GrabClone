@@ -3,10 +3,10 @@ import LoginService from '../Login/LoginService';
 import {useHistory} from "react-router-dom";
 import {PATH} from "../../constants/paths";
 
-
 export const instance =axios.create({
-  headers: {
-  },
+  headers:{
+
+  }
 })
 instance.interceptors.response.use(async response =>{
  if(response.status===200){

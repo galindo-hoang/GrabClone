@@ -21,14 +21,7 @@ firebase.initializeApp( {
   measurementId: "G-25ETJ96ZRC"
 });
 
-const POST_REGISTER_FCM="http://localhost:8082/api/v1/fcm/register";
-
-const configHeader={
-  headers:{
-    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-    'Content-Type': 'multipart/form-data',
-  }
-}
+const POST_REGISTER_FCM="http://localhost:8085/api/v1/fcm-publish/register";
 
 
 export const message = firebase.messaging();
@@ -36,8 +29,13 @@ export const registerNotification=()=> {
   Notification.requestPermission().then((permisson) => {
     if(permisson==='granted') {
       message.getToken({vapidKey: vapidKey}).then(async token => {
-        await axios.post(POST_REGISTER_FCM,{fcmToken:token,username:localStorage.getItem("userName") as string}as sendRegister).then(response=>console.log(response))
+        await instance.post(POST_REGISTER_FCM,{fcmToken:token,username:localStorage.getItem("userName") as string}as sendRegister,{
+          headers:{
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          }
+        }).then(response=>console.log(response))
           .catch(ex=>console.log("haha"))
+        console.log(token)
         return token
       })
     }

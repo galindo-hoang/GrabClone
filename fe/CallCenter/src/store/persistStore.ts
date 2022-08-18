@@ -3,7 +3,6 @@ import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import rootReducer from "../reducer/reducer";
 import thunk from "redux-thunk";
-
 const composeEnhancers =
   typeof window === "object" &&
   process.env.NODE_ENV === "development" &&
@@ -13,7 +12,7 @@ const composeEnhancers =
 
 const persistConfig = {
   key: 'root',
-  storage: storage
+  storage: storage,
 };
 
 const pReducer = persistReducer(persistConfig, rootReducer);

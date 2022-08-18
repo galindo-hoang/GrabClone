@@ -9,11 +9,11 @@ import axios from "axios";
 import {MessageLoadMapService} from "../service/Message/MessageService";
 import {NotificationService} from "../service/Notification/NotificationService";
 import {connect, ConnectedProps} from "react-redux";
-import {saveBookinfCar} from "../pages/BookingCar/BookingCar.thunks";
 import {receivedPayload} from "./App.thunk";
 
 
-const mapStateToProps = state => ({})
+const mapStateToProps = state => ({
+})
 
 const mapDispatchToProps = {
   receivedPayload

@@ -8,12 +8,10 @@ const initialState= {
     username:undefined,
     price:undefined,
     paymentMethod:undefined,
-    dropoffLongitude:undefined,
-    dropoffLatitude:undefined,
     typeCar:undefined,
-    pickupLongitude:undefined,
-    pickupLatitude:undefined,
-    phonenumber:undefined
+    phonenumber:undefined,
+    pickupLocation:undefined,
+    dropoffLocation:undefined,
   } as createBooking
 }
 
@@ -25,7 +23,7 @@ export const bookingCarReducer=(state=initialState,action)=>
         draft.destination= action.payload.address.destination;
         break
       case types.CREATE_BOOKING_CAR:
-        draft.bookingForm=action.payload
+        draft.bookingForm=action.payload;
         break
       default:
         return state;

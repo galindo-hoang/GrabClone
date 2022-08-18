@@ -3,18 +3,17 @@ import {login} from "../pages/Login/Login.thunks";
 import {Redirect, Route, RouteComponentProps, RouteProps} from "react-router-dom";
 import React from "react";
 import {PATH} from "../constants/paths";
+import {initialCreateBooking} from "../@types/map";
 
 
 const mapStateToProps = state => ({
-  departure:state.bookingCar?.departure,
-  destination:state.bookingCar?.destination
+  bookingCar:state.bookingCar
 })
 
 const mapDispatchToProps = {}
 
 interface ReduxProps {
-  departure:any,
-  destination:any
+  bookingCar:initialCreateBooking
 }
 
 interface Props extends ReduxProps, RouteProps {
@@ -24,12 +23,12 @@ interface Props extends ReduxProps, RouteProps {
 const connector = connect(mapStateToProps, mapDispatchToProps)
 
 const MapGuard=(props:Props)=>{
-  const {departure,destination,component: Component, ...rest}=props;
+  const {bookingCar ,component: Component, ...rest}=props;
   const render:JSX.Element=(
     <Route
       {...rest}
       render={(props):JSX.Element => {
-        if (!localStorage.getItem("location")) {
+        if (bookingCar?.departure===null&&bookingCar?.destination===null) {
           return <Redirect to={PATH.BOOKINGCAR as string} />
         }
         return <Component {...props} />

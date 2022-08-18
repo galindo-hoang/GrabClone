@@ -7,7 +7,7 @@ import {MessageWarningService} from "src/service/Message/MessageService";
 import "antd/dist/antd.css";
 import {AutoComplete, Button, Dropdown, Menu, MenuProps, Modal, Space, Table} from 'antd';
 import {connect, ConnectedProps} from "react-redux"
-import {createBookingCar, saveBookinfCar} from "./BookingCar.thunks";
+import {createBookingCar, saveAddressBooking} from "./BookingCar.thunks";
 import {bookingCarForm, createBooking, featuresLocation, info2Location, timestamp} from "../../@types/bookingcar";
 import BookingService from "../../service/BookingCar/BookingService";
 import {coordinate} from "../../@types/map";
@@ -24,14 +24,13 @@ import {
 import {collection, getDocs,addDoc} from 'firebase/firestore'
 import firebase from "firebase/compat";
 import DownOutlined from "@ant-design/icons/lib/icons/DownOutlined";
-import {saveBookingCar} from "./BookingCar.actions";
 import ProcessBookingService from "../../service/BookingCar/ProcessBookingService";
 
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 const mapStateToProps = state => ({})
 
 const mapDispatchToProps = {
-  saveBookingCar,
+  saveAddressBooking,
   createBookingCar
 }
 
@@ -51,7 +50,7 @@ interface Props extends ConnectedProps<typeof connector> {
 
 
 const BookingCar = (props: Props) => {
-  const {saveBookingCar,createBookingCar} = props
+  const {saveAddressBooking,createBookingCar} = props
   const [carType, setCarType] = useState("Chọn loại xe");
   const userCollection = collection(databaseFireBase , "HistoryPhoneNumber");
   const [recentPhoneNumber, setRecentPhoneNumber] = useState<object[]>([]);
@@ -316,14 +315,18 @@ const BookingCar = (props: Props) => {
                     phonenumber:phoneNumber,
                     username:localStorage.getItem("userName") as string,
                     typeCar:carType,
-                    pickupLatitude:position.departure?.coordinate?.latitude,
-                    pickupLongitude:position.departure?.coordinate?.longitude,
-                    dropoffLatitude:position.destination?.coordinate?.latitude,
-                    dropoffLongitude:position.destination?.coordinate?.longitude,
+                    dropoffLocation:{
+                      longitude:position.destination?.coordinate?.longitude,
+                      latitude:position.destination?.coordinate?.latitude
+                    },
+                    pickupLocation:{
+                      longitude:position.departure?.coordinate?.longitude,
+                      latitude:position.departure?.coordinate?.latitude
+                    },
                     paymentMethod:"CREDIT_CARD",
                     price:100000
                   }
-                  saveBookingCar(bookingCarForm as bookingCarForm);
+                  saveAddressBooking(bookingCarForm as bookingCarForm);
                   createBookingCar(createBooking as createBooking)
                   const recentPhoneNumber:recentPhoneNumber={
                     date:firebase.firestore.Timestamp.fromDate(new Date()),
@@ -332,7 +335,9 @@ const BookingCar = (props: Props) => {
                   addPhoneRecent(collection(databaseFireBase , "HistoryPhoneNumber"),recentPhoneNumber)
                   history.push(PATH.MAP);
                 } else {
-                  ProcessBookingService.finishBooking().then(payoad=>console.log(payoad))
+                  ProcessBookingService.finishBooking()
+                    .then(payoad=>console.log(payoad))
+                    .catch(ex=>console.log(ex))
                   const message = MessageWarningService.getInstance("Vui lòng điền đầy đủ thông tin")
                 }
               }}>

@@ -7,16 +7,13 @@ import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.fcm.model.domain.*;
 import com.example.fcm.model.dto.*;
 import com.example.fcm.model.entity.*;
 import com.example.fcm.service.*;
-
+@CrossOrigin("localhost:3000")
 @RequestMapping("/api/v1/fcm")
 @RestController
 @Slf4j

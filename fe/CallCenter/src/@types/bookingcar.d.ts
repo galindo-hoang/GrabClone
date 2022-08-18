@@ -35,10 +35,8 @@ export interface timestamp {
 
 export interface createBooking {
   phonenumber?: string,
-  pickupLatitude?: number,
-  pickupLongitude?: number,
-  dropoffLatitude?: number,
-  dropoffLongitude?: number,
+  pickupLocation?: coordinate,
+  dropoffLocation?:coordinate,
   typeCar?: string,
   paymentMethod?: string,
   price?: number,
