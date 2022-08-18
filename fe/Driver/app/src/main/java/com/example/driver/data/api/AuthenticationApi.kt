@@ -8,7 +8,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AuthenticationApi {
-    @POST("/register")
+    @POST("/driver/register")
     suspend fun postResponseRegisterSaveAccount(
         @Body userDto: UserDto
     ): Response<BodyRegisterSaveAccount>

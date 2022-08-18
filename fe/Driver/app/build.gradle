@@ -18,6 +18,8 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String","LOCALHOST", "\"http://locahost:8085\""
+        buildConfigField "String","GCP", "\"http://34.142.192.100:8085\""
     }
 
     buildTypes {

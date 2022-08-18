@@ -12,7 +12,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 
-object Permissions {
+object RequestPermissions {
     fun isEnableLocation(context: Context): Boolean{
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(

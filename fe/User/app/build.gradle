@@ -19,7 +19,8 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField "String","BASE_URL","\"asd\""
+        buildConfigField "String","LOCALHOST", "\"http://locahost:8085\""
+        buildConfigField "String","GCP", "\"http://34.142.192.100:8085\""
         buildConfigField "String","GOOGLE_MAP_API","\"AIzaSyD7n1_X28Jgw0zCd3cB3LmyPiL7gnIoS4c\""
     }
 

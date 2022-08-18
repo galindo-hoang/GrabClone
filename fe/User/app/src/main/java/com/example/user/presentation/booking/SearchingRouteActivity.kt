@@ -10,38 +10,46 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
-import com.example.user.BuildConfig
 import com.example.user.R
 import com.example.user.data.api.AuthenticationApi
 import com.example.user.data.model.googlemap.ResultPlaceClient
-import com.example.user.databinding.ActivityBookingBinding
+import com.example.user.databinding.ActivitySearchingRouteBinding
 import com.example.user.presentation.BaseActivity
 import com.example.user.utils.Constant.decodePoly
 import com.example.user.utils.Status
-import com.google.android.gms.maps.*
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.libraries.places.api.Places
+import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.libraries.places.widget.*
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
+import kotlin.coroutines.resumeWithException
 
 
 @AndroidEntryPoint
-class BookingActivity : BaseActivity() {
+class SearchingRouteActivity : BaseActivity() {
 
     @Inject
-    lateinit var bookingViewModel: BookingViewModel
+    lateinit var searchingRouteViewModel: SearchingRouteViewModel
     @Inject
     lateinit var authenticationApi: AuthenticationApi
 
     private lateinit var placesClient: PlacesClient
     private lateinit var loadPlacesFromGoogleMap: ActivityResultLauncher<Intent>
-    private lateinit var binding: ActivityBookingBinding
+    private lateinit var binding: ActivitySearchingRouteBinding
     private var isOrigin: Boolean? = null
     private lateinit var map: GoogleMap
     private val intentGoogleMap by lazy {
@@ -52,23 +60,14 @@ class BookingActivity : BaseActivity() {
             )
             .build(this)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_booking)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_searching_route)
         binding.lifecycleOwner = this
-        binding.viewModel = bookingViewModel
+        binding.viewModel = searchingRouteViewModel
 
-
-
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.e("TAG", "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
-            val msg = task.result
-            Log.e("TAG", msg)
-            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-        })
+        Log.e("---------","hello")
 
 //        if(!Places.isInitialized())
 //            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
@@ -95,19 +94,19 @@ class BookingActivity : BaseActivity() {
     }
 
     private fun registerObserve(){
-        bookingViewModel.resultPlaceClient.observe(this){
+        searchingRouteViewModel.resultPlaceClient.observe(this){
             when(it.status){
                 Status.LOADING -> Toast.makeText(this,"Loading...",Toast.LENGTH_LONG).show()
                 Status.ERROR -> Toast.makeText(this,"Cant load data",Toast.LENGTH_LONG).show()
                 Status.SUCCESS -> {
                     if(isOrigin == true) {
-                        bookingViewModel.setOrigin(it.data)
+                        searchingRouteViewModel.setOrigin(it.data)
                         it.data?.let { rps ->
                             binding.etOrigin.text = rps.formatted_address
                         }
                     }
                     else if (isOrigin == false) {
-                        bookingViewModel.setDestination(it.data)
+                        searchingRouteViewModel.setDestination(it.data)
                         it.data?.let { rps ->
                             binding.etDestination.text = rps.formatted_address
                         }
@@ -116,7 +115,7 @@ class BookingActivity : BaseActivity() {
                 }
             }
         }
-        bookingViewModel.routes.observe(this){ routes ->
+        searchingRouteViewModel.routes.observe(this){ routes ->
             if(routes?.isNotEmpty() == true){
                 val points = mutableListOf<LatLng>()
                 routes.forEach { route ->
@@ -136,8 +135,8 @@ class BookingActivity : BaseActivity() {
                 }
                 val bounds = LatLngBounds.Builder()
 
-                addMarker(bounds,bookingViewModel.origin!!,"Marker 1")
-                addMarker(bounds,bookingViewModel.destination!!,"Marker 2")
+                addMarker(bounds,searchingRouteViewModel.origin!!,"Marker 1")
+                addMarker(bounds,searchingRouteViewModel.destination!!,"Marker 2")
 
                 val point = Point()
                 windowManager.defaultDisplay.getSize(point)
@@ -163,7 +162,7 @@ class BookingActivity : BaseActivity() {
                     Activity.RESULT_OK -> {
                         result.data?.let {
                             val place = Autocomplete.getPlaceFromIntent(result.data!!)
-                            place.id?.let { it1 -> bookingViewModel.getAddress(it1) }
+                            place.id?.let { it1 -> searchingRouteViewModel.getAddress(it1) }
                         }
                     }
                     AutocompleteActivity.RESULT_ERROR -> {

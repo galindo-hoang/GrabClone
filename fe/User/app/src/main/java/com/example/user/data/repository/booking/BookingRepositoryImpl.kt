@@ -1,6 +1,7 @@
 package com.example.user.data.repository.booking
 
 import com.example.user.data.dto.BookingDto
+import com.example.user.data.dto.RegisterFCMBody
 import com.example.user.domain.repository.BookingRepository
 import retrofit2.Response
 import javax.inject.Inject
@@ -15,6 +16,10 @@ class BookingRepositoryImpl @Inject constructor(
         } catch (e:Exception){
             throw e
         }
+    }
+
+    override suspend fun postRegisterFcmToken(registerFCMBody: RegisterFCMBody): Response<Int> {
+        return bookingRemoteDataResource.registerFcmToken(registerFCMBody)
     }
 
 }

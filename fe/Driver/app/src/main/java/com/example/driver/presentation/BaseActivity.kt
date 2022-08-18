@@ -2,25 +2,50 @@ package com.example.driver.presentation
 
 import android.app.Dialog
 import android.content.*
-import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import com.example.driver.R
+import com.example.driver.domain.usecase.SetupServiceCurrentLocationUseCase
+import com.example.driver.exception.ExpiredRefreshTokenExceptionCustom
 import com.example.driver.presentation.login.LogInActivity
+import com.example.driver.presentation.main.StimulateActivity
+import com.example.driver.presentation.main.StimulateViewModel
 import com.example.driver.utils.Constant
+import com.example.driver.utils.Status
+import com.google.android.gms.maps.model.LatLng
 import javax.inject.Inject
 
 open class BaseActivity @Inject constructor(): AppCompatActivity() {
+
     @Inject
     lateinit var baseViewModel: BaseViewModel
+    @Inject
+    lateinit var setupServiceCurrentLocationUseCase: SetupServiceCurrentLocationUseCase
+    @Inject
+    lateinit var stimulateViewModel: StimulateViewModel
 
     private lateinit var mProgressDialog: Dialog
     private lateinit var mExpiredTokenDialog: Dialog
+    private lateinit var mNewBookingDialog: Dialog
 
-    private fun registerViewChange() {
+    fun startLooking(){
+        stimulateViewModel.haveBooking.observe(this) {
+            if(it) {
+                this.showNewBookingDialog()
+            }
+        }
+    }
+
+
+
+    fun stopLooking(){
+        stimulateViewModel.haveBooking.removeObservers(this)
+    }
+
+    private fun registerViewChangeExpired() {
         baseViewModel.isLogin.observe(this) {
             when(it){
                 1 -> {
@@ -37,7 +62,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         }
     }
 
-    private fun registerClickListener() {
+    private fun registerClickListenerExpired() {
         this.mExpiredTokenDialog.findViewById<AppCompatButton>(R.id.btn_re_login_accept).setOnClickListener {
             val password = this@BaseActivity.mExpiredTokenDialog.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
             if(password.isEmpty())
@@ -57,36 +82,56 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         }
     }
 
-//    private val editText = EditText(this).apply {
-//        this.inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
-//    }
+    fun showNewBookingDialog(){
+        this.mNewBookingDialog = Dialog(this)
+        mNewBookingDialog.setContentView(R.layout.dialog_new_booking)
+        this.mNewBookingDialog.findViewById<TextView>(R.id.tv_new_booking_des).text =
+            Constant.convertLatLongToAddress(
+                this,
+                LatLng(stimulateViewModel.destination!!.lat,stimulateViewModel.destination!!.long)
+            )
+        this.mNewBookingDialog.findViewById<TextView>(R.id.tv_new_booking_src).text =
+            Constant.convertLatLongToAddress(
+                this,
+                LatLng(stimulateViewModel.source!!.lat,stimulateViewModel.source!!.long)
+            )
+        registerClickListenerNewBooking()
+        registerViewChangeNewBooking()
+        this.mNewBookingDialog.show()
+    }
 
-//    private val alertDialog = AlertDialog.Builder(this)
-//        .setIcon(R.drawable.ic_launcher_foreground)
-//        .setTitle("WARNING")
-//        .setView(editText)
-//        .setMessage("your account is expired. Do you want to continue Login ?")
-//        .setPositiveButton("Accept") { dialogInterface, _ ->
-//            if(editText.text.toString().isEmpty())
-//                Toast.makeText(this,"Please write password",Toast.LENGTH_LONG).show()
-//            else {
-//                baseViewModel.password = editText.text.toString()
-//                baseViewModel.login()
-//                dialogInterface.dismiss()
-//            }
-//        }
-//        .setNegativeButton("Cancel"){ dialogInterface, _ ->
-//            dialogInterface.dismiss()
-//            finishAffinity()
-//            startActivity(Intent(this, LogInActivity::class.java))
-//        }
+    private fun registerClickListenerNewBooking() {
+        this.mNewBookingDialog.findViewById<AppCompatButton>(R.id.btn_new_booking_accept).setOnClickListener {
+            try {
+                stimulateViewModel.acceptBooking().observe(this) {
+                    this.mNewBookingDialog.dismiss()
+                    when(it.status){
+                        Status.SUCCESS -> {
+                            if(it.data == 1) {
+                                setupServiceCurrentLocationUseCase.stop()
+                                startActivity(Intent(this, StimulateActivity::class.java))
+                            }
+                        }
+                        else -> {}
+                    }
+                }
+            } catch (e:ExpiredRefreshTokenExceptionCustom){
+                this.showExpiredTokenDialog(e.message.toString())
+            }
+        }
+        this.mNewBookingDialog.findViewById<AppCompatButton>(R.id.btn_new_booking_cancel).setOnClickListener {
+            this.mNewBookingDialog.dismiss()
+        }
+    }
+
+    private fun registerViewChangeNewBooking() {}
 
     fun showExpiredTokenDialog(userName: String){
         this.mExpiredTokenDialog = Dialog(this)
         mExpiredTokenDialog.setContentView(R.layout.dialog_login)
         baseViewModel.userName = userName
-        registerClickListener()
-        registerViewChange()
+        registerClickListenerExpired()
+        registerViewChangeExpired()
         this.mExpiredTokenDialog.show()
     }
 
@@ -107,13 +152,22 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     }
 
 
-    fun registerBroadcastReceiver(){
-        registerReceiver(updateAccessToken, IntentFilter(Constant.SERVICE_ACCESS_TOKEN))
+    override fun onStart() {
+        super.onStart()
+        registerReceiver(listeningRefreshToken, IntentFilter(Constant.REFRESH_TOKEN_EXPIRED))
     }
 
-    private val updateAccessToken: BroadcastReceiver = object : BroadcastReceiver(){
+    override fun onPause() {
+        unregisterReceiver(listeningRefreshToken)
+        super.onPause()
+    }
+
+    private val listeningRefreshToken: BroadcastReceiver = object : BroadcastReceiver(){
         override fun onReceive(p0: Context?, p1: Intent?) {
-            Log.e("--------", p1?.getIntExtra(Constant.SERVICE_ACCESS_TOKEN_BOOLEAN,0).toString())
+            val userName = p1?.getStringExtra(Constant.REFRESH_TOKEN_EXPIRED_PUT_EXTRA_USERNAME)
+            if(userName?.isNotEmpty() == true){
+                this@BaseActivity.showExpiredTokenDialog(userName)
+            }
         }
 
     }

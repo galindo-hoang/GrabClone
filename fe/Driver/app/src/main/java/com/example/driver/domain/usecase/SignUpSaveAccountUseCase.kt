@@ -17,12 +17,12 @@ class SignUpSaveAccountUseCase @Inject constructor(
             201 -> {
                 val body = response.body()
                 if(body != null) Response.success("Create successfully")
-                else Response.error("Cant save data","FAIL")
+                else Response.error("Cant save data",response.code(),"FAIL")
             }
             500 -> {
                 val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type
                 val a:ErrorBodyValidateOrRegister = Gson().fromJson(response.errorBody()!!.charStream(), type)
-                Response.error("Create information of account fail",a.message)
+                Response.error("Create information of account fail",response.code(),a.message)
             }
             else -> throw Exception("cant connect to database")
         }
