@@ -120,20 +120,18 @@ const Map = (props:Props) => {
   /*const [finishSuccess,setFinishSuccess]=useState<object>();*/
  /* const [driverAccepted,setDriverAccepted]=useState<object>();*/
   useEffect(()=>{
+    // if(bookingCarForm.bookingForm.id===JSON.parse(payloadFCM.booking).bookingId) {
+      if (payloadFCM.body.includes(BODYSTATES.DRIVER_ACCEPTED)) {
 
-    if(payloadFCM.body.includes(BODYSTATES.DRIVER_ACCEPTED)){
-
-    }
-    else if(payloadFCM.body.includes(BODYSTATES.DRIVER_UPDATE_LOCATION)){
-      setDriverCoordinate(JSON.parse(payloadFCM.driverLocation) as coordinate)
-      console.log(JSON.parse(payloadFCM.driverLocation))
-    }
-    else if(payloadFCM.body.includes(BODYSTATES.FINISH_SUCCESS)){
-      setDriverCoordinate({longitude:undefined,latitude:undefined} as coordinate);
-      /*setFinishSuccess(JSON.parse(payloadFCM))*/
-    }
-    setPayloadFCMValue(payloadFCM);
-    console.log(payloadFCMValue)
+      } else if (payloadFCM.body.includes(BODYSTATES.DRIVER_UPDATE_LOCATION)) {
+        setDriverCoordinate(JSON.parse(payloadFCM.driverLocation) as coordinate)
+        console.log(JSON.parse(payloadFCM.driverLocation))
+      } else if (payloadFCM.body.includes(BODYSTATES.FINISH_SUCCESS)) {
+        setDriverCoordinate({longitude: undefined, latitude: undefined} as coordinate);
+        /*setFinishSuccess(JSON.parse(payloadFCM))*/
+      }
+      setPayloadFCMValue(payloadFCM);
+      console.log(payloadFCMValue)
   },[payloadFCM])
 
 
