@@ -66,8 +66,18 @@ export interface responseUpdatedLocationDriver {
     rideId?:string
   },
 }
+export interface responseAcceptedRider{
+  bookingId?:number,
+}
+
 export interface responseFinishedRide{
   startTime?:string,
   endTime?:string,
   rideId?:string,
+}
+
+export interface typeArrayBooking{
+  departure:featuresLocation
+  destination:featuresLocation,
+  bookingForm: responseCreateBooking
 }

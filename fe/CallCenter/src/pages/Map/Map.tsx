@@ -12,11 +12,18 @@ import {COLOR} from "src/constants/styles";
 import {useSpring,animated} from 'react-spring'
 import MapBoxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import {connect, ConnectedProps, useSelector} from "react-redux"
-import {location, info2Location, featuresLocation, responseFinishedRide} from "src/@types/bookingcar";
-import { Drawer } from "antd";
+import {
+  location,
+  info2Location,
+  featuresLocation,
+  responseFinishedRide,
+  responseAcceptedRider
+} from "src/@types/bookingcar";
+import {Badge, Descriptions, Drawer } from "antd";
 import bookingCar from "../BookingCar/BookingCar";
 import {BODYSTATES} from "../../constants/states";
 import {objectTraps} from "immer/dist/core/proxy";
+import {handlePrice} from "../../helpers/string";
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 
 
@@ -69,11 +76,12 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 interface Props extends ConnectedProps<typeof connector> {}
 
 
-enum StateBooking{
-  CREATED,
-  CANCELLED,
-  REJECTED,
-  ACCEPTED
+const StateBooking={
+  CREATED:"Tạo booking thành công",
+  ACCEPTED:"Tài xế đã chấp nhận cuốc xe",
+  UPDATE:"Tài xế đang đón",
+  FINISH:"Người đặt đã đến nơi",
+  CANCELLEDBYDRIVER:"Tài xế đã hủy chuyến"
 }
  enum RideState {
   STARTED,
@@ -119,29 +127,42 @@ const Map = (props:Props) => {
   });
 
 
+  const [stateBooking,setStateBooking]=useState<any>(StateBooking.CREATED);
   const [finishSuccess,setFinishSuccess]=useState<responseFinishedRide>({
     endTime:undefined,
     rideId:undefined,
     startTime:undefined
   });
- /* const [driverAccepted,setDriverAccepted]=useState<object>();*/
+  const [driverAccepted,setDriverAccepted]=useState<responseAcceptedRider>({
+    bookingId:undefined
+  });
   useEffect(()=>{
      /* if (bookingCarForm.bookingForm.id === JSON.parse(payloadFCM.booking).bookingId) {*/
+
+        //DRIVER ACCEPTED
         if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_ACCEPTED)) {
+          setDriverAccepted(JSON.parse(JSON.parse(payloadFCM.booking).bookingId) as responseAcceptedRider);
+          setStateBooking(StateBooking.ACCEPTED)
         }
+        //DRIVER UPDATE LOCATION
         else if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_UPDATE_LOCATION)) {
-         /* setDriverCoordinate(JSON.parse(payloadFCM.driverLocation) as coordinate)*/
-          console.log(payloadFCM)
-        } else if (payloadFCM.body.toString().includes(BODYSTATES.FINISH_SUCCESS)) {
+          setDriverCoordinate(JSON.parse(JSON.parse(payloadFCM.ride).driverLocation) as coordinate)
+          setStateBooking(StateBooking.UPDATE)
+        }
+        //FINISH
+        else if (payloadFCM.body.toString().includes(BODYSTATES.FINISH_SUCCESS)) {
           setDriverCoordinate({longitude: undefined, latitude: undefined} as coordinate);
-          setFinishSuccess(payloadFCM.ride as responseFinishedRide);
+          setFinishSuccess(JSON.parse(payloadFCM.ride) as responseFinishedRide);
+          setStateBooking(StateBooking.FINISH)
           /*setFinishSuccess(JSON.parse(payloadFCM))*/
+        }
+        else if(payloadFCM.body.toString().includes(BODYSTATES.CANCEL_DRIVER)){
+          setStateBooking(StateBooking.CANCELLEDBYDRIVER)
         }
         setPayloadFCMValue(payloadFCM);
         console.log(payloadFCMValue)
     /*  }*/
   },[payloadFCM])
-
 
   useEffect(() => {
     const checkDistance = async () => {
@@ -259,7 +280,7 @@ const Map = (props:Props) => {
           <img
             onClick={() => setShowPopupDestination(true)}
             style={{height: 50, width: 50}}
-            src="https://xuonginthanhpho.com/wp-content/uploads/2020/03/map-marker-icon.png"
+            src="https://library.kissclipart.com/20180925/rpe/kissclipart-map-car-icon-clipart-car-google-maps-navigation-c81a6a2d0ecb7a15.png"
           />
         </Marker>:""
       }
@@ -291,15 +312,37 @@ const Map = (props:Props) => {
 
 
     <Drawer
-      title="Trạng thái đặt xe"
       placement='bottom'
       closable={false}
       onClose={onCloseDrawer}
       visible={visibleState}
     >
-      <p>Some contents...</p>
-      <p>Some contents...</p>
-      <p>Some contents...</p>
+
+      <Descriptions title="Trạng thái đặt xe"  bordered>
+        <Descriptions.Item label="Số điện thoại">{bookingCarForm.bookingForm.phonenumber}</Descriptions.Item>
+        <Descriptions.Item label="Loại xe">{bookingCarForm.bookingForm.typeCar}</Descriptions.Item>
+        <Descriptions.Item label="Id Chuyến xe">{bookingCarForm.bookingForm.id}</Descriptions.Item>
+        <Descriptions.Item label="Thời gian đặt xe">{bookingCarForm.bookingForm.createdAt}</Descriptions.Item>
+        <Descriptions.Item label="Thời gian tài xe nhận" >
+          2019-04-24 18:00:00
+        </Descriptions.Item>
+        <Descriptions.Item label="Thời gian kết thúc chuyến đi" >
+          {finishSuccess.endTime}
+        </Descriptions.Item>
+        <Descriptions.Item label="Địa chỉ đón khách">{bookingCarForm.departure.value}</Descriptions.Item>
+        <Descriptions.Item label="Địa chỉ khách đến" span={2}>{bookingCarForm.destination.value}</Descriptions.Item>
+        <Descriptions.Item label="Trạng thái" span={3}>
+          {StateBooking.FINISH.toString().includes(stateBooking)?
+            <Badge status="success" text={stateBooking} />:
+            StateBooking.CANCELLEDBYDRIVER.toString().includes(stateBooking)?
+              <Badge status="error" text={stateBooking} />
+              :
+              <Badge status="processing" text={stateBooking} />
+          }
+        </Descriptions.Item>
+        <Descriptions.Item label="Phương thức thanh toán">{bookingCarForm.bookingForm.paymentMethod}</Descriptions.Item>
+        <Descriptions.Item label="Giá tiền">{handlePrice(bookingCarForm.bookingForm.price)}</Descriptions.Item>
+      </Descriptions>
     </Drawer>
 
   </MainLayout>

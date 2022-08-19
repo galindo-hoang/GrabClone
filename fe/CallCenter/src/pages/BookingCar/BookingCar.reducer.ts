@@ -1,6 +1,6 @@
 import * as types from "./BookingCar.constants"
 import produce from "immer"
-import {createBooking, location, responseCreateBooking} from "../../@types/bookingcar"
+import {createBooking, location, responseCreateBooking, typeArrayBooking} from "../../@types/bookingcar"
 const initialState= {
   departure:null,
   destination:null,
@@ -18,6 +18,7 @@ const initialState= {
     updatedAt:undefined
   } as responseCreateBooking
 }
+const initalState:typeArrayBooking[]=[]
 
 export const bookingCarReducer=(state=initialState,action)=>
   produce(state, draft => {

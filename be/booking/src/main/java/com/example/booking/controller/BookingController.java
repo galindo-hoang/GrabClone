@@ -219,7 +219,7 @@ public class BookingController {
             // Push the driver's location to the passenger
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("rideId", rideRecordMap.get(driverLocationDto.getUsername()).getFirst());
-            jsonObject.put("driverLocation", driverLocationDto.getLocation());
+            jsonObject.put("driverLocation", new Gson().toJson(driverLocationDto.getLocation()));
             NotificationRequestDto notificationForDriverLocation = NotificationRequestDto.builder()
                     .target(rideRecordMap.get(driverLocationDto.getUsername()).getSecond().getPassengerUsername().toString())
                     .title("Update driver location")
