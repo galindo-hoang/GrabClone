@@ -15,6 +15,7 @@ import com.example.fcm.model.entity.*;
 import com.example.fcm.service.*;
 @RequestMapping("/api/v1/fcm")
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 public class NotificationController {
     @Autowired
