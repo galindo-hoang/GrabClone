@@ -2,6 +2,7 @@ package com.example.driver.presentation.service
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.location.Location
 import android.util.Log
 import com.example.driver.data.dto.RegisterFCMBody
 import com.example.driver.data.model.TempPayloadDataFCM
@@ -11,6 +12,8 @@ import com.example.driver.presentation.main.StimulateViewModel
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import com.google.type.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngQuad
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject

@@ -7,7 +7,7 @@ import com.example.user.data.dto.LatLong
 import com.example.user.domain.usecase.BookingCarUseCase
 import com.example.user.exception.ExpiredRefreshTokenExceptionCustom
 import com.example.user.utils.Response
-import com.example.user.utils.VehicleType
+import com.example.user.utils.TypeCar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -28,15 +28,17 @@ class BookingViewModel @Inject constructor(
         _bookingRider.postValue(Response.loading(0))
         var response: Response<Int>
         runBlocking(Dispatchers.IO) {
-            response = bookingCarUseCase.invoke(BookingDto(
-                destination = LatLong(0.0,0.0),
-                source = LatLong(0.0,0.0),
-                phoneNumber = "",
-                vehicleType = VehicleType.SEDAN
-            ))
+//            response = bookingCarUseCase.invoke(
+//                BookingDto(
+//                destination = LatLong(0.0,0.0),
+//                source = LatLong(0.0,0.0),
+//                phoneNumber = "",
+//                vehicleType = TypeCar.SEDAN
+//            )
+//            )
         }
-        if(response.data == -2){
-            throw ExpiredRefreshTokenExceptionCustom(response.message.toString())
-        }else _bookingRider.postValue(response)
+//        if(response.data == -2){
+//            throw ExpiredRefreshTokenExceptionCustom(response.message.toString())
+//        }else _bookingRider.postValue(response)
     }
 }
