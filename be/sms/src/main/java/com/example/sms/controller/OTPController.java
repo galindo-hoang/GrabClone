@@ -16,6 +16,7 @@ import java.time.ZonedDateTime;
 
 @RestController
 @RequestMapping("/api/v1/sms")
+@CrossOrigin(origins = "http://localhost:3000")
 public class OTPController {
     @Autowired
     private OtpService otpService;
