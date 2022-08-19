@@ -136,10 +136,13 @@ const Map = (props:Props) => {
   const [driverAccepted,setDriverAccepted]=useState<responseAcceptedRider>({
     bookingId:undefined
   });
-  useEffect(()=>{
-     /* if (bookingCarForm.bookingForm.id === JSON.parse(payloadFCM.booking).bookingId) {*/
 
+  useEffect(()=>{
+    console.log(payloadFCMValue)
+     /* if (bookingCarForm.bookingForm.id === JSON.parse(payloadFCM.booking).bookingId) {*/
         //DRIVER ACCEPTED
+    if(payloadFCM!==null) {
+      /*if (bookingCarForm.bookingForm.id === JSON.parse(JSON.parse(payloadFCM.booking).bookingId)) */{
         if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_ACCEPTED)) {
           setDriverAccepted(JSON.parse(JSON.parse(payloadFCM.booking).bookingId) as responseAcceptedRider);
           setStateBooking(StateBooking.ACCEPTED)
@@ -155,12 +158,13 @@ const Map = (props:Props) => {
           setFinishSuccess(JSON.parse(payloadFCM.ride) as responseFinishedRide);
           setStateBooking(StateBooking.FINISH)
           /*setFinishSuccess(JSON.parse(payloadFCM))*/
-        }
-        else if(payloadFCM.body.toString().includes(BODYSTATES.CANCEL_DRIVER)){
+        } else if (payloadFCM.body.toString().includes(BODYSTATES.CANCEL_DRIVER)) {
           setStateBooking(StateBooking.CANCELLEDBYDRIVER)
         }
         setPayloadFCMValue(payloadFCM);
         console.log(payloadFCMValue)
+      }
+    }
     /*  }*/
   },[payloadFCM])
 

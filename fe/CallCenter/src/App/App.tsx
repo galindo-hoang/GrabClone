@@ -43,12 +43,7 @@ const App=(props: Props) =>{
   },[])
 
   return (
-    <div>
-    {/*<Alert onClose={handleClose} severity={stateData.severity}>*/}
-    {/*  {dataNotify.title}*/}
-    {/*</Alert>*/}
     <Routes/>
-    </div>
   )
 }
 

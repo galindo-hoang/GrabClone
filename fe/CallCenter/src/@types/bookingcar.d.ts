@@ -1,10 +1,5 @@
 import {coordinate} from "./map";
 
-export interface bookingCarForm {
-  phoneNumber?: string
-  address?: info2Location
-  typeCar?: string
-}
 
 export interface location {
   destination?: string,
@@ -32,6 +27,11 @@ export interface timestamp {
   nanoseconds: number,
 }
 
+export interface bookingCarForm {
+  phoneNumber?: string
+  address?: info2Location
+  typeCar?: string
+}
 
 export interface createBooking {
   phonenumber?: string,
