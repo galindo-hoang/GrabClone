@@ -17,7 +17,6 @@ import java.util.Date;
 
 @RestController
 @RequestMapping("/api/v1/fcm-publish")
-@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 public class PublishController {
     @Autowired

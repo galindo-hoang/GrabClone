@@ -5,7 +5,7 @@ import produce from "immer"
 const initialState = {
   isAuthenticated: false,
   closeSideNav: false,
-  payloadFCM:Object
+  payloadFCM:null
 }
 
 export const AppReducer = (state = initialState, action) =>
@@ -25,6 +25,9 @@ export const AppReducer = (state = initialState, action) =>
         break
       case types.CLOSE_SIDE_NAV:
         draft.closeSideNav = !state.closeSideNav
+        break
+      case types.CLEAR_FCM:
+
         break
       default:
         return state

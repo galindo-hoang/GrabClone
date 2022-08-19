@@ -1,10 +1,5 @@
 import {coordinate} from "./map";
 
-export interface bookingCarForm {
-  phoneNumber?: string
-  address?: info2Location
-  typeCar?: string
-}
 
 export interface location {
   destination?: string,
@@ -32,6 +27,11 @@ export interface timestamp {
   nanoseconds: number,
 }
 
+export interface bookingCarForm {
+  phoneNumber?: string
+  address?: info2Location
+  typeCar?: string
+}
 
 export interface createBooking {
   phonenumber?: string,
@@ -41,4 +41,43 @@ export interface createBooking {
   paymentMethod?: string,
   price?: number,
   username?: string,
+}
+
+export interface responseCreateBooking {
+  createdAt?: string,
+  pickupLocation?: coordinate,
+  dropoffLocation?:coordinate,
+  id:?number,
+  phonenumber?:string,
+  state?:string,
+  updatedAt?:string
+  typeCar?: string,
+  paymentMethod?: string,
+  price?: number,
+  passengerUsername?: string,
+}
+
+export interface responseUpdatedLocationDriver {
+  ride: {
+    driverLocation: {
+      username?: string,
+      location?: coordinate
+    },
+    rideId?:string
+  },
+}
+export interface responseAcceptedRider{
+  bookingId?:number,
+}
+
+export interface responseFinishedRide{
+  startTime?:string,
+  endTime?:string,
+  rideId?:string,
+}
+
+export interface typeArrayBooking{
+  departure:featuresLocation
+  destination:featuresLocation,
+  bookingForm: responseCreateBooking
 }

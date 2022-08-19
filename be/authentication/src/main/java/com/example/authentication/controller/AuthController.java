@@ -28,7 +28,6 @@ import java.net.URI;
 import java.util.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 public class AuthController {
     @Autowired

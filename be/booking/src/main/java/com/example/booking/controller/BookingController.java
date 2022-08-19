@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/v1/booking")
 public class BookingController {
     @Autowired
@@ -61,6 +60,7 @@ public class BookingController {
                     .createdAt(new Date())
                     .build();
             BookingRecord bookingRecordSaving = bookingService.save(bookingRecord);
+            System.out.println(bookingRecordSaving.getId());
             bookingRecordMap.put(bookingRecordSaving.getId(), bookingRecordSaving);
 
             //Create booking creation
@@ -218,7 +218,7 @@ public class BookingController {
             // Push the driver's location to the passenger
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("rideId", rideRecordMap.get(driverLocationDto.getUsername()).getFirst());
-            jsonObject.put("driverLocation", driverLocationDto.getLocation());
+            jsonObject.put("driverLocation", new Gson().toJson(driverLocationDto.getLocation()));
             NotificationRequestDto notificationForDriverLocation = NotificationRequestDto.builder()
                     .target(rideRecordMap.get(driverLocationDto.getUsername()).getSecond().getPassengerUsername().toString())
                     .title("Update driver location")
@@ -229,7 +229,7 @@ public class BookingController {
                         }
                     }).build();
 
-
+            System.out.println(notificationForDriverLocation.getData());
             // Return success response
             return notificationRequestClient.sendPnsToUser(notificationForDriverLocation);
         } catch (Exception e) {

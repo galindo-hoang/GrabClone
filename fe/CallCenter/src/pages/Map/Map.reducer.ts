@@ -1,7 +1,7 @@
 import * as types from "./Map.constants"
 import produce from "immer"
 
-const initialState = {
+const initialState= {
   loading: false,
   clientInformation: null as Object | null
 }
