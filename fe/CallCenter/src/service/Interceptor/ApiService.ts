@@ -8,6 +8,7 @@ export const instance =axios.create({
   }
 })
 instance.interceptors.response.use(async response =>{
+  console.log(response)
  if(response.status===200){
    return response;
  }
@@ -17,6 +18,12 @@ instance.interceptors.response.use(async response =>{
  if(response.status===403){
    console.log(403)
  }
+  if(response.status===400){
+    const history = useHistory();
+    history.push(PATH.LOGIN);
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+  }
 }, async error => {
   if(error?.response?.status===401){
     const refreshToken=localStorage.getItem('refreshToken');

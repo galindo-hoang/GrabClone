@@ -120,6 +120,7 @@ const Map = (props:Props) => {
   /*const [finishSuccess,setFinishSuccess]=useState<object>();*/
  /* const [driverAccepted,setDriverAccepted]=useState<object>();*/
   useEffect(()=>{
+
     if(payloadFCM.body.includes(BODYSTATES.DRIVER_ACCEPTED)){
 
     }
