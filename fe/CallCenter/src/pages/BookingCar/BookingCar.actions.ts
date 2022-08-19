@@ -9,3 +9,7 @@ export const createBookingCar = (payload:responseCreateBooking) => ({
   type: types.CREATE_BOOKING_CAR,
   payload:payload
 });
+
+export const clearBookingCar=()=>({
+  type:types.CLEAR_BOOKING_CAR
+})

@@ -9,20 +9,21 @@ import axios from "axios";
 import {MessageLoadMapService} from "../service/Message/MessageService";
 import {NotificationService} from "../service/Notification/NotificationService";
 import {connect, ConnectedProps} from "react-redux";
-import {receivedPayload} from "./App.thunk";
+import {receivedPayload,clearFCM} from "./App.thunk";
 
 
 const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
-  receivedPayload
+  receivedPayload,
+  clearFCM
 }
 const connector = connect(mapStateToProps, mapDispatchToProps)
 interface Props extends ConnectedProps<typeof connector> {
 }
 const App=(props: Props) =>{
-  const {receivedPayload} = props;
+  const {receivedPayload,clearFCM} = props;
   useEffect(()=>{
     registerNotification();
     console.log("register")
@@ -39,6 +40,7 @@ const App=(props: Props) =>{
       // const {notification} = payload
       // setStateData({...stateData, open: true, severity: 'success'})
       // setDataNotify({title: notification.title, body: notification.body} as Notification)
+
     });
   },[])
 

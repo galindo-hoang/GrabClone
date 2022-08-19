@@ -31,7 +31,7 @@ instance.interceptors.response.use(async response =>{
   if(error?.response?.status===401){
     const refreshToken=localStorage.getItem('refreshToken');
     await LoginService.getRefreshToken(refreshToken||"").then(res=>{
-      MessageWarningService.getInstance("Đã gia hạn thành công access token")
+      MessageWarningService.getInstance("Đã gia hạn thành công access token");
       localStorage.setItem("accessToken", res?.data?.accessToken);
     })
   }

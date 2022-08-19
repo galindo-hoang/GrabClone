@@ -24,6 +24,8 @@ import bookingCar from "../BookingCar/BookingCar";
 import {BODYSTATES} from "../../constants/states";
 import {objectTraps} from "immer/dist/core/proxy";
 import {handlePrice} from "../../helpers/string";
+import {clearBookingCar} from "../BookingCar/BookingCar.thunks";
+import {clearFCM} from "../../App/App.thunk";
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 
 
@@ -67,10 +69,12 @@ const mapStateToProps = state => ({
   closeSideNav: state.app.closeSideNav,
   payloadFCM:state.app.payloadFCM||null,
   bookingCarForm:state.bookingCar,
-
 })
 
-const mapDispatchToProps = {}
+const mapDispatchToProps = {
+  clearBookingCar,
+  clearFCM
+}
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 interface Props extends ConnectedProps<typeof connector> {}
@@ -83,13 +87,8 @@ const StateBooking={
   FINISH:"Người đặt đã đến nơi",
   CANCELLEDBYDRIVER:"Tài xế đã hủy chuyến"
 }
- enum RideState {
-  STARTED,
-  CANCELLED,
-  FINISHED
-}
 const Map = (props:Props) => {
-  const {closeSideNav,payloadFCM,bookingCarForm} = props;
+  const {closeSideNav,payloadFCM,bookingCarForm,clearBookingCar,clearFCM} = props;
   const [payloadFCMValue,setPayloadFCMValue]=useState<Object>(payloadFCM);
   const [viewCoordinate,setViewCoordinate]=useState<coordinate>({
     longitude:bookingCarForm?.departure.coordinate?.longitude as number,
@@ -99,7 +98,8 @@ const Map = (props:Props) => {
   const [state,setState]=useState(0)
   const [zoom, setZoom] = useState(18)
   const [loadMap, setLoadMap] = useState(false)
-  const [lineValue, setLineValue] = useState([] as coordinate)
+  const [lineFromDepartureToDestination, setLineFromDepartureToDestination] = useState([] as coordinate);
+  const [lineFromDriverToDeparture, setLineFromDriverToDeparture] = useState([] as coordinate)
   const [showPopupDestination, setShowPopupDestination] = useState(false);
   const [showPopupDeparture, setShowPopupDeparture] = useState(false);
 
@@ -125,8 +125,6 @@ const Map = (props:Props) => {
     longitude:undefined,
     latitude:undefined
   });
-
-
   const [stateBooking,setStateBooking]=useState<any>(StateBooking.CREATED);
   const [finishSuccess,setFinishSuccess]=useState<responseFinishedRide>({
     endTime:undefined,
@@ -138,7 +136,7 @@ const Map = (props:Props) => {
   });
 
   useEffect(()=>{
-    console.log(payloadFCMValue)
+    console.log(payloadFCM)
      /* if (bookingCarForm.bookingForm.id === JSON.parse(payloadFCM.booking).bookingId) {*/
         //DRIVER ACCEPTED
     if(payloadFCM!==null) {
@@ -149,16 +147,24 @@ const Map = (props:Props) => {
         }
         //DRIVER UPDATE LOCATION
         else if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_UPDATE_LOCATION)) {
-          setDriverCoordinate(JSON.parse(JSON.parse(payloadFCM.ride).driverLocation) as coordinate)
+          const driverCoordinate=JSON.parse(JSON.parse(payloadFCM.ride).driverLocation) as coordinate;
+          setDriverCoordinate(driverCoordinate);
+          const setLineUpFromDriverToUser = async () => {
+            await MapService.getDistance(departureCoordinate.coordinate as coordinate,driverCoordinate, accessToken).then((res) => {
+              setLineFromDriverToDeparture(res.data.routes[0].geometry.coordinates);
+            })
+          }
+          setLineUpFromDriverToUser()
           setStateBooking(StateBooking.UPDATE)
         }
         //FINISH
         else if (payloadFCM.body.toString().includes(BODYSTATES.FINISH_SUCCESS)) {
           setDriverCoordinate({longitude: undefined, latitude: undefined} as coordinate);
           setFinishSuccess(JSON.parse(payloadFCM.ride) as responseFinishedRide);
-          setStateBooking(StateBooking.FINISH)
+          setStateBooking(StateBooking.FINISH);
           /*setFinishSuccess(JSON.parse(payloadFCM))*/
         } else if (payloadFCM.body.toString().includes(BODYSTATES.CANCEL_DRIVER)) {
+          setDriverCoordinate({longitude: undefined, latitude: undefined} as coordinate);
           setStateBooking(StateBooking.CANCELLEDBYDRIVER)
         }
         setPayloadFCMValue(payloadFCM);
@@ -169,13 +175,13 @@ const Map = (props:Props) => {
   },[payloadFCM])
 
   useEffect(() => {
-    const checkDistance = async () => {
+    const setLineUp = async () => {
       await MapService.getDistance(destinationCoordinate.coordinate as coordinate, departureCoordinate.coordinate as coordinate, accessToken).then((res) => {
         const distance = res.data.routes[0].distance / 1000;
-        setLineValue(res.data.routes[0].geometry.coordinates);
+        setLineFromDepartureToDestination(res.data.routes[0].geometry.coordinates);
       })
     }
-    checkDistance();
+    setLineUp();
   }, []);
 
   useEffect(() => {
@@ -192,14 +198,27 @@ const Map = (props:Props) => {
     latitude: viewCoordinate?.latitude,
     zoom: zoom,
   });
-  const geoJson: GeoJSON.FeatureCollection<any> = {
+  const geoJsonFromDepartureToDestination: GeoJSON.FeatureCollection<any> = {
     type: 'FeatureCollection',
     features: [
       {
         type: 'Feature',
         geometry: {
           type: 'LineString',
-          coordinates: lineValue
+          coordinates: lineFromDepartureToDestination
+        },
+        properties: {}
+      }
+    ]
+  };
+  const geoJsonFromDriverToDeparture: GeoJSON.FeatureCollection<any> = {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: lineFromDriverToDeparture
         },
         properties: {}
       }
@@ -234,7 +253,23 @@ const Map = (props:Props) => {
                 onMove={evt => {
                   setViewState(evt.viewState)
                 }}>
-      <Source type='geojson' id='source-geojson' data={geoJson}>
+      <Source type='geojson' id='source-geojson' data={geoJsonFromDepartureToDestination}>
+        <Layer
+          id="lineLayer"
+          type="line"
+          source="route"
+          layout={{
+            "line-join": "round",
+            "line-cap": "round"
+          }}
+          paint={{
+            "line-color": "blue",
+            "line-width": 3
+          }}
+        />
+      </Source>
+
+      <Source type='geojson' id='source-geojson' data={geoJsonFromDriverToDeparture}>
         <Layer
           id="lineLayer"
           type="line"
@@ -295,7 +330,7 @@ const Map = (props:Props) => {
         <img
           onClick={() => setShowPopupDestination(true)}
           style={{height: 50, width: 50}}
-          src="https://xuonginthanhpho.com/wp-content/uploads/2020/03/map-marker-icon.png"
+          src="https://icon-library.com/images/marker-icon/marker-icon-26.jpg"
         />
       </Marker>
 
@@ -305,7 +340,7 @@ const Map = (props:Props) => {
         <img
           onClick={() => setShowPopupDeparture(true)}
           style={{height: 50, width: 50}}
-          src="https://library.kissclipart.com/20180925/rpe/kissclipart-map-car-icon-clipart-car-google-maps-navigation-c81a6a2d0ecb7a15.png"
+          src="https://icon-library.com/images/map-marker-icon/map-marker-icon-17.jpg"
         />
       </Marker>
       <GeolocateControl position='top-right'/>

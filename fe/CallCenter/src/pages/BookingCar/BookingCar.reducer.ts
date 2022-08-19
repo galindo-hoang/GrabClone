@@ -29,6 +29,18 @@ export const bookingCarReducer=(state=initialState,action)=>
       case types.CREATE_BOOKING_CAR:
         draft.bookingForm=action.payload;
         break
+      case types.CLEAR_BOOKING_CAR:
+        draft.destination=null;
+        draft.departure=null
+        Object.keys(draft.bookingForm).forEach(key => {
+          if(key.includes("id")) {
+            draft.bookingForm[key] = null;
+          }
+          else {
+            draft.bookingForm[key] = undefined;
+          }
+        });
+        break
       default:
         return state;
     }

@@ -13,3 +13,6 @@ export const createBookingCar = (payload:createBooking) => async dispatch => {
     })
     .catch(error=>console.log(error))
 }
+export const clearBookingCar=()=>async dispatch=>{
+  return dispatch(actions.clearBookingCar());
+}
