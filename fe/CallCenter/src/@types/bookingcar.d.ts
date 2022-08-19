@@ -57,7 +57,17 @@ export interface responseCreateBooking {
   passengerUsername?: string,
 }
 
-export interface responseUpdateLocationDriver{
-  driverLocation:coordinate,
-  rideId
+export interface responseUpdatedLocationDriver {
+  ride: {
+    driverLocation: {
+      username?: string,
+      location?: coordinate
+    },
+    rideId?:string
+  },
+}
+export interface responseFinishedRide{
+  startTime?:string,
+  endTime?:string,
+  rideId?:string,
 }

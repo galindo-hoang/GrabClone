@@ -13,7 +13,6 @@ const composeEnhancers =
 const persistConfig = {
   key: 'root',
   storage: storage,
-  blacklist: ['payloadFCM']
 };
 
 const pReducer = persistReducer(persistConfig, rootReducer);

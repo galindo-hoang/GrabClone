@@ -12,7 +12,7 @@ import {COLOR} from "src/constants/styles";
 import {useSpring,animated} from 'react-spring'
 import MapBoxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import {connect, ConnectedProps, useSelector} from "react-redux"
-import {location, info2Location, featuresLocation} from "src/@types/bookingcar";
+import {location, info2Location, featuresLocation, responseFinishedRide} from "src/@types/bookingcar";
 import { Drawer } from "antd";
 import bookingCar from "../BookingCar/BookingCar";
 import {BODYSTATES} from "../../constants/states";
@@ -117,21 +117,29 @@ const Map = (props:Props) => {
     longitude:undefined,
     latitude:undefined
   });
-  /*const [finishSuccess,setFinishSuccess]=useState<object>();*/
+
+
+  const [finishSuccess,setFinishSuccess]=useState<responseFinishedRide>({
+    endTime:undefined,
+    rideId:undefined,
+    startTime:undefined
+  });
  /* const [driverAccepted,setDriverAccepted]=useState<object>();*/
   useEffect(()=>{
-    // if(bookingCarForm.bookingForm.id===JSON.parse(payloadFCM.booking).bookingId) {
-      if (payloadFCM.body.includes(BODYSTATES.DRIVER_ACCEPTED)) {
-
-      } else if (payloadFCM.body.includes(BODYSTATES.DRIVER_UPDATE_LOCATION)) {
-        setDriverCoordinate(JSON.parse(payloadFCM.driverLocation) as coordinate)
-        console.log(JSON.parse(payloadFCM.driverLocation))
-      } else if (payloadFCM.body.includes(BODYSTATES.FINISH_SUCCESS)) {
-        setDriverCoordinate({longitude: undefined, latitude: undefined} as coordinate);
-        /*setFinishSuccess(JSON.parse(payloadFCM))*/
-      }
-      setPayloadFCMValue(payloadFCM);
-      console.log(payloadFCMValue)
+     /* if (bookingCarForm.bookingForm.id === JSON.parse(payloadFCM.booking).bookingId) {*/
+        if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_ACCEPTED)) {
+        }
+        else if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_UPDATE_LOCATION)) {
+         /* setDriverCoordinate(JSON.parse(payloadFCM.driverLocation) as coordinate)*/
+          console.log(payloadFCM)
+        } else if (payloadFCM.body.toString().includes(BODYSTATES.FINISH_SUCCESS)) {
+          setDriverCoordinate({longitude: undefined, latitude: undefined} as coordinate);
+          setFinishSuccess(payloadFCM.ride as responseFinishedRide);
+          /*setFinishSuccess(JSON.parse(payloadFCM))*/
+        }
+        setPayloadFCMValue(payloadFCM);
+        console.log(payloadFCMValue)
+    /*  }*/
   },[payloadFCM])
 
 

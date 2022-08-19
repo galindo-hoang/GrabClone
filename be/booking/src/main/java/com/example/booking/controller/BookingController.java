@@ -208,7 +208,6 @@ public class BookingController {
 
     @PostMapping("/update_driver_location")
     public ResponseEntity<String> updateDriverLocation(@RequestBody DriverLocationDto driverLocationDto) {
-        System.out.println();
         try {
             // Return not found if ride record not found
             if (!rideRecordMap.containsKey(driverLocationDto.getUsername())) {
@@ -230,7 +229,7 @@ public class BookingController {
                         }
                     }).build();
 
-
+            System.out.println(notificationForDriverLocation.getData());
             // Return success response
             return notificationRequestClient.sendPnsToUser(notificationForDriverLocation);
         } catch (Exception e) {

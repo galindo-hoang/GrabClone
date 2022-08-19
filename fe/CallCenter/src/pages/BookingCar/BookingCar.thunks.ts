@@ -9,8 +9,11 @@ export const saveAddressBooking = (booking: bookingCarForm) => async dispatch =>
 export const createBookingCar = (payload:createBooking) => async dispatch => {
   ProcessBookingService.createBooking(payload)
     .then(reponse=>{
-      console.log(reponse)
+      console.log("created booking")
       return dispatch(actions.createBookingCar(reponse.data as responseCreateBooking));
     })
     .catch(error=>console.log(error))
+}
+export const finishBookingCar=()=>async dispatch=>{
+
 }
