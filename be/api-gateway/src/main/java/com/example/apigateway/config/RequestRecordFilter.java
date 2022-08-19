@@ -135,6 +135,8 @@ public class RequestRecordFilter implements GlobalFilter, Ordered, GatewayFilter
                         logger.setProcessTime(elapsedTime);
                         logger.setCreatedAt(new Date());
                         loggerService.saveLogger(logger);
+                        //set header to cors
+                        response.getHeaders().add("Access-Control-Allow-Origin", "http://localhost:3000");
                         return dataBufferFactory.wrap(responseBody.getBytes());
                     })).onErrorResume(err -> {
                         logger.setResponseData(err.getMessage());
