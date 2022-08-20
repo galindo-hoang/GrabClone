@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,6 +48,20 @@ public class BookingController {
     @PostMapping("/create_booking")
     public ResponseEntity<BookingRecord> createBooking(@RequestBody BookingRequestDto bookingDto) {
         try {
+            // Reject creating a booking if the passenger has created a booking
+            for (HashMap.Entry<Integer, BookingRecord> entry : bookingRecordMap.entrySet()) {
+                if (entry.getValue().getPhonenumber().equals(bookingDto.getPhonenumber())) {
+                    return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+                }
+            }
+
+            for (HashMap.Entry<String, Pair<RideRecord, BookingRecord>> entry : rideRecordMap.entrySet()) {
+                if (entry.getValue().getSecond().getPhonenumber().equals(bookingDto.getPhonenumber())) {
+                    return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+                }
+            }
+
+
             // Create booking record and save it to database
             BookingRecord bookingRecord = BookingRecord.builder()
                     .passengerUsername(bookingDto.getUsername())
