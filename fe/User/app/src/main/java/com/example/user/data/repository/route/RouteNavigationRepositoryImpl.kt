@@ -3,6 +3,7 @@ package com.example.user.data.repository.route
 import android.util.Log
 import com.example.user.data.model.googlemap.PlaceClient
 import com.example.user.data.model.googlemap.RouteNavigation
+import com.example.user.data.model.place.AddressFromText
 import com.example.user.domain.repository.RouteNavigationRepository
 import retrofit2.Response
 import javax.inject.Inject
@@ -34,4 +35,6 @@ class RouteNavigationRepositoryImpl @Inject constructor(
         return placeClient
     }
 
+    override suspend fun getAddressFromText(text: String): Response<AddressFromText> =
+        routeNavigationRemoteDataSource.getAddressFromText(text)
 }

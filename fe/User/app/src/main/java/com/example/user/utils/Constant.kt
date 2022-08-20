@@ -12,6 +12,12 @@ import java.util.*
 
 
 object Constant {
+    const val FINISH_MOVING_STRING: String = "FINISH_MOVING_STRING"
+    const val FINISH_MOVING: String = "FINISH_MOVING"
+    const val UPDATE_LOCATION_DRIVER_STRING: String = "UPDATE_LOCATION_DRIVER_STRING"
+    const val UPDATE_LOCATION_DRIVER: String = "UPDATE_LOCATION_DRIVER"
+    const val HAVE_DRIVER_STRING: String = "HAVE_DRIVER_STRING"
+    const val HAVE_DRIVER: String = "HAVE_DRIVER"
     const val SEARCHING_ROUTE: String = "Searching route"
     const val CONTINUE: String = "Continue"
     const val SERVICE_ACCESS_TOKEN: String = "SERVICE_ACCESS_TOKEN"

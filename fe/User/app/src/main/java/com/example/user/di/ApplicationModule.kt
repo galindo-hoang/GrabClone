@@ -42,13 +42,23 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ApplicationModule {
 
+//    @Provides
+//    @Singleton
+//    fun providesGoogleMapApi(): RouteNavigationApi =
+//        Retrofit
+//            .Builder()
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .baseUrl("https://maps.googleapis.com")
+//            .build()
+//            .create(RouteNavigationApi::class.java)
+
     @Provides
     @Singleton
-    fun providesGoogleMapApi(): RouteNavigationApi =
+    fun providesMapApi(): RouteNavigationApi =
         Retrofit
             .Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://maps.googleapis.com")
+            .baseUrl("https://api.geoapify.com")
             .build()
             .create(RouteNavigationApi::class.java)
 

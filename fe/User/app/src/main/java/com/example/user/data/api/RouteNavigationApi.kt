@@ -2,6 +2,7 @@ package com.example.user.data.api
 
 import com.example.user.data.model.googlemap.PlaceClient
 import com.example.user.data.model.googlemap.RouteNavigation
+import com.example.user.data.model.place.AddressFromText
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -20,4 +21,10 @@ interface RouteNavigationApi {
         @Query("placeid") placeid: String,
         @Query("key") key: String,
     ): Response<PlaceClient>
+
+    @GET("/v1/geocode/autocomplete")
+    suspend fun getAddressFromText(
+        @Query("text") text: String,
+        @Query("apiKey") api: String
+    ): Response<AddressFromText>
 }

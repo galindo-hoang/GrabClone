@@ -3,7 +3,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.user.presentation.booking.SearchingRouteViewModel" />
+            type="com.example.user.presentation.booking.BookingViewModel" />
     </data>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -50,6 +50,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Search for a pickup"
+                    android:text="@={viewModel.textOrigin}"
                     android:layout_margin="5dp"
                     android:textColorHint="@color/gray"
                     android:textColor="@color/black"
@@ -78,6 +79,7 @@
                     android:gravity="center_vertical"
                     android:background="@android:color/transparent"
                     android:hint="Search for a destination"
+                    android:text="@={viewModel.textDestination}"
                     android:cursorVisible="false"
                     android:focusable="false"
                     android:textSize="14sp"/>
@@ -121,12 +123,18 @@
             android:layout_height="0.7dp"
             android:background="@color/grey"/>
 
-
-        <fragment
-            android:id="@+id/map_view_in_booking_activity"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_address"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/item_address"/>
+
+
+<!--        <fragment-->
+<!--            android:id="@+id/map_view_in_booking_activity"-->
+<!--            android:name="com.google.android.gms.maps.SupportMapFragment"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"/>-->
 
     </LinearLayout>
 </layout>

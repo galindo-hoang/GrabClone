@@ -4,6 +4,7 @@ import com.example.user.BuildConfig
 import com.example.user.data.api.RouteNavigationApi
 import com.example.user.data.model.googlemap.PlaceClient
 import com.example.user.data.model.googlemap.RouteNavigation
+import com.example.user.data.model.place.AddressFromText
 import com.example.user.data.repository.route.RouteNavigationRemoteDataSource
 import retrofit2.Response
 import javax.inject.Inject
@@ -28,4 +29,6 @@ class RouteNavigationRemoteDataSourceImpl @Inject constructor(
     override suspend fun getAddressFromPlaceId(placeId: String): Response<PlaceClient> =
         routeNavigationApi.getAddressFromPlaceId(placeId,BuildConfig.GOOGLE_MAP_API)
 
+    override suspend fun getAddressFromText(text: String): Response<AddressFromText> =
+        routeNavigationApi.getAddressFromText(text,BuildConfig.API_ADRRESS)
 }

@@ -9,10 +9,12 @@ import javax.inject.Inject
 class GetAddressFromPlaceId @Inject constructor(
     private val routeNavigationRepository: RouteNavigationRepository
 ) {
-    suspend fun invoke(placeId: String): Response<ResultPlaceClient?> {
-        val placeClient = routeNavigationRepository.getAddressFromPlaceId(placeId)
-        return if(placeClient.result != null && placeClient.status == "200"){
-            Response.success(placeClient.result!!)
-        }else Response.error(null,placeClient.status)
+    suspend fun invoke(placeId: String): Response<ResultPlaceClient> {
+        return try {
+            val placeClient = routeNavigationRepository.getAddressFromPlaceId(placeId)
+            return if(placeClient.result != null && placeClient.status == "200"){
+                Response.success(placeClient.result!!)
+            }else Response.error(null,-1,placeClient.status)
+        } catch (e:Exception) {Response.error(null,-1,e.message.toString())}
     }
 }

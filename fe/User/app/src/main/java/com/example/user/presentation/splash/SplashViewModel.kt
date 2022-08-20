@@ -21,11 +21,13 @@ class SplashViewModel @Inject constructor(
     fun checkLogin() = liveData(Dispatchers.IO){
         emit(Response.loading(null))
         val response = splashUseCase.invoke()
-        if(response == 1) emit(Response.success(true))
+        if(response.status == Status.SUCCESS && response.data == 1) {
+            emit(Response.success(true))
+        }
         else {
             val logout = logOutUseCase.invoke()
-            if(logout.data == 1) emit(Response.success(false))
-            else emit(Response.error(null,"cant acces local database"))
+            if(logout.status == Status.SUCCESS) emit(Response.success(false))
+            else emit(logout)
         }
     }
 }

@@ -13,16 +13,15 @@ class GetRouteNavigationUseCase @Inject constructor(
     suspend fun invoke(origin: String,destination: String, mode: String): Response<List<Route>?> {
          return try {
             val response = routeNavigationRepository.getRouteNavigation(origin, destination, mode)
-            Log.e("------",response.raw().toString())
             if(response.code() == 200){
                 if(response.body() != null &&
                     response.body()!!.status == "200" &&
                     response.body()!!.routes.isNotEmpty()
                 ) { Response.success(response.body()!!.routes) }
-                else Response.error(null,"cant get body")
-            }else Response.error(null,response.message())
+                else Response.error(null,-1,"cant get body")
+            }else Response.error(null,response.code(),response.message())
         }catch (e:Exception){
-            Response.error(null, e.message.toString())
+            Response.error(null,-1, e.message.toString())
         }
     }
 }
