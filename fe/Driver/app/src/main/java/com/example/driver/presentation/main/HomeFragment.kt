@@ -5,9 +5,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.driver.databinding.FragmentHomeBinding
-import com.example.driver.domain.usecase.SetupServiceCurrentLocationUseCase
+import com.example.driver.utils.Response
+import com.example.driver.utils.Status
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -17,7 +19,7 @@ class HomeFragment: Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var mainActivity: MainActivity
     @Inject
-    lateinit var setupServiceCurrentLocationUseCase: SetupServiceCurrentLocationUseCase
+    lateinit var homeFragmentViewModel: HomeFragmentViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,9 +31,8 @@ class HomeFragment: Fragment() {
 //        setRecycleView()
 //        registerClickListener()
 //        registerViewChangeListener()
-        Log.e("-------","hello")
-        FirebaseMessaging.getInstance().token.addOnCompleteListener{
-            Log.e("====",it.result)
+        FirebaseMessaging.getInstance().token.addOnCompleteListener {
+            Log.e("----------",it.result)
         }
         return binding.root
     }
@@ -40,13 +41,32 @@ class HomeFragment: Fragment() {
     private fun registerViewChangeListener() {}
 
     private fun registerClickListener() {
-        binding.btnStartingListening.setOnClickListener {
-            setupServiceCurrentLocationUseCase.start(requireActivity().application)
-            this.mainActivity.startLooking()
+        binding.btnStartListening.setOnClickListener {
+            homeFragmentViewModel.startListening().observe(viewLifecycleOwner){
+                common(it,this.mainActivity.startLooking())
+            }
         }
         binding.btnStopListening.setOnClickListener {
-            this.mainActivity.stopLooking()
-            setupServiceCurrentLocationUseCase.stop()
+            homeFragmentViewModel.stopListening().observe(viewLifecycleOwner) {
+                common(it,this.mainActivity.stopLooking())
+            }
+        }
+    }
+
+    private fun common(response: Response<out Any>, func: Unit) {
+        when(response.status){
+            Status.LOADING -> this.mainActivity.showProgressDialog()
+            Status.ERROR -> {
+                this.mainActivity.hideProgressDialog()
+                if(response.codeResponse == -2) {
+                    this.mainActivity.showExpiredTokenDialog(response.message.toString())
+                }else Toast.makeText(activity,response.message.toString(),Toast.LENGTH_LONG).show()
+            }
+            Status.SUCCESS -> {
+                this.mainActivity.hideProgressDialog()
+                func
+                Toast.makeText(activity,"Complete",Toast.LENGTH_LONG).show()
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import com.example.driver.data.dto.LatLong
 import com.example.driver.domain.usecase.AcceptBookingUseCase
 import com.example.driver.exception.ExpiredRefreshTokenExceptionCustom
 import com.example.driver.utils.Response
+import com.example.driver.utils.Status
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -23,13 +24,7 @@ class StimulateViewModel @Inject constructor(
 
     fun acceptBooking() = liveData {
         emit(Response.loading(null))
-        var response: Response<Int>
-        runBlocking {
-            response = acceptBookingUseCase.invoke()
-        }
-        if(response.data == -2){
-            throw ExpiredRefreshTokenExceptionCustom(response.message.toString())
-        }else emit(response)
+        emit(acceptBookingUseCase.invoke())
     }
 
     fun doneDriving() = liveData {
