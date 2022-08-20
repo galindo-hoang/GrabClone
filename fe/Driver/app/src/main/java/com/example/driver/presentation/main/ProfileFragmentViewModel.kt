@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ProfileViewModel @Inject constructor(
+class ProfileFragmentViewModel @Inject constructor(
     private val logOutUseCase: LogOutUseCase
 ): ViewModel() {
     private val _logout = MutableLiveData<Response<Int>>()

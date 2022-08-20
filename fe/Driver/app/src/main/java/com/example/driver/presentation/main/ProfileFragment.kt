@@ -20,7 +20,7 @@ class ProfileFragment: Fragment() {
     private lateinit var mainActivity: MainActivity
 
     @Inject
-    lateinit var profileViewModel: ProfileViewModel
+    lateinit var profileFragmentViewModel: ProfileFragmentViewModel
     @Inject
     lateinit var setupServiceCurrentLocationUseCase: SetupServiceCurrentLocationUseCase
     override fun onCreateView(
@@ -39,7 +39,7 @@ class ProfileFragment: Fragment() {
     }
 
     private fun registerViewChangeListener() {
-        profileViewModel.logout.observe(viewLifecycleOwner){
+        profileFragmentViewModel.logout.observe(viewLifecycleOwner){
             when (it.status){
                 Status.LOADING -> mainActivity.showProgressDialog("please waiting...")
                 Status.ERROR -> {

@@ -76,33 +76,21 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.10'
     // mapbox
-    implementation 'com.mapbox.maps:android:10.7.0'
     implementation "com.mapbox.navigation:android:2.6.0"
-    implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:9.2.1@aar"
-    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:6.6.0'
-    implementation "com.mapbox.navigation:ui-dropin:2.6.0"
-    implementation 'com.mapbox.plugin:maps-scalebar:10.7.0'
-    // direction
-    implementation "com.mapbox.mapboxsdk:mapbox-sdk-services:6.6.0"
-    implementation "com.mapbox.navigator:mapbox-navigation-native:106.0.0"
+//    implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:9.2.1@aar"
+//    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:6.6.0'
+//    implementation "com.mapbox.navigation:ui-dropin:2.6.0"
+//    implementation 'com.mapbox.plugin:maps-scalebar:10.7.0'
+//    // direction
+//    implementation "com.mapbox.mapboxsdk:mapbox-sdk-services:6.6.0"
+//    implementation "com.mapbox.navigator:mapbox-navigation-native:106.0.0"
 //    implementation "com.mapbox.mapboxsdk:mapbox-android-navigation:0.43.0-alpha.1"
-    implementation "com.mapbox.mapboxsdk:mapbox-android-navigation:0.43.0-alpha.1"
-    implementation ('com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.43.0-alpha.1')
+//    implementation ('com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.43.0-alpha.1')
     // Google Maps Location Services
     implementation 'com.google.android.gms:play-services-location:20.0.0'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-analytics:18.0.1'
     implementation 'com.android.volley:volley:1.2.1'
-
-    // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:30.3.1')
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    // Declare the dependency for the Firebase SDK for Google Analytics
-    implementation 'com.google.firebase:firebase-analytics'
-    // Declare the dependencies for any other desired Firebase products
-    // For example, declare the dependencies for Firebase Authentication and Cloud Firestore
-    implementation 'com.google.firebase:firebase-auth'
-    implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-messaging:23.0.7'
     implementation 'com.google.firebase:firebase-messaging-ktx:23.0.7'
     implementation 'com.google.firebase:firebase-installations-ktx:17.0.1'

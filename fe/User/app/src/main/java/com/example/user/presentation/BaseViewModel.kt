@@ -1,12 +1,9 @@
 package com.example.user.presentation
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.user.data.dao.UserDao
 import com.example.user.data.dto.Login
-import com.example.user.data.dto.UserDto
-import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.domain.usecase.LogOutUseCase
 import com.example.user.domain.usecase.LoginUseCase
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +30,7 @@ class BaseViewModel @Inject constructor(
     }
 
     fun logout() {
+        //best case
         runBlocking(Dispatchers.IO) {
             logOutUseCase.invoke()
         }

@@ -2,6 +2,7 @@
     <string name="app_name">User</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="map_api">AIzaSyD7n1_X28Jgw0zCd3cB3LmyPiL7gnIoS4c</string>
+    <string name="mapbox_api">sk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNnp2cWV3NzA4azUzbm91dWRlNjJkNGIifQ.SG3UCHu2V4ixGa1FXdWCOw</string>
     <string name="base_url_google_map">https://maps.googleapis.com/maps/api/directions/json</string>
     <string name="title_activity_searching">SearchingActivity</string>
 </resources>

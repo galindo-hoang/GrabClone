@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.user.data.dto.ValidateOTP
 import com.example.user.data.model.authentication.ErrorBodyValidateOrRegister
 import com.example.user.domain.repository.AuthenticationRepository
+import com.example.user.utils.Response
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
@@ -11,16 +12,13 @@ import javax.inject.Inject
 class ValidateOtpUseCase @Inject constructor(
     private val authenticationRepository: AuthenticationRepository
 ) {
-    suspend fun invoke(validateOTP: ValidateOTP): Int{
-        val response = authenticationRepository.postValidateRegister(validateOTP)
-        return when(response.code()){
-            200 -> 1
-            500 -> {
-                val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type
-                Log.e("Error",Gson().fromJson(response.errorBody()!!.charStream(), type))
-                0
+    suspend fun invoke(validateOTP: ValidateOTP): Response<Int> {
+        return try {
+            val response = authenticationRepository.postValidateRegister(validateOTP)
+            when(response.code()){
+                200 -> Response.success(1)
+                else -> Response.error(null,response.code(),response.message())
             }
-            else -> throw Exception("cant connect to database")
-        }
+        } catch (e:Exception) { Response.error(-1,-1,e.message.toString()) }
     }
 }

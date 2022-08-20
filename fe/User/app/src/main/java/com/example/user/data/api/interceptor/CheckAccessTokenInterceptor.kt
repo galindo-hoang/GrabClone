@@ -25,7 +25,6 @@ class CheckAccessTokenInterceptor @Inject constructor(
             return chain.proceed(request.newBuilder().header("Authorization","Bearer $accessToken").build())
         }
         catch (e: Exception) {
-            Log.e("==============","hello")
             return when (e){
                 is ExpiredRefreshTokenExceptionCustom -> {
                     Response.Builder()

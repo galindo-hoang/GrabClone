@@ -5,6 +5,7 @@ import com.example.user.data.dto.RegisterFCMBody
 import com.example.user.data.dto.UserDto
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.domain.repository.BookingRepository
+import com.example.user.utils.Response
 import com.google.android.gms.tasks.Task
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,27 +20,25 @@ class LoginUseCase @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val bookingRepository: BookingRepository
 ) {
-    suspend fun invoke(login: Login): UserDto? {
+    suspend fun invoke(login: Login): Response<UserDto> {
         val requestBody: RequestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("username", login.username)
             .addFormDataPart("password", login.password)
             .build()
-
-        val response = authenticationRepository.postAccountLogin(requestBody)
-        return when(response.code()){
-            200 -> {
-                val body = response.body() ?: throw Exception("Cant get body of response")
-                val userDto = authenticationRepository.updateAccount(body)
-                try {
+        return try {
+            val response = authenticationRepository.postAccountLogin(requestBody)
+            when(response.code()) {
+                200 -> {
+                    val userDto = authenticationRepository.updateAccount(response.body()!!)
                     val token = FirebaseMessaging.getInstance().token.await()
+                    // register fcm
                     bookingRepository.postRegisterFcmToken(RegisterFCMBody(token, userDto.username!!))
-                } catch (e:Exception) { throw e }
-                userDto
+                    Response.success(userDto)
+                }
+                else -> Response.error(null,response.code(),response.message())
             }
-            403 -> null
-            else -> throw Exception("cant connect to database")
-        }
+        } catch (e:Exception) { Response.error(null,-1,e.message.toString()) }
     }
 
 

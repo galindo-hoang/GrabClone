@@ -32,6 +32,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     private lateinit var mNewBookingDialog: Dialog
 
     fun startLooking(){
+        setupServiceCurrentLocationUseCase.start(application)
         stimulateViewModel.haveBooking.observe(this) {
             if(it) {
                 this.showNewBookingDialog()
@@ -42,6 +43,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
 
 
     fun stopLooking(){
+        setupServiceCurrentLocationUseCase.stop()
         stimulateViewModel.haveBooking.removeObservers(this)
     }
 
@@ -82,7 +84,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         }
     }
 
-    fun showNewBookingDialog(){
+    private fun showNewBookingDialog(){
         this.mNewBookingDialog = Dialog(this)
         mNewBookingDialog.setContentView(R.layout.dialog_new_booking)
         this.mNewBookingDialog.findViewById<TextView>(R.id.tv_new_booking_des).text =
@@ -102,21 +104,22 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
 
     private fun registerClickListenerNewBooking() {
         this.mNewBookingDialog.findViewById<AppCompatButton>(R.id.btn_new_booking_accept).setOnClickListener {
-            try {
-                stimulateViewModel.acceptBooking().observe(this) {
-                    this.mNewBookingDialog.dismiss()
-                    when(it.status){
-                        Status.SUCCESS -> {
-                            if(it.data == 1) {
-                                setupServiceCurrentLocationUseCase.stop()
-                                startActivity(Intent(this, StimulateActivity::class.java))
-                            }
-                        }
-                        else -> {}
+            stimulateViewModel.acceptBooking().observe(this) {
+                this.mNewBookingDialog.dismiss()
+                when(it.status){
+                    Status.LOADING -> this.showProgressDialog()
+                    Status.SUCCESS -> {
+                        // stop to stimulate current location
+                        setupServiceCurrentLocationUseCase.stop()
+                        this.hideProgressDialog()
+                        startActivity(Intent(this, StimulateActivity::class.java))
+                    }
+                    Status.ERROR -> {
+                        this.hideProgressDialog()
+                        if(it.codeResponse == -2) this.showExpiredTokenDialog(it.message.toString())
+                        else Toast.makeText(this,it.message.toString(),Toast.LENGTH_LONG).show()
                     }
                 }
-            } catch (e:ExpiredRefreshTokenExceptionCustom){
-                this.showExpiredTokenDialog(e.message.toString())
             }
         }
         this.mNewBookingDialog.findViewById<AppCompatButton>(R.id.btn_new_booking_cancel).setOnClickListener {
@@ -140,7 +143,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         mExpiredTokenDialog.dismiss()
     }
 
-    fun showProgressDialog(text: String) {
+    fun showProgressDialog(text: String = "Please waiting...") {
         this.mProgressDialog = Dialog(this)
         mProgressDialog.setContentView(R.layout.dialog_progress)
         mProgressDialog.findViewById<TextView>(R.id.tvProgress).text = text
