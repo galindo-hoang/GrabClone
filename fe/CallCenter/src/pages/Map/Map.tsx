@@ -149,13 +149,14 @@ const Map = (props:Props) => {
         else if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_UPDATE_LOCATION)) {
           const driverCoordinate=JSON.parse(JSON.parse(payloadFCM.ride).driverLocation) as coordinate;
           setDriverCoordinate(driverCoordinate);
+          setStateBooking(StateBooking.UPDATE)
           const setLineUpFromDriverToUser = async () => {
-            await MapService.getDistance(departureCoordinate.coordinate as coordinate,driverCoordinate, accessToken).then((res) => {
+            await MapService.getDistance(departureCoordinate.coordinate as coordinate,driverCoordinate).then((res) => {
+
               setLineFromDriverToDeparture(res.data.routes[0].geometry.coordinates);
             })
-          }
+          };
           setLineUpFromDriverToUser()
-          setStateBooking(StateBooking.UPDATE)
         }
         //FINISH
         else if (payloadFCM.body.toString().includes(BODYSTATES.FINISH_SUCCESS)) {
@@ -168,7 +169,6 @@ const Map = (props:Props) => {
           setStateBooking(StateBooking.CANCELLEDBYDRIVER)
         }
         setPayloadFCMValue(payloadFCM);
-        console.log(payloadFCMValue)
       }
     }
     /*  }*/
@@ -176,8 +176,10 @@ const Map = (props:Props) => {
 
   useEffect(() => {
     const setLineUp = async () => {
-      await MapService.getDistance(destinationCoordinate.coordinate as coordinate, departureCoordinate.coordinate as coordinate, accessToken).then((res) => {
+      await MapService.getDistance(departureCoordinate.coordinate as coordinate,destinationCoordinate.coordinate as coordinate).then((res) => {
         const distance = res.data.routes[0].distance / 1000;
+        var result = Math.round(distance*100)/100;
+        console.log(result)
         setLineFromDepartureToDestination(res.data.routes[0].geometry.coordinates);
       })
     }
@@ -253,9 +255,11 @@ const Map = (props:Props) => {
                 onMove={evt => {
                   setViewState(evt.viewState)
                 }}>
+
+
       <Source type='geojson' id='source-geojson' data={geoJsonFromDepartureToDestination}>
         <Layer
-          id="lineLayer"
+          id="lineLayer1"
           type="line"
           source="route"
           layout={{
@@ -269,9 +273,10 @@ const Map = (props:Props) => {
         />
       </Source>
 
-      <Source type='geojson' id='source-geojson' data={geoJsonFromDriverToDeparture}>
+
+    {/*  <Source type='geojson' id='source-geojson' data={geoJsonFromDriverToDeparture}>
         <Layer
-          id="lineLayer"
+          id="lineLayer2"
           type="line"
           source="route"
           layout={{
@@ -279,11 +284,11 @@ const Map = (props:Props) => {
             "line-cap": "round"
           }}
           paint={{
-            "line-color": "red",
+            "line-color": "orange",
             "line-width": 3
           }}
         />
-      </Source>
+      </Source>*/}
 
       {showPopupDestination && (
         <Popup

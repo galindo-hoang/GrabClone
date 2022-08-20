@@ -17,7 +17,6 @@ export const AppReducer = (state = initialState, action) =>
         draft.isAuthenticated = false
         break
       case types.RECEIVED_FCM:
-        console.log(action.payload)
         draft.payloadFCM=action.payload
         break;
       case LOGIN_SUCCESS:
@@ -27,7 +26,6 @@ export const AppReducer = (state = initialState, action) =>
         draft.closeSideNav = !state.closeSideNav
         break
       case types.CLEAR_FCM:
-
         break
       default:
         return state
