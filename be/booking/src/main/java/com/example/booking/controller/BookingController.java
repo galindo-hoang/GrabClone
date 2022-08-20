@@ -1,18 +1,12 @@
 package com.example.booking.controller;
 
-import com.example.booking.model.domain.BookingState;
-import com.example.booking.model.domain.PaymentMethod;
-import com.example.booking.model.domain.RideState;
-import com.example.booking.model.domain.TypeCar;
+import com.example.booking.model.domain.*;
 import com.example.booking.model.dto.*;
-import com.example.booking.model.entity.BookingRecord;
-import com.example.booking.model.entity.RideRecord;
-import com.example.booking.service.BookingStoreService;
-import com.example.booking.service.RideStoreService;
+import com.example.booking.model.entity.*;
+import com.example.booking.service.*;
 import com.example.clients.feign.NotificationRequest.NotificationRequestClient;
 import com.example.clients.feign.NotificationRequest.NotificationRequestDto;
 import com.example.clients.feign.NotificationRequest.SubscriptionRequestDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/booking")
@@ -31,6 +27,8 @@ public class BookingController {
     private BookingStoreService bookingService;
     @Autowired
     private RideStoreService rideService;
+    @Autowired
+    private LocationStoreService locationService;
     @Autowired
     private NotificationRequestClient notificationRequestClient;
 
@@ -42,6 +40,52 @@ public class BookingController {
     public BookingController() {
         bookingRecordMap = new HashMap<>();
         rideRecordMap = new HashMap<>();
+    }
+
+    @PostMapping("/topDepartures")
+    public ResponseEntity<TopLocationResponseDto> topDepartures(@RequestBody TopLocationRequestDto request) {
+        try {
+            // Get all the departure locations and sort them by count
+            BookingLocation pickupLocation = locationService.findById(request.getPhoneNumber() + "_pickup");
+            List<LocationCount> locationCounts = pickupLocation.getLocationCounts();
+            locationCounts.sort((o1, o2) -> o2.getCount().compareTo(o1.getCount()));
+            
+            // Get the top N locations
+            List<LocationCount> topLocations = locationCounts.subList(0, Math.min(locationCounts.size(), request.getLimit()));
+            
+            // Convert the locations to TopLocationResponseDto
+            TopLocationResponseDto response = new TopLocationResponseDto();
+            for (LocationCount locationCount : topLocations) {
+                response.getTopLocations().add(locationCount);
+            }
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/topDestinations")
+    public ResponseEntity<TopLocationResponseDto> topDestinations(@RequestBody TopLocationRequestDto request) {
+        try {
+            // Get all the destination locations and sort them by count
+            BookingLocation dropoffLocation = locationService.findById(request.getPhoneNumber() + "_dropoff");
+            List<LocationCount> locationCounts = dropoffLocation.getLocationCounts();
+            locationCounts.sort((o1, o2) -> o2.getCount().compareTo(o1.getCount()));
+            
+            // Get the top N locations
+            List<LocationCount> topLocations = locationCounts.subList(0, Math.min(locationCounts.size(), request.getLimit()));
+            
+            // Convert the locations to TopLocationResponseDto
+            TopLocationResponseDto response = new TopLocationResponseDto();
+            for (LocationCount locationCount : topLocations) {
+                response.getTopLocations().add(locationCount);
+            }
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     // Create a booking for a client vs call center
@@ -102,6 +146,64 @@ public class BookingController {
 
             // Send notification request to FCM service
             notificationRequestClient.sendPnsToTopic(notificationRequestDto);
+
+            
+            // Update location of pickup to redis cache
+            String pickupId = bookingDto.getPhonenumber() + "_pickup";
+            BookingLocation pickupLocation = locationService.findById(pickupId);
+
+            if (pickupLocation == null) {
+                pickupLocation = BookingLocation.builder()
+                        .id(pickupId)
+                        .locationCounts(new ArrayList<>(List.of(new LocationCount(bookingDto.getPickupLocation(), 1))))
+                        .build();
+                locationService.save(pickupLocation);
+            } else {
+                boolean isExist = false;
+                for (LocationCount locationCount : pickupLocation.getLocationCounts()) {
+                    if (locationCount.getCoordinate().equals(bookingDto.getPickupLocation())) {
+                        locationCount.setCount(locationCount.getCount() + 1);
+                        locationService.save(pickupLocation);
+                        isExist = true;
+                        break;
+                    }
+                }
+
+                if (!isExist) {
+                    pickupLocation.getLocationCounts().add(new LocationCount(bookingDto.getPickupLocation(), 1));
+                    locationService.save(pickupLocation);
+                }
+            }
+
+
+            // Update location of dropoff to redis cache
+            String dropoffId = bookingDto.getPhonenumber() + "_dropoff";
+            BookingLocation dropoffLocation = locationService.findById(dropoffId);
+
+            if (dropoffLocation == null) {
+                dropoffLocation = BookingLocation.builder()
+                        .id(dropoffId)
+                        .locationCounts(new ArrayList<>(List.of(new LocationCount(bookingDto.getDropoffLocation(), 1))))
+                        .build();
+                locationService.save(dropoffLocation);
+            } else {
+                boolean isExist = false;
+                for (LocationCount locationCount : dropoffLocation.getLocationCounts()) {
+                    if (locationCount.getCoordinate().equals(bookingDto.getDropoffLocation())) {
+                        locationCount.setCount(locationCount.getCount() + 1);
+                        locationService.save(dropoffLocation);
+                        isExist = true;
+                        break;
+                    }
+                }
+
+                if (!isExist) {
+                    dropoffLocation.getLocationCounts().add(new LocationCount(bookingDto.getDropoffLocation(), 1));
+                    locationService.save(dropoffLocation);
+                }
+            }
+
+
             // Return success response
             return ResponseEntity.ok(bookingRecordSaving);
         } catch (Exception e) {
