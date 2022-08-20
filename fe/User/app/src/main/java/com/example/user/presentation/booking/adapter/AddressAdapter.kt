@@ -1,5 +1,6 @@
 package com.example.user.presentation.booking.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,9 +16,10 @@ class AddressAdapter: RecyclerView.Adapter<AddressAdapter.AddressViewHolder>() {
         this.func = func
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setList(list: List<Address>) {
         this.list = list
-
+        notifyDataSetChanged()
     }
 
     inner class AddressViewHolder(val view: ItemAddressBinding): RecyclerView.ViewHolder(view.root){

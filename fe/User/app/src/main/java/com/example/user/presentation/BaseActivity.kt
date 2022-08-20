@@ -17,20 +17,20 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     @Inject
     lateinit var baseViewModel: BaseViewModel
 
-    private lateinit var mProgressDialog: Dialog
-    private lateinit var mExpiredTokenDialog: Dialog
+    private var mProgressDialog: Dialog? = null
+    private var mExpiredTokenDialog: Dialog? = null
 
     fun showExpiredTokenDialog(userName: String){
         this.mExpiredTokenDialog = Dialog(this)
-        mExpiredTokenDialog.setContentView(R.layout.dialog_login)
+        mExpiredTokenDialog!!.setContentView(R.layout.dialog_login)
         baseViewModel.userName = userName
         registerClickListenerExpiredToken()
         registerViewChangeExpiredToken()
-        this.mExpiredTokenDialog.show()
+        this.mExpiredTokenDialog!!.show()
     }
     private fun hideExpiredTokenDialog() {
         baseViewModel.isLogin.removeObservers(this)
-        mExpiredTokenDialog.dismiss()
+        mExpiredTokenDialog?.dismiss()
     }
     private fun registerViewChangeExpiredToken() {
         baseViewModel.isLogin.observe(this) {
@@ -49,8 +49,8 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         }
     }
     private fun registerClickListenerExpiredToken() {
-        this.mExpiredTokenDialog.findViewById<AppCompatButton>(R.id.btn_re_login_accept).setOnClickListener {
-            val password = this@BaseActivity.mExpiredTokenDialog.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
+        this.mExpiredTokenDialog!!.findViewById<AppCompatButton>(R.id.btn_re_login_accept).setOnClickListener {
+            val password = this@BaseActivity.mExpiredTokenDialog!!.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
             if(password.isEmpty())
                 Toast.makeText(this,"Please write password",Toast.LENGTH_LONG).show()
             else {
@@ -60,8 +60,8 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
             }
         }
 
-        this.mExpiredTokenDialog.findViewById<AppCompatButton>(R.id.btn_re_login_cancel).setOnClickListener {
-            this.mExpiredTokenDialog.dismiss()
+        this.mExpiredTokenDialog!!.findViewById<AppCompatButton>(R.id.btn_re_login_cancel).setOnClickListener {
+            this.mExpiredTokenDialog!!.dismiss()
             baseViewModel.logout()
             finishAffinity()
             startActivity(Intent(this, LogInActivity::class.java))
@@ -71,12 +71,12 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     /////////////////////////////////////////////////////////////////////////////////////
     fun showProgressDialog(text: String = "Please waiting...") {
         this.mProgressDialog = Dialog(this)
-        mProgressDialog.setContentView(R.layout.dialog_progress)
-        mProgressDialog.findViewById<TextView>(R.id.tvProgress).text = text
-        mProgressDialog.show()
+        mProgressDialog!!.setContentView(R.layout.dialog_progress)
+        mProgressDialog!!.findViewById<TextView>(R.id.tvProgress).text = text
+        mProgressDialog!!.show()
     }
     fun hideProgressDialog() {
-        mProgressDialog.dismiss()
+        mProgressDialog?.dismiss()
     }
 
     override fun onStart() {

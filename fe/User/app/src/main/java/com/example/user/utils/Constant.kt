@@ -12,6 +12,11 @@ import java.util.*
 
 
 object Constant {
+    const val ROUTE_LAYER_ID = "route-layer-id"
+    const val ROUTE_SOURCE_ID = "route-source-id"
+    const val ICON_LAYER_ID = "icon-layer-id"
+    const val ICON_SOURCE_ID = "icon-source-id"
+    const val RED_PIN_ICON_ID = "red-pin-icon-id"
     const val FINISH_MOVING_STRING: String = "FINISH_MOVING_STRING"
     const val FINISH_MOVING: String = "FINISH_MOVING"
     const val UPDATE_LOCATION_DRIVER_STRING: String = "UPDATE_LOCATION_DRIVER_STRING"

@@ -1,10 +1,10 @@
 package com.example.user.data.repository.route.impl
 
 import com.example.user.BuildConfig
-import com.example.user.data.api.RouteNavigationApi
-import com.example.user.data.model.googlemap.PlaceClient
-import com.example.user.data.model.googlemap.RouteNavigation
+import com.example.user.data.api.DirectionApi
+import com.example.user.data.api.PlaceApi
 import com.example.user.data.model.place.AddressFromText
+import com.example.user.data.model.route.Direction
 import com.example.user.data.repository.route.RouteNavigationRemoteDataSource
 import retrofit2.Response
 import javax.inject.Inject
@@ -12,23 +12,21 @@ import javax.inject.Singleton
 
 @Singleton
 class RouteNavigationRemoteDataSourceImpl @Inject constructor(
-    private val routeNavigationApi: RouteNavigationApi
+    private val placeApi: PlaceApi,
+    private val directionApi: DirectionApi
 ): RouteNavigationRemoteDataSource {
     override suspend fun getRoutes(
+        method: String,
         origin: String,
         destination: String,
-        mode: String
-    ): Response<RouteNavigation> =
-        routeNavigationApi.getRoutes(
-            origin,
-            destination,
-            mode,
-            BuildConfig.GOOGLE_MAP_API
+    ): Response<Direction> =
+        directionApi.getRoutes(
+            method = method,
+            origin = origin,
+            destination = destination,
+            token = BuildConfig.MAPBOX_API
         )
 
-    override suspend fun getAddressFromPlaceId(placeId: String): Response<PlaceClient> =
-        routeNavigationApi.getAddressFromPlaceId(placeId,BuildConfig.GOOGLE_MAP_API)
-
     override suspend fun getAddressFromText(text: String): Response<AddressFromText> =
-        routeNavigationApi.getAddressFromText(text,BuildConfig.API_ADRRESS)
+        placeApi.getAddressFromText(text,BuildConfig.API_ADRRESS)
 }

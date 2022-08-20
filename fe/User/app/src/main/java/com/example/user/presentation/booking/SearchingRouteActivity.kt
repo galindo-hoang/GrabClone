@@ -1,43 +1,48 @@
 package com.example.user.presentation.booking
 
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
-import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.user.BuildConfig
 import com.example.user.R
 import com.example.user.data.api.AuthenticationApi
 import com.example.user.data.dto.CurrentLocationDriver
-import com.example.user.data.model.googlemap.ResultPlaceClient
+import com.example.user.data.dto.LatLong
+import com.example.user.data.model.place.Address
+import com.example.user.data.model.route.Route
 import com.example.user.databinding.ActivitySearchingRouteBinding
+import com.example.user.domain.usecase.GetRouteNavigationUseCase
 import com.example.user.presentation.BaseActivity
 import com.example.user.presentation.booking.adapter.AddressAdapter
 import com.example.user.utils.Constant
-import com.example.user.utils.Constant.decodePoly
 import com.example.user.utils.Status
-import com.google.android.gms.maps.CameraUpdateFactory
+import com.example.user.utils.TypeCar
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.libraries.places.widget.Autocomplete
-import com.google.android.libraries.places.widget.AutocompleteActivity
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.gson.Gson
+import com.mapbox.core.constants.Constants.PRECISION_6
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.LineString
+import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.LineLayer
+import com.mapbox.mapboxsdk.style.layers.Property
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import com.mapbox.mapboxsdk.utils.BitmapUtils
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -45,45 +50,98 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SearchingRouteActivity : BaseActivity() {
 
+    private lateinit var origin: Point
+    private lateinit var destination: Point
+    @Inject
+    lateinit var getRouteNavigationUseCase: GetRouteNavigationUseCase
     @Inject
     lateinit var bookingViewModel: BookingViewModel
     @Inject
     lateinit var authenticationApi: AuthenticationApi
 
     private val addressAdapter = AddressAdapter()
-    private lateinit var placesClient: PlacesClient
-    private lateinit var loadPlacesFromGoogleMap: ActivityResultLauncher<Intent>
-    private lateinit var binding: ActivitySearchingRouteBinding
     private var isOrigin: Boolean? = null
+    private lateinit var binding: ActivitySearchingRouteBinding
     private lateinit var map: GoogleMap
-    private val intentGoogleMap by lazy {
-        Autocomplete
-            .IntentBuilder(
-                AutocompleteActivityMode.FULLSCREEN,
-                listOf(Place.Field.ID, Place.Field.NAME)
-            )
-            .build(this)
-    }
+    private lateinit var mapView: MapView
+    private lateinit var mapboxMap: MapboxMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Mapbox.getInstance(this,getString(R.string.mapbox_api))
         binding = DataBindingUtil.setContentView(this, R.layout.activity_searching_route)
         binding.lifecycleOwner = this
         binding.viewModel = bookingViewModel
-        if(!Places.isInitialized())
-            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
-        placesClient = Places.createClient(this)
-        setupLoadPlaceFromGoogleMap()
+        setupMapbox(savedInstanceState)
         setupRecyclerView()
         registerClickListener()
         registerViewChangeListener()
     }
 
+    private fun setupMapbox(savedInstanceState: Bundle?) {
+        mapView = binding.mapView
+        mapView.onCreate(savedInstanceState)
+        mapView.getMapAsync{
+            this.mapboxMap = it
+        }
+    }
+
+    private fun initSource(loadedMapStyle: Style) {
+        loadedMapStyle.addSource(GeoJsonSource(Constant.ROUTE_SOURCE_ID))
+        val iconGeoJsonSource = GeoJsonSource(Constant.ICON_SOURCE_ID, FeatureCollection.fromFeatures(
+            arrayOf<Feature>(
+                Feature.fromGeometry(Point.fromLngLat(origin.longitude(), origin.latitude())),
+                Feature.fromGeometry(Point.fromLngLat(destination.longitude(), destination.latitude()))
+            )
+        ))
+        loadedMapStyle.addSource(iconGeoJsonSource)
+    }
+
+    // Add the route and marker icon layers to the map
+    private fun initLayers(loadedMapStyle: Style) {
+        val routeLayer = LineLayer(Constant.ROUTE_LAYER_ID, Constant.ROUTE_SOURCE_ID)
+
+// Add the LineLayer to the map. This layer will display the directions route.
+        routeLayer.setProperties(
+            lineCap(Property.LINE_CAP_ROUND),
+            lineJoin(Property.LINE_JOIN_ROUND),
+            lineWidth(5f),
+            lineColor(Color.parseColor("#005096"))
+        )
+        loadedMapStyle.addLayer(routeLayer)
+
+// Add the red marker icon image to the map
+        loadedMapStyle.addImage(
+            Constant.RED_PIN_ICON_ID, BitmapUtils.getBitmapFromDrawable(
+                AppCompatResources.getDrawable(this, R.drawable.ic_marker_red_24)
+            )!!
+        )
+
+// Add the red marker icon SymbolLayer to the map
+        loadedMapStyle.addLayer(
+            SymbolLayer(Constant.ICON_LAYER_ID, Constant.ICON_SOURCE_ID).withProperties(
+                iconImage(Constant.RED_PIN_ICON_ID),
+                iconIgnorePlacement(true),
+                iconAllowOverlap(true),
+                iconOffset(arrayOf(0f, -9f))
+            )
+        )
+    }
+
+
     private fun setupRecyclerView() {
         addressAdapter.setOnClickListener { address ->
             if(isOrigin == true){
-                bookingViewModel.origin
+                bookingViewModel.textOrigin.removeObservers(this)
+                bookingViewModel.textOrigin.postValue(address.name)
+                bookingViewModel.origin = address
             }
+            if(isOrigin == false){
+                bookingViewModel.textDestination.removeObservers(this)
+                bookingViewModel.textDestination.postValue(address.name)
+                bookingViewModel.destination = address
+            }
+            binding.rvAddress.visibility = View.INVISIBLE
         }
         binding.rvAddress.adapter = addressAdapter
         binding.rvAddress.layoutManager = LinearLayoutManager(this)
@@ -125,22 +183,16 @@ class SearchingRouteActivity : BaseActivity() {
 
 
     private fun registerClickListener() {
-        binding.etDestination.setOnClickListener {
-            isOrigin = false
-            loadPlacesFromGoogleMap.launch(intentGoogleMap)
-        }
-        binding.etOrigin.setOnClickListener {
-            isOrigin = true
-            loadPlacesFromGoogleMap.launch(intentGoogleMap)
-        }
-        (supportFragmentManager.findFragmentById(R.id.map_view_in_booking_activity)
-                as SupportMapFragment).getMapAsync {
-                    this.map = it
-        }
+
     }
 
     private fun registerViewChangeListener(){
         bookingViewModel.textOrigin.observe(this) {
+            if(it.length >= 4){
+                bookingViewModel.getListAddress(it)
+            }
+        }
+        bookingViewModel.textDestination.observe(this) {
             if(it.length >= 4){
                 bookingViewModel.getListAddress(it)
             }
@@ -151,123 +203,72 @@ class SearchingRouteActivity : BaseActivity() {
                 Status.LOADING -> this.showProgressDialog()
                 Status.SUCCESS -> {
                     this.hideProgressDialog()
-
+                    addressAdapter.setList(it.data?.features!!.map { feature ->
+                        Address(
+                            LatLong(feature.properties.lat,feature.properties.lon),
+                            feature.properties.formatted
+                        )
+                    })
+                    binding.rvAddress.visibility = View.VISIBLE
                 }
-            }
-        }
-
-//        bookingViewModel.resultPlaceClient.observe(this){
-//            when(it.status){
-//                Status.LOADING -> this.showProgressDialog("Please waiting...")
-//                Status.ERROR -> {
-//                    this.hideProgressDialog()
-//                    Toast.makeText(this, "Cant load data", Toast.LENGTH_LONG).show()
-//                }
-//                Status.SUCCESS -> {
-//                    this.hideProgressDialog()
-//                    if(isOrigin == true) {
-//                        bookingViewModel.setOrigin(it.data)
-//                        it.data?.let { rps -> binding.etOrigin.text = rps.formatted_address }
-//                    }
-//                    else if (isOrigin == false) {
-//                        bookingViewModel.setDestination(it.data)
-//                        it.data?.let { rps -> binding.etDestination.text = rps.formatted_address }
-//                    }
-//                    isOrigin = null
-//                }
-//            }
-//        }
-        bookingViewModel.routes.observe(this) { response ->
-            when(response.status) {
-                Status.LOADING -> this.showProgressDialog("Please waiting...")
                 Status.ERROR -> {
                     this.hideProgressDialog()
-                    Toast.makeText(this, response.message, Toast.LENGTH_LONG).show()
-                }
-                Status.SUCCESS -> {
-                    this.hideProgressDialog()
-                    val routes = response.data!!
-                    val points = mutableListOf<LatLng>()
-                    routes.forEach { route ->
-                        route.legs.forEach { leg ->
-                            leg.steps.forEach { step ->
-                                points.addAll(decodePoly(step.polyline.points))
-                            }
-                        }
-                    }
-                    PolylineOptions()
-                        .apply {
-                            this.addAll(points)
-                            this.width(10f)
-                            this.color(Color.RED)
-                            this.geodesic(true)
-                        }
-                        .let { map.addPolyline(it) }
-                    val bounds = LatLngBounds.Builder()
-                    addMarker(bounds,bookingViewModel.origin!!,"Marker 1")
-                    addMarker(bounds,bookingViewModel.destination!!,"Marker 2")
-                    val point = Point()
-                    windowManager.defaultDisplay.getSize(point)
-                    map.animateCamera(
-                        CameraUpdateFactory
-                            .newLatLngBounds(
-                                bounds.build(),
-                                point.x,
-                                550,
-                                230
-                            )
-                    )
-                    bookingViewModel.labelButton.postValue(Constant.CONTINUE)
-                    checking()
+                    Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
                 }
             }
         }
         bookingViewModel.continuation.observe(this) {
             if(it) startActivity(Intent(this,MethodBookingActivity::class.java))
         }
-    }
 
-    private fun checking() {
-        val long = 106.676130
-        var lat = 10.809852
-        var marker = map.addMarker(MarkerOptions().position(LatLng(lat,long)))
-        repeat((1..5).count()) {
-            runBlocking {
-                marker?.remove()
-                delay(3000)
-                lat += 0.01
+        bookingViewModel.routes.observe(this) {
+            when(it.status) {
+                Status.LOADING -> this.showProgressDialog()
+                Status.ERROR -> {
+                    this.hideProgressDialog()
+                    Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
+                }
+                Status.SUCCESS -> {
+                    this.hideProgressDialog()
+                    mapboxMap.setStyle(Style.MAPBOX_STREETS
+                    ) { style ->
+                        origin = Point.fromLngLat(
+                            106.665290, 10.838678
+                        )
+                        destination = Point.fromLngLat(
+                            106.680264,10.799194
+                        )
+                        initSource(style)
+                        initLayers(style)
+                        showRoute(it.data!!)
+                    }
+                    bookingViewModel.labelButton.postValue(Constant.CONTINUE)
+                }
             }
-            marker = map.addMarker(MarkerOptions().position(LatLng(lat,long)))
         }
     }
 
-    private fun setupLoadPlaceFromGoogleMap(){
-        loadPlacesFromGoogleMap =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
-                when(result.resultCode) {
-                    Activity.RESULT_OK -> {
-                        result.data?.let {
-                            val place = Autocomplete.getPlaceFromIntent(result.data!!)
-                            place.id?.let { it1 -> bookingViewModel.getAddress(it1) }
-                        }
-                    }
-                    AutocompleteActivity.RESULT_ERROR -> {
-                        result.data?.let {
-                            val status = Autocomplete.getStatusFromIntent(result.data!!)
-                            Log.i("TAG", status.statusMessage ?: "")
-                        }
-                    }
-                    Activity.RESULT_CANCELED -> {}
-                }
-            }
+    private fun showRoute(data: List<Route>) {
+        mapboxMap.getStyle { style ->
+            val source: GeoJsonSource = style.getSourceAs(Constant.ROUTE_SOURCE_ID)!!
+            source.setGeoJson(LineString.fromPolyline(
+                data[0].geometry.toString(),
+                PRECISION_6)
+            )
+        }
     }
 
-    private fun addMarker(bounds: LatLngBounds.Builder, place: ResultPlaceClient, marker: String){
-        val latLong = LatLng(place.geometry.location.lat, place.geometry.location.lng)
-        map.addMarker(
-            MarkerOptions().position(latLong)
-                .title(marker)
-        )
-        bounds.include(latLong)
-    }
+//    private fun checkingUpdateLocationDriver() {
+//        val long = 106.676130
+//        var lat = 10.809852
+//        var marker = map.addMarker(MarkerOptions().position(LatLng(lat,long)))
+//        repeat((1..5).count()) {
+//            runBlocking {
+//                marker?.remove()
+//                delay(3000)
+//                lat += 0.01
+//            }
+//            marker = map.addMarker(MarkerOptions().position(LatLng(lat,long)))
+//        }
+//    }
 }
