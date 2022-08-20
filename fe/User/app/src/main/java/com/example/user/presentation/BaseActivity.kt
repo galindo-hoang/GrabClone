@@ -2,34 +2,74 @@ package com.example.user.presentation
 
 import android.app.Dialog
 import android.content.*
-import android.os.Bundle
-import android.os.PersistableBundle
+import android.location.Location
 import android.util.Log
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatEditText
 import com.example.user.R
 import com.example.user.presentation.login.LogInActivity
 import com.example.user.utils.Constant
 import javax.inject.Inject
 
 open class BaseActivity @Inject constructor(): AppCompatActivity() {
-    private lateinit var mProgressDialog: Dialog
-    fun showExpiredTokenDialog(){
-        val alertDialog = AlertDialog.Builder(this)
-        alertDialog
-            .setIcon(R.drawable.ic_launcher_foreground)
-            .setTitle("WARNING")
-            .setMessage("your account is expired. Do you want to continue Login ?")
-            .setPositiveButton("Yes"
-            ) { dialogInterface, _ ->
-                dialogInterface.dismiss()
+    @Inject
+    lateinit var baseViewModel: BaseViewModel
 
-            }.setNegativeButton("No"){ dialogInterface, _ ->
-                dialogInterface.dismiss()
-                finishAffinity()
-                startActivity(Intent(this, LogInActivity::class.java))
+    private lateinit var mProgressDialog: Dialog
+    private lateinit var mExpiredTokenDialog: Dialog
+
+    private fun registerViewChangeExpiredToken() {
+        baseViewModel.isLogin.observe(this) {
+            when(it){
+                1 -> {
+                    baseViewModel.password = null
+                    baseViewModel.userName = null
+                    hideProgressDialog()
+                    hideExpiredTokenDialog()
+                }
+                -1 -> {
+                    hideProgressDialog()
+                    Toast.makeText(this, "password wrong", Toast.LENGTH_LONG).show()
+                }
             }
+        }
+    }
+
+    private fun registerClickListenerExpiredToken() {
+        this.mExpiredTokenDialog.findViewById<AppCompatButton>(R.id.btn_re_login_accept).setOnClickListener {
+            val password = this@BaseActivity.mExpiredTokenDialog.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
+            if(password.isEmpty())
+                Toast.makeText(this,"Please write password",Toast.LENGTH_LONG).show()
+            else {
+                baseViewModel.password = password
+                baseViewModel.login()
+                this@BaseActivity.showProgressDialog("Please waiting...")
+            }
+        }
+
+        this.mExpiredTokenDialog.findViewById<AppCompatButton>(R.id.btn_re_login_cancel).setOnClickListener {
+            this.mExpiredTokenDialog.dismiss()
+            baseViewModel.logout()
+            finishAffinity()
+            startActivity(Intent(this, LogInActivity::class.java))
+        }
+    }
+
+    fun showExpiredTokenDialog(userName: String){
+        this.mExpiredTokenDialog = Dialog(this)
+        mExpiredTokenDialog.setContentView(R.layout.dialog_login)
+        baseViewModel.userName = userName
+        registerClickListenerExpiredToken()
+        registerViewChangeExpiredToken()
+        this.mExpiredTokenDialog.show()
+    }
+
+    private fun hideExpiredTokenDialog() {
+        baseViewModel.isLogin.removeObservers(this)
+        mExpiredTokenDialog.dismiss()
     }
 
     fun showProgressDialog(text: String) {
@@ -43,9 +83,15 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         mProgressDialog.dismiss()
     }
 
-
-    fun registerBroadcastReceiver(){
+    override fun onStart() {
+        super.onStart()
         registerReceiver(updateAccessToken, IntentFilter(Constant.SERVICE_ACCESS_TOKEN))
+    }
+
+    override fun onPause() {
+        unregisterReceiver(updateAccessToken)
+        super.onPause()
+
     }
 
     private val updateAccessToken: BroadcastReceiver = object : BroadcastReceiver(){

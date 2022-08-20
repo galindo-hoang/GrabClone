@@ -31,7 +31,7 @@ class BaseApplication: Application(),LifecycleObserver {
         Log.e("MyApp", "App in foreground")
     }
 
-
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     override fun onTerminate() {
         super.onTerminate()
         Log.e("--","terminate")

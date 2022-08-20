@@ -12,8 +12,8 @@ public class TokenStoreService {
     @Autowired
     private FCMTokenRepository fcmTokenRepository;
 
-    public FcmTokenRecord findByUserId(Integer userId) {
-        return fcmTokenRepository.findByUserId(userId);
+    public FcmTokenRecord findByUsername(String username) {
+        return fcmTokenRepository.findByUsername(username);
     }
 
     public FcmTokenRecord findByFcmToken(String fcmToken) {

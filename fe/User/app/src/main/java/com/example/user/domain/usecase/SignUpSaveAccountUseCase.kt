@@ -1,6 +1,5 @@
 package com.example.user.domain.usecase
 
-import android.util.Log
 import com.example.user.data.dto.UserDto
 import com.example.user.data.model.authentication.ErrorBodyValidateOrRegister
 import com.example.user.domain.repository.AuthenticationRepository

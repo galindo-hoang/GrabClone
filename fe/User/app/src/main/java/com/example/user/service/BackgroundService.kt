@@ -34,10 +34,10 @@ class BackgroundService: Service() {
     private val updateTextTask = object : Runnable {
         override fun run() {
             ++count
-            val inten = Intent(Constant.SERVICE_ACCESS_TOKEN).apply {
+            val intent = Intent(Constant.SERVICE_ACCESS_TOKEN).apply {
                 this.putExtra(Constant.SERVICE_ACCESS_TOKEN_BOOLEAN,count)
             }
-            sendBroadcast(inten)
+            sendBroadcast(intent)
             mainHandler.postDelayed(this, 1000)
         }
     }

@@ -5,6 +5,7 @@ export const Footer = styled.div`
   padding: 0 30px;
 `
 
+
 export const Menu = styled.ul`
   padding: 0;
   transition: 0.3s;
@@ -24,7 +25,8 @@ export const Menu = styled.ul`
         margin-right: 10px;
       }
       &.active {
-        background: ${COLOR.BLUE};
+        color:black;
+        background: ${COLOR.INFO};
       }
     }
   }
@@ -33,7 +35,7 @@ export const Menu = styled.ul`
 export const Nav = styled.nav`
   min-width: 270px;
   max-width: 270px;
-  background: #3e64ff;
+  background: ${COLOR.MAIN};
   color: #fff;
   transition: all 0.3s;
   &.close {

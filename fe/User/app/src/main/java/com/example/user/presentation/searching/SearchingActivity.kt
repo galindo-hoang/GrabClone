@@ -13,7 +13,7 @@ import com.example.user.R
 import com.example.user.databinding.ActivitySearchingBinding
 import com.example.user.presentation.BaseActivity
 import com.example.user.utils.Constant.REQUEST_CURRENT_LOCATION
-import com.example.user.utils.Permissions
+import com.example.user.utils.RequestPermissions
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -54,8 +54,8 @@ class SearchingActivity : BaseActivity() {
 
     @SuppressLint("MissingPermission")
     private fun getCurrentLocation(){
-        if(Permissions.checkPermissions(this)){
-            if(!Permissions.isEnableLocation(this)) Permissions.turnOnLocation(this)
+        if(RequestPermissions.checkPermissions(this)){
+            if(!RequestPermissions.isEnableLocation(this)) RequestPermissions.turnOnLocation(this)
             else {
                 fusedLocationProviderClient.requestLocationUpdates(
                     mLocationRequest,
@@ -64,7 +64,7 @@ class SearchingActivity : BaseActivity() {
                 )
             }
         }else {
-            Permissions.requestPermissions(this)
+            RequestPermissions.requestPermissions(this)
         }
     }
 

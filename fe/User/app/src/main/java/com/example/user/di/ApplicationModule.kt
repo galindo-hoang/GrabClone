@@ -2,6 +2,7 @@ package com.example.user.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.user.BuildConfig
 import com.example.user.data.api.*
 import com.example.user.data.api.interceptor.CheckAccessTokenInterceptor
 import com.example.user.data.dao.TokenDao
@@ -22,6 +23,8 @@ import com.example.user.data.repository.route.RouteNavigationRemoteDataSource
 import com.example.user.data.repository.route.RouteNavigationRepositoryImpl
 import com.example.user.data.repository.route.impl.RouteNavigationCacheDataResourceImpl
 import com.example.user.data.repository.route.impl.RouteNavigationRemoteDataSourceImpl
+import com.example.user.di.annotation.AfterLoginApi
+import com.example.user.di.annotation.BeforeLoginApi
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.domain.repository.BookingRepository
 import com.example.user.domain.repository.RouteNavigationRepository
@@ -31,7 +34,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -50,55 +52,49 @@ class ApplicationModule {
             .build()
             .create(RouteNavigationApi::class.java)
 
-//    @Provides
-//    @Singleton
-//    fun providesCheck():
 
     @Provides
     @Singleton
-    fun providesAuthenticationApi(): AuthenticationApi
-        {
-            val logging= HttpLoggingInterceptor().apply {
-                this.level = HttpLoggingInterceptor.Level.BODY
-            }
-            return Retrofit
-                .Builder()
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://192.168.1.11:8085")
-//                .baseUrl("http://192.168.1.75:8085")
-//                .baseUrl("http://192.168.223.107:8080")
-                .client(
-                    OkHttpClient.Builder().apply { this.addInterceptor(logging) }.build()
-                )
-                .build()
-                .create(AuthenticationApi::class.java)
-        }
-
-    @Provides
-    @Singleton
-    fun providesRenewAccessTokenApi(): RenewAccessTokenApi =
-        Retrofit
-            .Builder()
-            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("http://192.168.1.11:8085")
-//            .baseUrl("http://192.168.1.75:8085")
-            .build()
-            .create(RenewAccessTokenApi::class.java)
-
-    @Provides
-    @Singleton
-    fun providesBookingApi(checkAccessTokenInterceptor: CheckAccessTokenInterceptor): BookingApi =
+    @BeforeLoginApi
+    fun providesBeforeLoginApi(): Retrofit =
         Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("http://192.168.1.11:8085")
-//            .baseUrl("http://192.168.1.75:8085")
+            .baseUrl(BuildConfig.GCP)
+            .build()
+
+    @Provides
+    @Singleton
+    @AfterLoginApi
+    fun providesAfterLoginApi(checkAccessTokenInterceptor: CheckAccessTokenInterceptor): Retrofit =
+        Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(BuildConfig.GCP)
             .client(
                 OkHttpClient.Builder()
                     .apply { this.addInterceptor(checkAccessTokenInterceptor) }
                     .build()
             )
             .build()
-            .create(BookingApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providesAuthenticationApi(@BeforeLoginApi retrofit: Retrofit): AuthenticationApi =
+        retrofit.create(AuthenticationApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providesRenewAccessTokenApi(@BeforeLoginApi retrofit: Retrofit): RenewAccessTokenApi =
+        retrofit.create(RenewAccessTokenApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providesBookingApi(@AfterLoginApi retrofit: Retrofit): BookingApi =
+        retrofit.create(BookingApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providesFCMApi(@AfterLoginApi retrofit: Retrofit): FCMApi =
+        retrofit.create(FCMApi::class.java)
 
     @Provides
     @Singleton
@@ -173,8 +169,9 @@ class ApplicationModule {
     @Provides
     @Singleton
     fun providesBookingRemoteDataSource(
-        bookingApi: BookingApi
-    ): BookingRemoteDataResource = BookingRemoteDataResourceImpl(bookingApi)
+        bookingApi: BookingApi,
+        fcmApi: FCMApi
+    ): BookingRemoteDataResource = BookingRemoteDataResourceImpl(bookingApi,fcmApi)
 
     @Provides
     @Singleton

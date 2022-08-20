@@ -88,7 +88,7 @@ public class NotificationService {
 
         String response = null;
         try {
-            FirebaseMessaging.getInstance().send(message);
+            response = FirebaseMessaging.getInstance().send(message);
         } catch (FirebaseMessagingException e) {
             log.error("Fail to send firebase notification", e);
         }

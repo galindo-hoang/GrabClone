@@ -48,21 +48,21 @@ class MethodBookingActivity : BaseActivity() {
         }
         binding.rcvPayment.adapter = paymentAdapter
         binding.rcvPayment.layoutManager = LinearLayoutManager(this)
-        paymentAdapter.setList(getData())
+        paymentAdapter.setList(gePaymentData())
         paymentAdapter.setOnClickListener { it, position ->
             Log.e("---------",it.toString())
             Log.e("=========",position.toString())
         }
     }
 
-    fun getDataV(): List<Vehicle>{
+    private fun getDataV(): List<Vehicle>{
         val a = mutableListOf<Vehicle>()
         a.add(Vehicle(0))
         a.add(Vehicle(0))
         a.add(Vehicle(0))
         return a
     }
-    fun getData(): List<Payment>{
+    private fun gePaymentData(): List<Payment>{
         val a = mutableListOf<Payment>()
         a.add(Payment(0))
         a.add(Payment(0))

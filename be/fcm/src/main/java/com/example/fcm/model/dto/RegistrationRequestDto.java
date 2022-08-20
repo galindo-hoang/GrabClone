@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class RegistrationRequestDto {
     private String fcmToken;
-    private Integer userId;
+    private String username;
 }
