@@ -12,6 +12,7 @@ import {COLOR} from "src/constants/styles";
 import {useSpring,animated} from 'react-spring'
 import MapBoxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import {connect, ConnectedProps, useSelector} from "react-redux"
+import InfiniteScroll from 'react-infinite-scroll-component';
 import {
   location,
   info2Location,
@@ -19,19 +20,22 @@ import {
   responseFinishedRide,
   responseAcceptedRider
 } from "src/@types/bookingcar";
-import {Badge, Descriptions, Drawer } from "antd";
+import {Badge, Card, Descriptions, Divider, Drawer, List, Row, Skeleton} from "antd";
 import bookingCar from "../BookingCar/BookingCar";
 import {BODYSTATES} from "../../constants/states";
 import {objectTraps} from "immer/dist/core/proxy";
 import {handlePrice} from "../../helpers/string";
 import {clearBookingCar} from "../BookingCar/BookingCar.thunks";
 import {clearFCM} from "../../App/App.thunk";
+import Col from "antd/es/grid/col";
+import { Scrollbars } from 'react-custom-scrollbars';
+import {TYPECAR} from "../../constants/typecar";
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 
 
 
-const Menu = (props:any) => {
-  const {location,drawer}=props;
+const ProcessMove = (props:any) => {
+  const {location,drawer,processMove}=props;
   const [toggle, setToggle] = useState(false);
   const fade=useSpring({
     opacity:toggle?0:1
@@ -43,24 +47,19 @@ const Menu = (props:any) => {
       <button className="btn  btn-info btn-sm" style={{position: "relative",width:'120px'}} onClick={() => setToggle(!toggle)}>{toggle?'Hiện thông tin':'Ẩn thông tin'}</button>
       <button className="btn  btn-info btn-sm ml-2" onClick={drawer}>Hiện trạng thái đặt xe</button>
       <animated.form style={fade} className="p-5 rounded-sm shadow text-center info-background" hidden={toggle}>
-        <Title>Thông tin đặt xe</Title>
-        <label className="float-left mb-1">Địa điểm đón <CarOutlined/> </label>
-        <input
-          type="text"
-          className="form-control form-control-lg mb-3"
-          readOnly={true}
-          value={location.departure}
-        />
-        <label className="float-left mb-1">Địa chỉ đến <EnvironmentOutlined/></label>
-        <input
-          type="text"
-          className="form-control form-control-lg mb-3"
-          readOnly={true}
-          value={location.destination}
-        />
-        <button type="submit" className="btn btn-block btn-info btn-lg">
-          Tìm tài xế
-        </button>
+        <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+          <Col className="gutter-row" span={24}>
+        <Title>Hướng dẫn di chuyển</Title>
+            <hr/>
+          </Col>
+          <Scrollbars
+            style={{ width: 500, height: 300 }}
+          >
+            {processMove.map(index=>
+              <Col className="gutter-row" span={24}>{index}</Col>
+            )}
+          </Scrollbars>
+        </Row>
       </animated.form>
     </div>
   );
@@ -85,6 +84,7 @@ const StateBooking={
   ACCEPTED:"Tài xế đã chấp nhận cuốc xe",
   UPDATE:"Tài xế đang đón",
   FINISH:"Người đặt đã đến nơi",
+  DRIVERWELCOMEGUESTS:"Tài xế đã đón khách",
   CANCELLEDBYDRIVER:"Tài xế đã hủy chuyến"
 }
 const Map = (props:Props) => {
@@ -98,11 +98,10 @@ const Map = (props:Props) => {
   const [state,setState]=useState(0)
   const [zoom, setZoom] = useState(18)
   const [loadMap, setLoadMap] = useState(false)
-  const [lineFromDepartureToDestination, setLineFromDepartureToDestination] = useState([] as coordinate);
-  const [lineFromDriverToDeparture, setLineFromDriverToDeparture] = useState([] as coordinate)
+  const [polyLine, setPolyLine] = useState([] as coordinate);
   const [showPopupDestination, setShowPopupDestination] = useState(false);
   const [showPopupDeparture, setShowPopupDeparture] = useState(false);
-
+  const [processMove,setProcessMove]=useState([]);
   const showDrawerState = () => {
     setVisibleState(true);
   };
@@ -141,6 +140,7 @@ const Map = (props:Props) => {
         //DRIVER ACCEPTED
     if(payloadFCM!==null) {
       /*if (bookingCarForm.bookingForm.id === JSON.parse(JSON.parse(payloadFCM.booking).bookingId)) */{
+        //DRIVER ACCEPTED
         if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_ACCEPTED)) {
           setDriverAccepted(JSON.parse(JSON.parse(payloadFCM.booking).bookingId) as responseAcceptedRider);
           setStateBooking(StateBooking.ACCEPTED)
@@ -149,22 +149,44 @@ const Map = (props:Props) => {
         else if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_UPDATE_LOCATION)) {
           const driverCoordinate=JSON.parse(JSON.parse(payloadFCM.ride).driverLocation) as coordinate;
           setDriverCoordinate(driverCoordinate);
-          setStateBooking(StateBooking.UPDATE)
-          const setLineUpFromDriverToUser = async () => {
-            await MapService.getDistance(departureCoordinate.coordinate as coordinate,driverCoordinate).then((res) => {
-
-              setLineFromDriverToDeparture(res.data.routes[0].geometry.coordinates);
-            })
-          };
-          setLineUpFromDriverToUser()
+          //DRIVER WELCOME GUEST
+          if(driverCoordinate.longitude===departureCoordinate.coordinate?.longitude && driverCoordinate.latitude===departureCoordinate.coordinate?.latitude){
+            setStateBooking(StateBooking.DRIVERWELCOMEGUESTS);
+            const setLineUpFromDriverToDestination = async () => {
+              await MapService.getDistanceCarMethod(driverCoordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
+                setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
+                setPolyLine(res.data.routes[0].geometry.coordinates);
+              })
+            }
+            setLineUpFromDriverToDestination()
+          }
+          else{
+            setStateBooking(StateBooking.UPDATE);
+            const setLineUpFromDriverToUser = async () => {
+              if (bookingCarForm.bookingForm.typeCar.includes(TYPECAR.car)) {
+                await MapService.getDistanceCarMethod(departureCoordinate.coordinate as coordinate, driverCoordinate).then((res) => {
+                  setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
+                  setPolyLine(res.data.routes[0].geometry.coordinates);
+                })
+              }
+              else{
+                await MapService.getDistanceMotoMethod(departureCoordinate.coordinate as coordinate, driverCoordinate).then((res) => {
+                  setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
+                  setPolyLine(res.data.routes[0].geometry.coordinates);
+                })
+              }
+            };
+            setLineUpFromDriverToUser()
+          }
         }
         //FINISH
         else if (payloadFCM.body.toString().includes(BODYSTATES.FINISH_SUCCESS)) {
           setDriverCoordinate({longitude: undefined, latitude: undefined} as coordinate);
           setFinishSuccess(JSON.parse(payloadFCM.ride) as responseFinishedRide);
           setStateBooking(StateBooking.FINISH);
-          /*setFinishSuccess(JSON.parse(payloadFCM))*/
-        } else if (payloadFCM.body.toString().includes(BODYSTATES.CANCEL_DRIVER)) {
+        }
+        //DRIVER CANCEL
+        else if (payloadFCM.body.toString().includes(BODYSTATES.CANCEL_DRIVER)) {
           setDriverCoordinate({longitude: undefined, latitude: undefined} as coordinate);
           setStateBooking(StateBooking.CANCELLEDBYDRIVER)
         }
@@ -176,12 +198,18 @@ const Map = (props:Props) => {
 
   useEffect(() => {
     const setLineUp = async () => {
-      await MapService.getDistance(departureCoordinate.coordinate as coordinate,destinationCoordinate.coordinate as coordinate).then((res) => {
-        const distance = res.data.routes[0].distance / 1000;
-        var result = Math.round(distance*100)/100;
-        console.log(result)
-        setLineFromDepartureToDestination(res.data.routes[0].geometry.coordinates);
-      })
+      if (bookingCarForm.bookingForm.typeCar.includes(TYPECAR.car)) {
+        await MapService.getDistanceCarMethod(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
+          setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
+          setPolyLine(res.data.routes[0].geometry.coordinates);
+        })
+      }
+      else{
+        await MapService.getDistanceMotoMethod(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
+          setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
+          setPolyLine(res.data.routes[0].geometry.coordinates);
+        })
+      }
     }
     setLineUp();
   }, []);
@@ -200,27 +228,14 @@ const Map = (props:Props) => {
     latitude: viewCoordinate?.latitude,
     zoom: zoom,
   });
-  const geoJsonFromDepartureToDestination: GeoJSON.FeatureCollection<any> = {
+  const geoJsonPolyLine: GeoJSON.FeatureCollection<any> = {
     type: 'FeatureCollection',
     features: [
       {
         type: 'Feature',
         geometry: {
           type: 'LineString',
-          coordinates: lineFromDepartureToDestination
-        },
-        properties: {}
-      }
-    ]
-  };
-  const geoJsonFromDriverToDeparture: GeoJSON.FeatureCollection<any> = {
-    type: 'FeatureCollection',
-    features: [
-      {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: lineFromDriverToDeparture
+          coordinates: polyLine
         },
         properties: {}
       }
@@ -257,7 +272,7 @@ const Map = (props:Props) => {
                 }}>
 
 
-      <Source type='geojson' id='source-geojson' data={geoJsonFromDepartureToDestination}>
+      <Source type='geojson' id='source-geojson' data={geoJsonPolyLine}>
         <Layer
           id="lineLayer1"
           type="line"
@@ -267,28 +282,11 @@ const Map = (props:Props) => {
             "line-cap": "round"
           }}
           paint={{
-            "line-color": "blue",
+            "line-color": "red",
             "line-width": 3
           }}
         />
       </Source>
-
-
-    {/*  <Source type='geojson' id='source-geojson' data={geoJsonFromDriverToDeparture}>
-        <Layer
-          id="lineLayer2"
-          type="line"
-          source="route"
-          layout={{
-            "line-join": "round",
-            "line-cap": "round"
-          }}
-          paint={{
-            "line-color": "orange",
-            "line-width": 3
-          }}
-        />
-      </Source>*/}
 
       {showPopupDestination && (
         <Popup
@@ -316,6 +314,7 @@ const Map = (props:Props) => {
         </Popup>
       )}
 
+      {/*MARKER DRIVER*/}
       {
         (driverCoordinate?.latitude!==undefined&&driverCoordinate?.longitude!==undefined)?
         <Marker
@@ -329,6 +328,7 @@ const Map = (props:Props) => {
         </Marker>:""
       }
 
+      {/*MARKER DESTINATION*/}
       <Marker
         latitude={destinationCoordinate?.coordinate?.latitude}
         longitude={destinationCoordinate?.coordinate?.longitude}>
@@ -339,21 +339,26 @@ const Map = (props:Props) => {
         />
       </Marker>
 
-      <Marker
-        latitude={departureCoordinate?.coordinate?.latitude}
-        longitude={departureCoordinate?.coordinate?.longitude}>
-        <img
-          onClick={() => setShowPopupDeparture(true)}
-          style={{height: 50, width: 50}}
-          src="https://icon-library.com/images/map-marker-icon/map-marker-icon-17.jpg"
-        />
-      </Marker>
+      {/*MARKER USER*/}
+      {
+        stateBooking.includes(StateBooking.DRIVERWELCOMEGUESTS)?
+          ""
+          :
+          <Marker
+            latitude={departureCoordinate?.coordinate?.latitude}
+            longitude={departureCoordinate?.coordinate?.longitude}>
+            <img
+              onClick={() => setShowPopupDeparture(true)}
+              style={{height: 50, width: 50}}
+              src="https://icon-library.com/images/map-marker-icon/map-marker-icon-17.jpg"
+            />
+          </Marker>
+
+      }
       <GeolocateControl position='top-right'/>
       <NavigationControl position='top-right'/>
-      <Menu location={locationBooking} drawer={()=>setVisibleState(prevState => !prevState)}/>
+      <ProcessMove location={locationBooking} drawer={()=>setVisibleState(prevState => !prevState)} processMove={processMove}/>
     </ReactMapGL>
-
-
 
     <Drawer
       placement='bottom'

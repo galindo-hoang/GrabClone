@@ -242,7 +242,7 @@ const BookingCar = (props: Props) => {
               <Row style={{position: "relative", width: "500px"}}>
                 <Col xs lg md sm="12">
                   <Dropdown.Button
-                    className="float-left mb-1"
+                    className="float-left mb-1 "
                     icon={<DownOutlined />}
                     overlay={dropdownTypeCar}
                   >
@@ -255,6 +255,23 @@ const BookingCar = (props: Props) => {
                   <label className="float-left mb-1">Địa chỉ đón</label>
                 </Col>
               </Row>
+             {/* <Row style={{position: "relative"}} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                <Col className="gutter-row" span={16}>
+                  <AutoComplete
+                    className="form-control form-control-lg mb-3"
+                    options={departureAutocomplete}
+                    value={departure.value}
+                    onChange={onChangeDeparture}
+                    onSelect={onSelectedDeparture}
+                    placeholder="Điền địa chỉ đón"
+                  />
+                </Col>
+                <Col className="gutter-row" span={8}>
+                  <button className="btn  btn-info btn-md" onClick={() => setVisibleDeparture(true)}>
+                    Lịch sử đón
+                  </button>
+                </Col>
+              </Row>*/}
               <Row style={{position: "relative", width: "500px"}}>
                 <Col xs lg md sm="8">
                   <AutoComplete

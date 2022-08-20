@@ -10,7 +10,7 @@ export const saveAddressBooking = (booking: bookingCarForm) => async dispatch =>
 
 
 export const createBookingCar = (payload:createBooking) => async dispatch => {
-  MapService.getDistance(payload.pickupLocation as coordinate, payload.dropoffLocation as coordinate).then(res=>{
+  MapService.getDistanceCarMethod(payload.pickupLocation as coordinate, payload.dropoffLocation as coordinate).then(res=>{
     const distance = res.data.routes[0].distance / 1000;
     var result = Math.round(distance*100)/100;
     payload.price=BookingService.calcPrice(result,payload.typeCar as string);
