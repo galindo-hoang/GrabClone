@@ -1,9 +1,18 @@
 package com.example.booking.controller;
 
-import com.example.booking.model.domain.*;
+import com.example.booking.model.domain.BookingState;
+import com.example.booking.model.domain.PaymentMethod;
+import com.example.booking.model.domain.RideState;
+import com.example.booking.model.domain.TypeCar;
 import com.example.booking.model.dto.*;
-import com.example.booking.model.entity.*;
-import com.example.booking.service.*;
+import com.example.booking.model.entity.BookingRecord;
+import com.example.booking.model.entity.DriverRecord;
+import com.example.booking.model.entity.RideRecord;
+import com.example.booking.service.BookingStoreService;
+import com.example.booking.service.DistanceApiService;
+import com.example.booking.service.DriverStoreService;
+import com.example.booking.service.RideStoreService;
+import com.example.clients.feign.DriverLocation.DriverLocationDto;
 import com.example.clients.feign.NotificationRequest.NotificationRequestClient;
 import com.example.clients.feign.NotificationRequest.NotificationRequestDto;
 import com.example.clients.feign.NotificationRequest.SubscriptionRequestDto;
@@ -11,14 +20,13 @@ import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/booking")
@@ -28,10 +36,10 @@ public class BookingController {
     @Autowired
     private RideStoreService rideService;
     @Autowired
-    private LocationStoreService locationService;
-    @Autowired
     private NotificationRequestClient notificationRequestClient;
-
+    @Autowired
+    private DriverStoreService driverStoreService;
+    private DistanceApiService distanceApiService = new DistanceApiService();
     // The key is the booking id
     private HashMap<Integer, BookingRecord> bookingRecordMap;
     // The key is the driver username
@@ -42,70 +50,10 @@ public class BookingController {
         rideRecordMap = new HashMap<>();
     }
 
-    @PostMapping("/topDepartures")
-    public ResponseEntity<TopLocationResponseDto> topDepartures(@RequestBody TopLocationRequestDto request) {
-        try {
-            // Get all the departure locations and sort them by count
-            BookingLocation pickupLocation = locationService.findById(request.getPhoneNumber() + "_pickup");
-            List<LocationCount> locationCounts = pickupLocation.getLocationCounts();
-            locationCounts.sort((o1, o2) -> o2.getCount().compareTo(o1.getCount()));
-            
-            // Get the top N locations
-            List<LocationCount> topLocations = locationCounts.subList(0, Math.min(locationCounts.size(), request.getLimit()));
-            
-            // Convert the locations to TopLocationResponseDto
-            TopLocationResponseDto response = new TopLocationResponseDto();
-            for (LocationCount locationCount : topLocations) {
-                response.getTopLocations().add(locationCount);
-            }
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PostMapping("/topDestinations")
-    public ResponseEntity<TopLocationResponseDto> topDestinations(@RequestBody TopLocationRequestDto request) {
-        try {
-            // Get all the destination locations and sort them by count
-            BookingLocation dropoffLocation = locationService.findById(request.getPhoneNumber() + "_dropoff");
-            List<LocationCount> locationCounts = dropoffLocation.getLocationCounts();
-            locationCounts.sort((o1, o2) -> o2.getCount().compareTo(o1.getCount()));
-            
-            // Get the top N locations
-            List<LocationCount> topLocations = locationCounts.subList(0, Math.min(locationCounts.size(), request.getLimit()));
-            
-            // Convert the locations to TopLocationResponseDto
-            TopLocationResponseDto response = new TopLocationResponseDto();
-            for (LocationCount locationCount : topLocations) {
-                response.getTopLocations().add(locationCount);
-            }
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
     // Create a booking for a client vs call center
     @PostMapping("/create_booking")
     public ResponseEntity<BookingRecord> createBooking(@RequestBody BookingRequestDto bookingDto) {
         try {
-            // Reject creating a booking if the passenger has created a booking
-            for (HashMap.Entry<Integer, BookingRecord> entry : bookingRecordMap.entrySet()) {
-                if (entry.getValue().getPhonenumber().equals(bookingDto.getPhonenumber())) {
-                    return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
-                }
-            }
-
-            for (HashMap.Entry<String, Pair<RideRecord, BookingRecord>> entry : rideRecordMap.entrySet()) {
-                if (entry.getValue().getSecond().getPhonenumber().equals(bookingDto.getPhonenumber())) {
-                    return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
-                }
-            }
-
-
             // Create booking record and save it to database
             BookingRecord bookingRecord = BookingRecord.builder()
                     .passengerUsername(bookingDto.getUsername())
@@ -119,93 +67,65 @@ public class BookingController {
                     .createdAt(new Date())
                     .build();
             BookingRecord bookingRecordSaving = bookingService.save(bookingRecord);
-            System.out.println(bookingRecordSaving.getId());
             bookingRecordMap.put(bookingRecordSaving.getId(), bookingRecordSaving);
 
-            //Create booking creation
-            BookingRecordDto bookingCreation = BookingRecordDto.builder()
-                    .bookingId(bookingRecordSaving.getId())
-                    .pickupLocation(bookingRecordSaving.getPickupCoordinate())
-                    .dropoffLocation(bookingRecordSaving.getDropoffCoordinate())
-                    .typeCar(bookingRecordSaving.getTypeCar())
-                    .price(bookingRecordSaving.getPrice())
-                    .paymentMethod(bookingRecordSaving.getPaymentMethod())
-                    .createdAt(bookingRecordSaving.getCreatedAt())
-                    .build();
-            String jsonBookingCreation = new Gson().toJson(bookingCreation);
-            // Create notification request
-            NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
-                    .target("booking")
-                    .title("New booking")
-                    .body("A new booking is available")
-                    .data(new HashMap<>() {
-                        {
-                            put("booking", jsonBookingCreation);
-                        }
-                    }).build();
+            //Get all driver is subscribed
+            List<DriverRecord> driverRecords = driverStoreService.driverRecordList();
+            List<DriverRecord> driverRecordsInArea = driverRecords.stream().filter(driverRecord ->
+                    driverRecord.getLocation() != null &&
+                            distanceApiService.getDistance(bookingDto.getPickupLocation()
+                                    , driverRecord.getLocation()) < 4000).collect(Collectors.toList());
+            if (driverRecordsInArea.size() != 0) {
+                //Subscribe drivers
+                for (DriverRecord driverRecord : driverRecordsInArea) {
+                    SubscriptionRequestDto subscriptionRequestDto = SubscriptionRequestDto.builder()
+                            .username(driverRecord.getDriverUsername())
+                            .topicName("booking-" + bookingRecordSaving.getId())
+                            .build();
+                    notificationRequestClient.subscribeToTopic(subscriptionRequestDto);
+                }
 
-            // Send notification request to FCM service
-            notificationRequestClient.sendPnsToTopic(notificationRequestDto);
-
-            
-            // Update location of pickup to redis cache
-            String pickupId = bookingDto.getPhonenumber() + "_pickup";
-            BookingLocation pickupLocation = locationService.findById(pickupId);
-
-            if (pickupLocation == null) {
-                pickupLocation = BookingLocation.builder()
-                        .id(pickupId)
-                        .locationCounts(new ArrayList<>(List.of(new LocationCount(bookingDto.getPickupLocation(), 1))))
+                //Create booking creation
+                BookingRecordDto bookingCreation = BookingRecordDto.builder()
+                        .bookingId(bookingRecordSaving.getId())
+                        .pickupLocation(bookingRecordSaving.getPickupCoordinate())
+                        .dropoffLocation(bookingRecordSaving.getDropoffCoordinate())
+                        .typeCar(bookingRecordSaving.getTypeCar())
+                        .price(bookingRecordSaving.getPrice())
+                        .paymentMethod(bookingRecordSaving.getPaymentMethod())
+                        .createdAt(bookingRecordSaving.getCreatedAt())
                         .build();
-                locationService.save(pickupLocation);
-            } else {
-                boolean isExist = false;
-                for (LocationCount locationCount : pickupLocation.getLocationCounts()) {
-                    if (locationCount.getCoordinate().equals(bookingDto.getPickupLocation())) {
-                        locationCount.setCount(locationCount.getCount() + 1);
-                        locationService.save(pickupLocation);
-                        isExist = true;
-                        break;
-                    }
+                String jsonBookingCreation = new Gson().toJson(bookingCreation);
+
+                // Create notification request
+                NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
+                        .target("booking-" + bookingRecordSaving.getId())
+                        .title("New booking")
+                        .body("A new booking is available")
+                        .data(new HashMap<>() {
+                            {
+                                put("booking-" + bookingRecordSaving.getId(), jsonBookingCreation);
+                            }
+                        }).build();
+
+                // Send notification request to FCM service
+                notificationRequestClient.sendPnsToTopic(notificationRequestDto);
+
+                // unsubscribe drivers
+                for (DriverRecord driverRecord : driverRecordsInArea) {
+                    SubscriptionRequestDto subscriptionRequestDto = SubscriptionRequestDto.builder()
+                            .username(driverRecord.getDriverUsername())
+                            .topicName("booking-" + bookingRecordSaving.getId())
+                            .build();
+                    notificationRequestClient.unsubscribeFromTopic(subscriptionRequestDto);
                 }
 
-                if (!isExist) {
-                    pickupLocation.getLocationCounts().add(new LocationCount(bookingDto.getPickupLocation(), 1));
-                    locationService.save(pickupLocation);
-                }
+                // Return success response
+                return ResponseEntity.ok(bookingRecordSaving);
+            }else {
+                return ResponseEntity.badRequest().build();
             }
 
-
-            // Update location of dropoff to redis cache
-            String dropoffId = bookingDto.getPhonenumber() + "_dropoff";
-            BookingLocation dropoffLocation = locationService.findById(dropoffId);
-
-            if (dropoffLocation == null) {
-                dropoffLocation = BookingLocation.builder()
-                        .id(dropoffId)
-                        .locationCounts(new ArrayList<>(List.of(new LocationCount(bookingDto.getDropoffLocation(), 1))))
-                        .build();
-                locationService.save(dropoffLocation);
-            } else {
-                boolean isExist = false;
-                for (LocationCount locationCount : dropoffLocation.getLocationCounts()) {
-                    if (locationCount.getCoordinate().equals(bookingDto.getDropoffLocation())) {
-                        locationCount.setCount(locationCount.getCount() + 1);
-                        locationService.save(dropoffLocation);
-                        isExist = true;
-                        break;
-                    }
-                }
-
-                if (!isExist) {
-                    dropoffLocation.getLocationCounts().add(new LocationCount(bookingDto.getDropoffLocation(), 1));
-                    locationService.save(dropoffLocation);
-                }
-            }
-
-
-            // Return success response
-            return ResponseEntity.ok(bookingRecordSaving);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -234,6 +154,8 @@ public class BookingController {
             notificationRequestClient.unsubscribeFromTopic(subscriptionRequestDtoForUnSubscribeDriver);
 
 
+            //update start time for driver when accept
+            bookingAcceptanceDto.setAcceptanceDriverDateTime(new Date());
             // Send booking already accepted notification to all drivers using FCM service
             NotificationRequestDto notificationRejectTopic = NotificationRequestDto.builder()
                     .target("booking")
@@ -323,9 +245,15 @@ public class BookingController {
         }
     }
 
+    @PostMapping("/update_location")
+    public ResponseEntity<DriverRecord> updateLocation(@RequestBody DriverLocationDto driverLocationDto) {
+        return ResponseEntity.ok(driverStoreService.updateLocationService(driverLocationDto));
+    }
+
     @PostMapping("/update_driver_location")
     public ResponseEntity<String> updateDriverLocation(@RequestBody DriverLocationDto driverLocationDto) {
         try {
+
             // Return not found if ride record not found
             if (!rideRecordMap.containsKey(driverLocationDto.getUsername())) {
                 return ResponseEntity.notFound().build();
@@ -337,7 +265,7 @@ public class BookingController {
             jsonObject.put("rideId", rideRecordMap.get(driverLocationDto.getUsername()).getFirst());
             jsonObject.put("driverLocation", new Gson().toJson(driverLocationDto.getLocation()));
             NotificationRequestDto notificationForDriverLocation = NotificationRequestDto.builder()
-                    .target(rideRecordMap.get(driverLocationDto.getUsername()).getSecond().getPassengerUsername().toString())
+                    .target(rideRecordMap.get(driverLocationDto.getUsername()).getSecond().getPassengerUsername())
                     .title("Update driver location")
                     .body("The driver's location has been updated")
                     .data(new HashMap<>() {
@@ -346,7 +274,7 @@ public class BookingController {
                         }
                     }).build();
 
-            System.out.println(notificationForDriverLocation.getData());
+
             // Return success response
             return notificationRequestClient.sendPnsToUser(notificationForDriverLocation);
         } catch (Exception e) {
@@ -377,7 +305,7 @@ public class BookingController {
             jsonObject.put("startTime", rideRecordSaving.getStartTime());
             jsonObject.put("endTime", rideRecordSaving.getEndTime());
             NotificationRequestDto notificationForDriver = NotificationRequestDto.builder()
-                    .target(finishRideDto.getUsername().toString())
+                    .target(finishRideDto.getUsername())
                     .title("Ride finished")
                     .body("The ride has been finished")
                     .data(new HashMap<>() {
@@ -395,7 +323,7 @@ public class BookingController {
             jsonObjectFinished.put("startTime", rideRecordSaving.getStartTime());
             jsonObjectFinished.put("endTime", rideRecordSaving.getEndTime());
             NotificationRequestDto notificationForPassenger = NotificationRequestDto.builder()
-                    .target(bookingRecord.getPassengerUsername().toString())
+                    .target(bookingRecord.getPassengerUsername())
                     .title("Ride finished")
                     .body("The ride has been finished")
                     .data(new HashMap<>() {
@@ -474,7 +402,7 @@ public class BookingController {
             jsonObjectCancel.put("createdAt", createdAt);
             jsonObjectCancel.put("endedAt", endedAt);
             NotificationRequestDto notificationForPassenger = NotificationRequestDto.builder()
-                    .target(bookingRecordSaving.getPassengerUsername().toString())
+                    .target(bookingRecordSaving.getPassengerUsername())
                     .title("Booking cancelled")
                     .body("The booking has been cancelled")
                     .data(new HashMap<>() {
@@ -511,7 +439,7 @@ public class BookingController {
             jsonObject.put("startTime", rideRecord.getStartTime());
             jsonObject.put("endTime", rideRecord.getEndTime());
             NotificationRequestDto notificationCancelRideForPassenger = NotificationRequestDto.builder()
-                    .target(bookingRecord.getPassengerUsername().toString())
+                    .target(bookingRecord.getPassengerUsername())
                     .title("Ride cancelled")
                     .body("The ride has been cancelled. Please wait for another driver")
                     .data(new HashMap<>() {

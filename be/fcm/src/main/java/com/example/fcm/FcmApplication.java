@@ -3,9 +3,16 @@ package com.example.fcm;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication
+@SpringBootApplication(
+		scanBasePackages = {
+				"com.example.fcm",
+		}
+)
 @EnableEurekaClient
+@EnableFeignClients(
+		basePackages = "com.example.clients")
 public class FcmApplication {
 
 	public static void main(String[] args) {
