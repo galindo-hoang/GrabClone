@@ -3,7 +3,7 @@ package com.example.booking.model.entity;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.example.booking.model.domain.MapCoordinate;
+import com.example.clients.feign.DriverLocation.MapCoordinate;
 import com.example.booking.model.domain.PaymentMethod;
 import com.example.booking.model.domain.BookingState;
 import com.example.booking.model.domain.TypeCar;

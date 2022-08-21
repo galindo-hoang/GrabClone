@@ -10,6 +10,7 @@ import com.example.user.domain.usecase.SignUpPhoneNumberUseCase
 import com.example.user.domain.usecase.SignUpSaveAccountUseCase
 import com.example.user.domain.usecase.ValidateOtpUseCase
 import com.example.user.utils.Response
+import com.example.user.utils.Status
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flow
 import java.util.*
@@ -47,14 +48,15 @@ class SignUpViewModel @Inject constructor(
 
     fun signUpPhoneNumber() {
         if(_phoneNumber.value.toString().isNotEmpty()){
-            var otp: Int
+            var otp = -1
             runBlocking(Dispatchers.IO) {
-                otp = signUpPhoneNumberUseCase.invoke(
+                val response = signUpPhoneNumberUseCase.invoke(
                     UserDto(
                         password = _password.value,
                         username = _userName.value,
                         phoneNumber = "+84" + _phoneNumber.value?.substring(1))
                 )
+                if (response.status == Status.SUCCESS) otp = response.data!!
             }
             _otp.postValue(otp)
         }
@@ -84,12 +86,13 @@ class SignUpViewModel @Inject constructor(
     fun validateOTP(): Int {
         var responseCode: Int
         runBlocking(Dispatchers.IO) {
-            responseCode = validateOtpUseCase.invoke(
+            val response = validateOtpUseCase.invoke(
                 ValidateOTP(
                     onceTimePassword = _otp.value!!,
                     phoneNumber = "+84" + _phoneNumber.value?.substring(1)
                 )
             )
+            responseCode = response.responseCode
         }
         if(responseCode == 1){
             _userName.postValue(null)

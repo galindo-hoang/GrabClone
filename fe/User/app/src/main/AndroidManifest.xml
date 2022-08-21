@@ -30,7 +30,7 @@
             android:name=".presentation.login.LogInActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.booking.SearchingRouteActivity"
+            android:name=".presentation.main.MainActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.signup.ValidateRegisterActivity"
@@ -47,7 +47,7 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.main.MainActivity"
+            android:name=".presentation.booking.SearchingRouteActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>

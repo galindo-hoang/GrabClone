@@ -12,19 +12,19 @@ class SignUpSaveAccountUseCase @Inject constructor(
     private val authenticationRepository: AuthenticationRepository
 ) {
     suspend fun invoke(userDto: UserDto): Response<String> {
-        val response = authenticationRepository.postRequestRegisterSaveAccount(userDto)
-        return when(response.code()){
-            201 -> {
-                val body = response.body()
-                if(body != null) Response.success("Create successfully")
-                else Response.error("Cant save data","FAIL")
+        return try {
+            val response = authenticationRepository.postRequestRegisterSaveAccount(userDto)
+            when(response.code()){
+                201 -> {
+                    Response.success("Create successfully")
+                }
+                500 -> {
+                    val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type
+                    val a:ErrorBodyValidateOrRegister = Gson().fromJson(response.errorBody()!!.charStream(), type)
+                    Response.error("Create information of account fail",500, a.message)
+                }
+                else -> Response.error(response.message(),response.code(),response.message())
             }
-            500 -> {
-                val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type
-                val a:ErrorBodyValidateOrRegister = Gson().fromJson(response.errorBody()!!.charStream(), type)
-                Response.error("Create information of account fail",a.message)
-            }
-            else -> throw Exception("cant connect to database")
-        }
+        } catch (e:Exception) { Response.error(null,-1,e.message.toString())}
     }
 }

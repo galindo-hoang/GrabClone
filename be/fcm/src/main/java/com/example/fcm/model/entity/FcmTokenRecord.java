@@ -24,6 +24,7 @@ public class FcmTokenRecord implements Serializable {
     @Column(nullable = false, unique = true)
     private String fcmToken;
 
+
     @DateTimeFormat(pattern = "dd-mmm-yyyy hh:mm:ss.s")
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)

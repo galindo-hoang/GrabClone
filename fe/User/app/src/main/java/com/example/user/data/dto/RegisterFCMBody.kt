@@ -1,6 +1,9 @@
 package com.example.user.data.dto
 
-data class RegisterFCMBody(
+import com.google.gson.annotations.SerializedName
+
+data class RegisterFCMBody (
     val fcmToken: String,
-    val userId: String
+    @SerializedName("username")
+    val userName: String
 )
