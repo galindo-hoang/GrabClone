@@ -1,9 +1,8 @@
 package com.example.user.data.model.route
 
 data class Direction(
-    val code: String?,
-    val routes: List<Route>,
-    val uuid: String,
-    val message: String,
-    val waypoints: List<Waypoint>
+    val features: List<Feature>,
+    val statusCode: Int?,
+    val error: String?,
+    val message: String?
 )

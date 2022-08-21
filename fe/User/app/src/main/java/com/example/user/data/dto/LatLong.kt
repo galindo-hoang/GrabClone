@@ -5,6 +5,6 @@ data class LatLong (
     val longitude: Double
 ){
     override fun toString(): String {
-        return "$longitude,$latitude"
+        return "$latitude,$longitude"
     }
 }

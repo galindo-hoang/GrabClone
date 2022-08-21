@@ -23,7 +23,7 @@ object Constant {
     const val UPDATE_LOCATION_DRIVER: String = "UPDATE_LOCATION_DRIVER"
     const val HAVE_DRIVER_STRING: String = "HAVE_DRIVER_STRING"
     const val HAVE_DRIVER: String = "HAVE_DRIVER"
-    const val SEARCHING_ROUTE: String = "Searching route"
+    const val SEARCHING_ROUTE: String = "Searching Route"
     const val CONTINUE: String = "Continue"
     const val SERVICE_ACCESS_TOKEN: String = "SERVICE_ACCESS_TOKEN"
     const val SERVICE_ACCESS_TOKEN_BOOLEAN: String = "SERVICE_ACCESS_TOKEN"

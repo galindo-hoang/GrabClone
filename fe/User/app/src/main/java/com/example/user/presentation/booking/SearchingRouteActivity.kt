@@ -6,142 +6,74 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.databinding.DataBindingUtil
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.user.BuildConfig
 import com.example.user.R
-import com.example.user.data.api.AuthenticationApi
 import com.example.user.data.dto.CurrentLocationDriver
 import com.example.user.data.dto.LatLong
 import com.example.user.data.model.place.Address
-import com.example.user.data.model.route.Route
+import com.example.user.data.repository.route.RouteNavigationRemoteDataSource
 import com.example.user.databinding.ActivitySearchingRouteBinding
 import com.example.user.domain.usecase.GetRouteNavigationUseCase
 import com.example.user.presentation.BaseActivity
 import com.example.user.presentation.booking.adapter.AddressAdapter
 import com.example.user.utils.Constant
 import com.example.user.utils.Status
-import com.example.user.utils.TypeCar
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.*
+import com.google.android.libraries.places.api.Places
 import com.google.gson.Gson
-import com.mapbox.core.constants.Constants.PRECISION_6
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.LineString
-import com.mapbox.geojson.Point
-import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.maps.MapView
-import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.layers.LineLayer
-import com.mapbox.mapboxsdk.style.layers.Property
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.mapbox.mapboxsdk.utils.BitmapUtils
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class SearchingRouteActivity : BaseActivity() {
-
-    private lateinit var origin: Point
-    private lateinit var destination: Point
     @Inject
     lateinit var getRouteNavigationUseCase: GetRouteNavigationUseCase
     @Inject
     lateinit var bookingViewModel: BookingViewModel
-    @Inject
-    lateinit var authenticationApi: AuthenticationApi
-
+    lateinit var origin: LatLng
+    lateinit var destination: LatLng
     private val addressAdapter = AddressAdapter()
     private var isOrigin: Boolean? = null
     private lateinit var binding: ActivitySearchingRouteBinding
     private lateinit var map: GoogleMap
-    private lateinit var mapView: MapView
-    private lateinit var mapboxMap: MapboxMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Mapbox.getInstance(this,getString(R.string.mapbox_api))
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_searching_route)
-        binding.lifecycleOwner = this
-        binding.viewModel = bookingViewModel
-        setupMapbox(savedInstanceState)
+        binding = ActivitySearchingRouteBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        if(!Places.isInitialized())
+            Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
         setupRecyclerView()
         registerClickListener()
         registerViewChangeListener()
-    }
-
-    private fun setupMapbox(savedInstanceState: Bundle?) {
-        mapView = binding.mapView
-        mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync{
-            this.mapboxMap = it
-        }
-    }
-
-    private fun initSource(loadedMapStyle: Style) {
-        loadedMapStyle.addSource(GeoJsonSource(Constant.ROUTE_SOURCE_ID))
-        val iconGeoJsonSource = GeoJsonSource(Constant.ICON_SOURCE_ID, FeatureCollection.fromFeatures(
-            arrayOf<Feature>(
-                Feature.fromGeometry(Point.fromLngLat(origin.longitude(), origin.latitude())),
-                Feature.fromGeometry(Point.fromLngLat(destination.longitude(), destination.latitude()))
-            )
-        ))
-        loadedMapStyle.addSource(iconGeoJsonSource)
-    }
-
-    // Add the route and marker icon layers to the map
-    private fun initLayers(loadedMapStyle: Style) {
-        val routeLayer = LineLayer(Constant.ROUTE_LAYER_ID, Constant.ROUTE_SOURCE_ID)
-
-// Add the LineLayer to the map. This layer will display the directions route.
-        routeLayer.setProperties(
-            lineCap(Property.LINE_CAP_ROUND),
-            lineJoin(Property.LINE_JOIN_ROUND),
-            lineWidth(5f),
-            lineColor(Color.parseColor("#005096"))
-        )
-        loadedMapStyle.addLayer(routeLayer)
-
-// Add the red marker icon image to the map
-        loadedMapStyle.addImage(
-            Constant.RED_PIN_ICON_ID, BitmapUtils.getBitmapFromDrawable(
-                AppCompatResources.getDrawable(this, R.drawable.ic_marker_red_24)
-            )!!
-        )
-
-// Add the red marker icon SymbolLayer to the map
-        loadedMapStyle.addLayer(
-            SymbolLayer(Constant.ICON_LAYER_ID, Constant.ICON_SOURCE_ID).withProperties(
-                iconImage(Constant.RED_PIN_ICON_ID),
-                iconIgnorePlacement(true),
-                iconAllowOverlap(true),
-                iconOffset(arrayOf(0f, -9f))
-            )
-        )
     }
 
 
     private fun setupRecyclerView() {
         addressAdapter.setOnClickListener { address ->
             if(isOrigin == true){
-                bookingViewModel.textOrigin.removeObservers(this)
-                bookingViewModel.textOrigin.postValue(address.name)
                 bookingViewModel.origin = address
+                binding.etOrigin.setText(address.name)
             }
             if(isOrigin == false){
-                bookingViewModel.textDestination.removeObservers(this)
-                bookingViewModel.textDestination.postValue(address.name)
                 bookingViewModel.destination = address
+                binding.etDestination.setText(address.name)
             }
-            binding.rvAddress.visibility = View.INVISIBLE
+            isOrigin = null
+            binding.rvAddress.visibility = View.GONE
         }
         binding.rvAddress.adapter = addressAdapter
         binding.rvAddress.layoutManager = LinearLayoutManager(this)
@@ -183,18 +115,59 @@ class SearchingRouteActivity : BaseActivity() {
 
 
     private fun registerClickListener() {
+        binding.btnSearchingCar.setOnClickListener {
+            Log.e("------",binding.btnSearchingCar.text.toString())
+            if(binding.btnSearchingCar.text.toString() == Constant.SEARCHING_ROUTE)
+                bookingViewModel.searchingRoute()
+            else
+                startActivity(Intent(this,MethodBookingActivity::class.java))
+        }
+        (supportFragmentManager.findFragmentById(R.id.map_view_in_booking_activity)
+                as SupportMapFragment).getMapAsync {
+            this.map = it
+        }
+    }
 
+    var delay: Long = 1000 // 1 seconds after user stops typing
+    var lastEditText: Long = 0
+    var handler: Handler = Handler(Looper.myLooper()!!)
+    private val inputOriginChecker = object : Runnable {
+        override fun run() {
+            if (System.currentTimeMillis() > lastEditText + delay - 500) {
+                Log.e(")))",")))")
+                if(isOrigin == true) {
+                    bookingViewModel.getListAddress(binding.etOrigin.text.toString())
+                }
+            }else{
+                handler.removeCallbacks(this)
+            }
+        }
+    }
+    private val inputDestinationChecker = object : Runnable {
+        override fun run() {
+            if (System.currentTimeMillis() > lastEditText + delay - 500) {
+                Log.e("++++","+")
+                if(isOrigin == false)
+                    bookingViewModel.getListAddress(binding.etDestination.text.toString())
+            }else{
+                handler.removeCallbacks(this)
+            }
+        }
     }
 
     private fun registerViewChangeListener(){
-        bookingViewModel.textOrigin.observe(this) {
-            if(it.length >= 4){
-                bookingViewModel.getListAddress(it)
+        binding.etOrigin.addTextChangedListener{
+            if(it?.length!! >= 4){
+                isOrigin = true
+                lastEditText = System.currentTimeMillis()
+                handler.postDelayed(inputOriginChecker,delay)
             }
         }
-        bookingViewModel.textDestination.observe(this) {
-            if(it.length >= 4){
-                bookingViewModel.getListAddress(it)
+        binding.etDestination.addTextChangedListener{
+            if(it?.length!! >= 4){
+                isOrigin = false
+                lastEditText = System.currentTimeMillis()
+                handler.postDelayed(inputDestinationChecker,delay)
             }
         }
 
@@ -203,6 +176,7 @@ class SearchingRouteActivity : BaseActivity() {
                 Status.LOADING -> this.showProgressDialog()
                 Status.SUCCESS -> {
                     this.hideProgressDialog()
+                    Log.e("---------",it.data.toString())
                     addressAdapter.setList(it.data?.features!!.map { feature ->
                         Address(
                             LatLong(feature.properties.lat,feature.properties.lon),
@@ -217,9 +191,6 @@ class SearchingRouteActivity : BaseActivity() {
                 }
             }
         }
-        bookingViewModel.continuation.observe(this) {
-            if(it) startActivity(Intent(this,MethodBookingActivity::class.java))
-        }
 
         bookingViewModel.routes.observe(this) {
             when(it.status) {
@@ -230,45 +201,77 @@ class SearchingRouteActivity : BaseActivity() {
                 }
                 Status.SUCCESS -> {
                     this.hideProgressDialog()
-                    mapboxMap.setStyle(Style.MAPBOX_STREETS
-                    ) { style ->
-                        origin = Point.fromLngLat(
-                            106.665290, 10.838678
-                        )
-                        destination = Point.fromLngLat(
-                            106.680264,10.799194
-                        )
-                        initSource(style)
-                        initLayers(style)
-                        showRoute(it.data!!)
+
+                    val feature = it.data!!.features[0]
+                    listPoints = feature.geometry.coordinates[0].map { position ->
+                        LatLng(position[1],position[0])
                     }
-                    bookingViewModel.labelButton.postValue(Constant.CONTINUE)
+                    PolylineOptions()
+                        .apply {
+                            this.addAll(listPoints)
+                            this.width(10f)
+                            this.color(Color.RED)
+                            this.geodesic(true)
+                        }
+                        .let { polyline -> map.addPolyline(polyline) }
+                    origin = LatLng(
+                        feature.properties.waypoints[0].location[1],
+                        feature.properties.waypoints[0].location[0]
+                    )
+                    destination = LatLng(
+                        feature.properties.waypoints[1].location[1],
+                        feature.properties.waypoints[1].location[0]
+                    )
+                    val bounds = LatLngBounds.Builder()
+                    addMarker(bounds,origin,"Marker 1")
+                    addMarker(bounds,destination,"Marker 2")
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            (origin.latitude+destination.latitude)/2,
+                            (origin.longitude+destination.longitude)/2,
+                        ),
+                        12f
+                    ))
+                    binding.btnSearchingCar.text = Constant.CONTINUE
+                    checkingUpdateLocationDriver()
                 }
             }
         }
     }
+    private lateinit var listPoints: List<LatLng>
 
-    private fun showRoute(data: List<Route>) {
-        mapboxMap.getStyle { style ->
-            val source: GeoJsonSource = style.getSourceAs(Constant.ROUTE_SOURCE_ID)!!
-            source.setGeoJson(LineString.fromPolyline(
-                data[0].geometry.toString(),
-                PRECISION_6)
-            )
+    private var marker: Marker? = null
+
+    private fun checkingUpdateLocationDriver() {
+        CoroutineScope(Dispatchers.IO).launch {
+            repeat(listPoints.size) {
+                withContext(Dispatchers.Main) {
+                    val drawable = getDrawable(R.drawable.navigation_puck_icon_24)
+                    val bitmap = drawable!!.toBitmap(
+                        drawable.intrinsicWidth,
+                        drawable.intrinsicHeight
+                    )
+                    marker = map.addMarker(
+                        MarkerOptions().apply {
+                            this.position(listPoints[it])
+                            this.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                        }
+                    )
+                }
+                delay(1000)
+                withContext(Dispatchers.Main) {
+                    marker?.remove()
+                }
+                marker = null
+            }
         }
     }
 
-//    private fun checkingUpdateLocationDriver() {
-//        val long = 106.676130
-//        var lat = 10.809852
-//        var marker = map.addMarker(MarkerOptions().position(LatLng(lat,long)))
-//        repeat((1..5).count()) {
-//            runBlocking {
-//                marker?.remove()
-//                delay(3000)
-//                lat += 0.01
-//            }
-//            marker = map.addMarker(MarkerOptions().position(LatLng(lat,long)))
-//        }
-//    }
+    private fun addMarker(bounds: LatLngBounds.Builder, latLng: LatLng, marker: String){
+        map.addMarker(
+            MarkerOptions().position(latLng)
+                .title(marker)
+        )
+        bounds.include(latLng)
+    }
 }

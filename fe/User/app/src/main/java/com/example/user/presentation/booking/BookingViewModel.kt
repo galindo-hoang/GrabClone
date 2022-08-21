@@ -1,14 +1,13 @@
 package com.example.user.presentation.booking
 
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.example.user.data.dto.BookingDto
 import com.example.user.data.dto.LatLong
 import com.example.user.data.model.booking.ResponseBooking
 import com.example.user.data.model.place.Address
 import com.example.user.data.model.place.AddressFromText
-import com.example.user.data.model.route.Route
+import com.example.user.data.model.route.Direction
 import com.example.user.domain.usecase.BookingCarUseCase
 import com.example.user.domain.usecase.GetListAddressFromTextUseCase
 import com.example.user.domain.usecase.GetRouteNavigationUseCase
@@ -29,52 +28,37 @@ class BookingViewModel @Inject constructor(
     private val bookingCarUseCase: BookingCarUseCase,
     private val getAddressFromTextUseCase: GetListAddressFromTextUseCase
 ) {
-    private val _textOrigin = MutableLiveData<String>()
-    private val _textDestination = MutableLiveData<String>()
     private val _listAddress = MutableLiveData<Response<AddressFromText>>()
-    var origin: Address? = null
-    var destination: Address? = null
-    private val _routes = MutableLiveData<Response<List<Route>>>()
-    private val _labelButton = MutableLiveData(Constant.SEARCHING_ROUTE)
-    private val _continuation = MutableLiveData(false)
+    var origin: Address? = Address(LatLong(10.838685,106.665255),"")
+    var destination: Address? = Address(LatLong(10.799194,106.680264),"")
+    private val _routes = MutableLiveData<Response<Direction>>()
     private val _bookingRider = MutableLiveData<Response<ResponseBooking>>()
     lateinit var paymentMethod: PaymentMethod
     lateinit var typeCar: TypeCar
     var isBooking = false
 
-    val textOrigin get() = _textOrigin
-    val textDestination get() = _textDestination
     val listAddress get() = _listAddress
     val routes get() = _routes
-    val labelButton get() = _labelButton
-    val continuation get() = _continuation
     val bookingRider get() = _bookingRider
 
     fun searchingRoute() {
-        if(_labelButton.value == Constant.SEARCHING_ROUTE){
-            if(origin != null && destination != null){
-                _routes.postValue(Response.loading(null))
-                var response: Response<List<Route>>
-                runBlocking(Dispatchers.IO) {
-                    response = getRouteNavigationUseCase.invoke(
-                        TypeCar.CAR,
-                        origin!!.position.toString(),
-                        destination!!.position.toString(),
-                    )
-                }
-                _routes.postValue(response)
+        if(origin != null && destination != null){
+            _routes.postValue(Response.loading(null))
+            var response: Response<Direction>
+            runBlocking(Dispatchers.IO) {
+                response = getRouteNavigationUseCase.invoke(
+                    TypeCar.CAR,
+                    origin!!.position.toString(),
+                    destination!!.position.toString(),
+                )
             }
+            _routes.postValue(response)
         }else {
-            _continuation.postValue(true)
+            _routes.postValue(
+                Response.error(null,500,"Please write location")
+            )
         }
     }
-
-//    fun getAddress(placeId: String) {
-//        _resultPlaceClient.postValue(Response.loading(null))
-//        runBlocking(Dispatchers.IO) {
-//            _resultPlaceClient.postValue(getAddressFromPlaceId.invoke(placeId))
-//        }
-//    }
 
     fun searchingDriver() {
         _bookingRider.postValue(Response.loading(null))
@@ -93,20 +77,12 @@ class BookingViewModel @Inject constructor(
         _bookingRider.postValue(response)
     }
 
-    private var typing: Boolean = false
     fun getListAddress(text: String) {
-        if(typing) {
-            _listAddress.postValue(Response.loading(null))
-            var response: Response<AddressFromText>
-            runBlocking(Dispatchers.IO) {
-                response = getAddressFromTextUseCase.invoke(text)
-            }
-            _listAddress.postValue(response)
-        }else {
-            typing = true
-            Executors.newSingleThreadScheduledExecutor().schedule({
-                typing = false
-            },1,TimeUnit.SECONDS)
+        _listAddress.postValue(Response.loading(null))
+        var response: Response<AddressFromText>
+        runBlocking(Dispatchers.IO) {
+            response = getAddressFromTextUseCase.invoke(text)
         }
+        _listAddress.postValue(response)
     }
 }
