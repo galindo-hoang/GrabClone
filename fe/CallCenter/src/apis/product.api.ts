@@ -1,3 +1,5 @@
+import {coordinate} from "../@types/map";
+
 const mockProducts = [
   {
     id: "1",
@@ -23,6 +25,37 @@ const mockProducts = [
     quantity: 44,
     price: 25000000
   }
+]
+
+const coordinateExample=[
+  {
+    longitude:106.665255,
+    latitude: 10.838685
+  } as coordinate,
+  {
+    longitude:106.665255,
+    latitude: 10.838685
+  } as coordinate,
+  {
+    longitude:106.665255,
+    latitude: 10.838685
+  } as coordinate,
+  {
+    longitude:106.665255,
+    latitude: 10.838685
+  } as coordinate,
+  {
+    longitude:106.665255,
+    latitude: 10.838685
+  } as coordinate,
+  {
+    longitude:106.665255,
+    latitude: 10.838685
+  } as coordinate,
+  {
+    longitude:106.665255,
+    latitude: 10.838685
+  } as coordinate,
 ]
 
 export const getProductListApi = (): Promise<ResGetProductApi> =>
