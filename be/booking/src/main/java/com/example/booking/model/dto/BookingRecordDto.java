@@ -1,6 +1,6 @@
 package com.example.booking.model.dto;
 
-import com.example.booking.model.domain.MapCoordinate;
+import com.example.clients.feign.DriverLocation.MapCoordinate;
 import com.example.booking.model.domain.PaymentMethod;
 import com.example.booking.model.domain.TypeCar;
 import lombok.AllArgsConstructor;

@@ -6,13 +6,16 @@ import com.example.booking.model.domain.RideState;
 import com.example.booking.model.domain.TypeCar;
 import com.example.booking.model.dto.*;
 import com.example.booking.model.entity.BookingRecord;
+import com.example.booking.model.entity.DriverRecord;
 import com.example.booking.model.entity.RideRecord;
 import com.example.booking.service.BookingStoreService;
+import com.example.booking.service.DistanceApiService;
+import com.example.booking.service.DriverStoreService;
 import com.example.booking.service.RideStoreService;
+import com.example.clients.feign.DriverLocation.DriverLocationDto;
 import com.example.clients.feign.NotificationRequest.NotificationRequestClient;
 import com.example.clients.feign.NotificationRequest.NotificationRequestDto;
 import com.example.clients.feign.NotificationRequest.SubscriptionRequestDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -33,7 +38,9 @@ public class BookingController {
     private RideStoreService rideService;
     @Autowired
     private NotificationRequestClient notificationRequestClient;
-
+    @Autowired
+    private DriverStoreService driverStoreService;
+    private DistanceApiService distanceApiService = new DistanceApiService();
     // The key is the booking id
     private HashMap<Integer, BookingRecord> bookingRecordMap;
     // The key is the driver username
@@ -63,32 +70,63 @@ public class BookingController {
             BookingRecord bookingRecordSaving = bookingService.save(bookingRecord);
             bookingRecordMap.put(bookingRecordSaving.getId(), bookingRecordSaving);
 
-            //Create booking creation
-            BookingRecordDto bookingCreation = BookingRecordDto.builder()
-                    .bookingId(bookingRecordSaving.getId())
-                    .pickupLocation(bookingRecordSaving.getPickupCoordinate())
-                    .dropoffLocation(bookingRecordSaving.getDropoffCoordinate())
-                    .typeCar(bookingRecordSaving.getTypeCar())
-                    .price(bookingRecordSaving.getPrice())
-                    .paymentMethod(bookingRecordSaving.getPaymentMethod())
-                    .createdAt(bookingRecordSaving.getCreatedAt())
-                    .build();
-            String jsonBookingCreation = new Gson().toJson(bookingCreation);
-            // Create notification request
-            NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
-                    .target("booking")
-                    .title("New booking")
-                    .body("A new booking is available")
-                    .data(new HashMap<>() {
-                        {
-                            put("booking", jsonBookingCreation);
-                        }
-                    }).build();
+            //Get all driver is subscribed
+            List<DriverRecord> driverRecords = driverStoreService.driverRecordList();
+            List<DriverRecord> driverRecordsInArea = driverRecords.stream().filter(driverRecord ->
+                    driverRecord.getLocation() != null &&
+                            distanceApiService.getDistance(bookingDto.getPickupLocation()
+                                    , driverRecord.getLocation()) < 4000).collect(Collectors.toList());
+            if (driverRecordsInArea.size() != 0) {
+                //Subscribe drivers
+                for (DriverRecord driverRecord : driverRecordsInArea) {
+                    SubscriptionRequestDto subscriptionRequestDto = SubscriptionRequestDto.builder()
+                            .username(driverRecord.getDriverUsername())
+                            .topicName("booking-" + bookingRecordSaving.getId())
+                            .build();
+                    notificationRequestClient.subscribeToTopic(subscriptionRequestDto);
+                }
 
-            // Send notification request to FCM service
-            notificationRequestClient.sendPnsToTopic(notificationRequestDto);
-            // Return success response
-            return ResponseEntity.ok(bookingRecordSaving);
+                //Create booking creation
+                BookingRecordDto bookingCreation = BookingRecordDto.builder()
+                        .bookingId(bookingRecordSaving.getId())
+                        .pickupLocation(bookingRecordSaving.getPickupCoordinate())
+                        .dropoffLocation(bookingRecordSaving.getDropoffCoordinate())
+                        .typeCar(bookingRecordSaving.getTypeCar())
+                        .price(bookingRecordSaving.getPrice())
+                        .paymentMethod(bookingRecordSaving.getPaymentMethod())
+                        .createdAt(bookingRecordSaving.getCreatedAt())
+                        .build();
+                String jsonBookingCreation = new Gson().toJson(bookingCreation);
+
+                // Create notification request
+                NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
+                        .target("booking-" + bookingRecordSaving.getId())
+                        .title("New booking")
+                        .body("A new booking is available")
+                        .data(new HashMap<>() {
+                            {
+                                put("booking-" + bookingRecordSaving.getId(), jsonBookingCreation);
+                            }
+                        }).build();
+
+                // Send notification request to FCM service
+                notificationRequestClient.sendPnsToTopic(notificationRequestDto);
+
+                // unsubscribe drivers
+                for (DriverRecord driverRecord : driverRecordsInArea) {
+                    SubscriptionRequestDto subscriptionRequestDto = SubscriptionRequestDto.builder()
+                            .username(driverRecord.getDriverUsername())
+                            .topicName("booking-" + bookingRecordSaving.getId())
+                            .build();
+                    notificationRequestClient.unsubscribeFromTopic(subscriptionRequestDto);
+                }
+
+                // Return success response
+                return ResponseEntity.ok(bookingRecordSaving);
+            }else {
+                return ResponseEntity.badRequest().build();
+            }
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -117,6 +155,8 @@ public class BookingController {
             notificationRequestClient.unsubscribeFromTopic(subscriptionRequestDtoForUnSubscribeDriver);
 
 
+            //update start time for driver when accept
+            bookingAcceptanceDto.setAcceptanceDriverDateTime(new Date());
             // Send booking already accepted notification to all drivers using FCM service
             NotificationRequestDto notificationRejectTopic = NotificationRequestDto.builder()
                     .target("booking")
@@ -206,9 +246,15 @@ public class BookingController {
         }
     }
 
+    @PostMapping("/update_location")
+    public ResponseEntity<DriverRecord> updateLocation(@RequestBody DriverLocationDto driverLocationDto) {
+        return ResponseEntity.ok(driverStoreService.updateLocationService(driverLocationDto));
+    }
+
     @PostMapping("/update_driver_location")
     public ResponseEntity<String> updateDriverLocation(@RequestBody DriverLocationDto driverLocationDto) {
         try {
+
             // Return not found if ride record not found
             if (!rideRecordMap.containsKey(driverLocationDto.getUsername())) {
                 return ResponseEntity.notFound().build();
@@ -218,9 +264,9 @@ public class BookingController {
             // Push the driver's location to the passenger
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("rideId", rideRecordMap.get(driverLocationDto.getUsername()).getFirst());
-            jsonObject.put("driverLocation", driverLocationDto.getLocation());
+            jsonObject.put("driverLocation", new Gson().toJson(driverLocationDto.getLocation()));
             NotificationRequestDto notificationForDriverLocation = NotificationRequestDto.builder()
-                    .target(rideRecordMap.get(driverLocationDto.getUsername()).getSecond().getPassengerUsername().toString())
+                    .target(rideRecordMap.get(driverLocationDto.getUsername()).getSecond().getPassengerUsername())
                     .title("Update driver location")
                     .body("The driver's location has been updated")
                     .data(new HashMap<>() {
@@ -260,7 +306,7 @@ public class BookingController {
             jsonObject.put("startTime", rideRecordSaving.getStartTime());
             jsonObject.put("endTime", rideRecordSaving.getEndTime());
             NotificationRequestDto notificationForDriver = NotificationRequestDto.builder()
-                    .target(finishRideDto.getUsername().toString())
+                    .target(finishRideDto.getUsername())
                     .title("Ride finished")
                     .body("The ride has been finished")
                     .data(new HashMap<>() {
@@ -278,7 +324,7 @@ public class BookingController {
             jsonObjectFinished.put("startTime", rideRecordSaving.getStartTime());
             jsonObjectFinished.put("endTime", rideRecordSaving.getEndTime());
             NotificationRequestDto notificationForPassenger = NotificationRequestDto.builder()
-                    .target(bookingRecord.getPassengerUsername().toString())
+                    .target(bookingRecord.getPassengerUsername())
                     .title("Ride finished")
                     .body("The ride has been finished")
                     .data(new HashMap<>() {
@@ -357,7 +403,7 @@ public class BookingController {
             jsonObjectCancel.put("createdAt", createdAt);
             jsonObjectCancel.put("endedAt", endedAt);
             NotificationRequestDto notificationForPassenger = NotificationRequestDto.builder()
-                    .target(bookingRecordSaving.getPassengerUsername().toString())
+                    .target(bookingRecordSaving.getPassengerUsername())
                     .title("Booking cancelled")
                     .body("The booking has been cancelled")
                     .data(new HashMap<>() {
@@ -394,7 +440,7 @@ public class BookingController {
             jsonObject.put("startTime", rideRecord.getStartTime());
             jsonObject.put("endTime", rideRecord.getEndTime());
             NotificationRequestDto notificationCancelRideForPassenger = NotificationRequestDto.builder()
-                    .target(bookingRecord.getPassengerUsername().toString())
+                    .target(bookingRecord.getPassengerUsername())
                     .title("Ride cancelled")
                     .body("The ride has been cancelled. Please wait for another driver")
                     .data(new HashMap<>() {
