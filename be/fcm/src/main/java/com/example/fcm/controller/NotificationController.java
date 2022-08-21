@@ -18,7 +18,6 @@ import com.example.fcm.service.*;
 
 @RequestMapping("/api/v1/fcm")
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 public class NotificationController {
     @Autowired
@@ -131,6 +130,7 @@ public class NotificationController {
 
     @PostMapping("/user")
     public ResponseEntity<String> sendPnsToUser(@RequestBody NotificationRequestDto notificationRequestDto) {
+
         try {
             FcmTokenRecord tokenRecord = tokenStoreService
                     .findByUsername(notificationRequestDto.getTarget());

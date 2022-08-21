@@ -1,6 +1,3 @@
-# Cấu trúc thư mục React tối ưu
+# Call Center GrabClone
 
-## Login
-
-- username: admin
-- password: 123
+## 

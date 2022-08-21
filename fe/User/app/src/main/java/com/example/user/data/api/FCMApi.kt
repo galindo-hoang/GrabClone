@@ -6,6 +6,6 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface FCMApi {
-    @POST("/api/v1/fcm/register")
+    @POST("/api/v1/fcm-publish/register")
     suspend fun registerToken(@Body registerFCMBody: RegisterFCMBody): Response<Int>
 }

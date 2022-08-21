@@ -1,6 +1,9 @@
 package com.example.driver.data.dto
 
+import com.google.gson.annotations.SerializedName
+
 data class RegisterFCMBody(
     val fcmToken: String,
-    val userId: String
+    @SerializedName("username")
+    val userName: String
 )

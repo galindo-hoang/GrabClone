@@ -13,7 +13,7 @@ class LogOutUseCase @Inject constructor(
             authenticationRepository.clearAll()
             Response.success(1)
         }catch (e:Exception){
-            Response.error(-1,e.message.toString())
+            Response.error(null,-1,e.message.toString())
         }
     }
 }

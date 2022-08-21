@@ -1,14 +1,15 @@
 package com.example.user.data.repository.route
 
-import com.example.user.data.model.googlemap.PlaceClient
-import com.example.user.data.model.googlemap.RouteNavigation
+import com.example.user.data.model.place.AddressFromText
+import com.example.user.data.model.route.Direction
 import retrofit2.Response
 
 interface RouteNavigationRemoteDataSource {
     suspend fun getRoutes(
+        method: String,
         origin: String,
-        destination: String,
-        mode: String): Response<RouteNavigation>
+        destination: String
+    ): Response<Direction>
 
-    suspend fun getAddressFromPlaceId(placeId: String): Response<PlaceClient>
+    suspend fun getAddressFromText(text: String): Response<AddressFromText>
 }

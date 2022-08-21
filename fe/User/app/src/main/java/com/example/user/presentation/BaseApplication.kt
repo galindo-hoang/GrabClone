@@ -6,8 +6,6 @@ import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import androidx.lifecycle.ProcessLifecycleOwner
-import com.example.user.service.BackgroundService
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp

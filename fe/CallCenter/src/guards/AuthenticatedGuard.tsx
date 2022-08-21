@@ -16,7 +16,7 @@ const AuthenticatedGuard=(props: Props):JSX.Element=>{
     <Route
       {...rest}
       render={(props):JSX.Element => {
-        if (!isAuthenticated && !localStorage.getItem("accesToken") && !localStorage.getItem("refreshToken")) {
+        if (!isAuthenticated || !localStorage.getItem("accessToken") || !localStorage.getItem("refreshToken")) {
           return <Redirect to={PATH.LOGIN as string} />
         }
         return <Component {...props} />

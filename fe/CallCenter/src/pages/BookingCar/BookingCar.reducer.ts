@@ -1,18 +1,22 @@
 import * as types from "./BookingCar.constants"
 import produce from "immer"
-import {createBooking, location} from "../../@types/bookingcar"
+import {createBooking, location, responseCreateBooking} from "../../@types/bookingcar"
 const initialState= {
   departure:null,
   destination:null,
   bookingForm:{
-    username:undefined,
     price:undefined,
-    paymentMethod:undefined,
     typeCar:undefined,
-    phonenumber:undefined,
-    pickupLocation:undefined,
+    paymentMethod:undefined,
     dropoffLocation:undefined,
-  } as createBooking
+    pickupLocation:undefined,
+    state:undefined,
+    phonenumber:undefined,
+    passengerUsername:undefined,
+    id:null,
+    createdAt:undefined,
+    updatedAt:undefined
+  } as responseCreateBooking
 }
 
 export const bookingCarReducer=(state=initialState,action)=>
@@ -24,6 +28,18 @@ export const bookingCarReducer=(state=initialState,action)=>
         break
       case types.CREATE_BOOKING_CAR:
         draft.bookingForm=action.payload;
+        break
+      case types.CLEAR_BOOKING_CAR:
+        draft.destination=null;
+        draft.departure=null
+        Object.keys(draft.bookingForm).forEach(key => {
+          if(key.includes("id")) {
+            draft.bookingForm[key] = null;
+          }
+          else {
+            draft.bookingForm[key] = undefined;
+          }
+        });
         break
       default:
         return state;

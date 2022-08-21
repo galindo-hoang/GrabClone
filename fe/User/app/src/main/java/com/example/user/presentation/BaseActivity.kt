@@ -2,7 +2,6 @@ package com.example.user.presentation
 
 import android.app.Dialog
 import android.content.*
-import android.location.Location
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
@@ -18,9 +17,21 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     @Inject
     lateinit var baseViewModel: BaseViewModel
 
-    private lateinit var mProgressDialog: Dialog
-    private lateinit var mExpiredTokenDialog: Dialog
+    private var mProgressDialog: Dialog? = null
+    private var mExpiredTokenDialog: Dialog? = null
 
+    fun showExpiredTokenDialog(userName: String){
+        this.mExpiredTokenDialog = Dialog(this)
+        mExpiredTokenDialog!!.setContentView(R.layout.dialog_login)
+        baseViewModel.userName = userName
+        registerClickListenerExpiredToken()
+        registerViewChangeExpiredToken()
+        this.mExpiredTokenDialog!!.show()
+    }
+    private fun hideExpiredTokenDialog() {
+        baseViewModel.isLogin.removeObservers(this)
+        mExpiredTokenDialog?.dismiss()
+    }
     private fun registerViewChangeExpiredToken() {
         baseViewModel.isLogin.observe(this) {
             when(it){
@@ -37,10 +48,9 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
             }
         }
     }
-
     private fun registerClickListenerExpiredToken() {
-        this.mExpiredTokenDialog.findViewById<AppCompatButton>(R.id.btn_re_login_accept).setOnClickListener {
-            val password = this@BaseActivity.mExpiredTokenDialog.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
+        this.mExpiredTokenDialog!!.findViewById<AppCompatButton>(R.id.btn_re_login_accept).setOnClickListener {
+            val password = this@BaseActivity.mExpiredTokenDialog!!.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
             if(password.isEmpty())
                 Toast.makeText(this,"Please write password",Toast.LENGTH_LONG).show()
             else {
@@ -50,54 +60,62 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
             }
         }
 
-        this.mExpiredTokenDialog.findViewById<AppCompatButton>(R.id.btn_re_login_cancel).setOnClickListener {
-            this.mExpiredTokenDialog.dismiss()
+        this.mExpiredTokenDialog!!.findViewById<AppCompatButton>(R.id.btn_re_login_cancel).setOnClickListener {
+            this.mExpiredTokenDialog!!.dismiss()
             baseViewModel.logout()
             finishAffinity()
             startActivity(Intent(this, LogInActivity::class.java))
         }
     }
 
-    fun showExpiredTokenDialog(userName: String){
-        this.mExpiredTokenDialog = Dialog(this)
-        mExpiredTokenDialog.setContentView(R.layout.dialog_login)
-        baseViewModel.userName = userName
-        registerClickListenerExpiredToken()
-        registerViewChangeExpiredToken()
-        this.mExpiredTokenDialog.show()
-    }
-
-    private fun hideExpiredTokenDialog() {
-        baseViewModel.isLogin.removeObservers(this)
-        mExpiredTokenDialog.dismiss()
-    }
-
-    fun showProgressDialog(text: String) {
+    /////////////////////////////////////////////////////////////////////////////////////
+    fun showProgressDialog(text: String = "Please waiting...") {
         this.mProgressDialog = Dialog(this)
-        mProgressDialog.setContentView(R.layout.dialog_progress)
-        mProgressDialog.findViewById<TextView>(R.id.tvProgress).text = text
-        mProgressDialog.show()
+        mProgressDialog!!.setContentView(R.layout.dialog_progress)
+        mProgressDialog!!.findViewById<TextView>(R.id.tvProgress).text = text
+        mProgressDialog!!.show()
     }
-
     fun hideProgressDialog() {
-        mProgressDialog.dismiss()
+        mProgressDialog?.dismiss()
     }
 
     override fun onStart() {
         super.onStart()
+        Log.e("============","check")
         registerReceiver(updateAccessToken, IntentFilter(Constant.SERVICE_ACCESS_TOKEN))
     }
-
     override fun onPause() {
         unregisterReceiver(updateAccessToken)
         super.onPause()
 
     }
-
     private val updateAccessToken: BroadcastReceiver = object : BroadcastReceiver(){
         override fun onReceive(p0: Context?, p1: Intent?) {
             Log.e("--------", p1?.getIntExtra(Constant.SERVICE_ACCESS_TOKEN_BOOLEAN,0).toString())
         }
+    }
 
+    ////////////////////////////////////////////////////////////////////////////
+    private var updateLocationDriver: BroadcastReceiver? = null
+    fun onStartUpdateLocationDriver(receiver: BroadcastReceiver) {
+        this.updateLocationDriver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                Log.e("--------", p1?.getIntExtra(Constant.UPDATE_LOCATION_DRIVER_STRING,0).toString())
+            }
+        }
+        registerReceiver(updateLocationDriver, IntentFilter(Constant.UPDATE_LOCATION_DRIVER))
+    }
+    fun onStopUpdateLocationDriver() {
+        if(updateLocationDriver != null) unregisterReceiver(updateLocationDriver)
+        updateLocationDriver = null
+    }
+    private var isFinishMoving: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            onStopUpdateLocationDriver()
+            unregisterReceiver(this)
+        }
+    }
+    fun onRegisterFinishMoving() {
+        registerReceiver(isFinishMoving, IntentFilter(Constant.FINISH_MOVING_STRING))
     }
 }
