@@ -30,6 +30,8 @@ import {clearFCM} from "../../App/App.thunk";
 import Col from "antd/es/grid/col";
 import { Scrollbars } from 'react-custom-scrollbars';
 import {TYPECAR} from "../../constants/typecar";
+import {useHistory} from "react-router-dom";
+import {PATH} from "../../constants/paths";
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 
 
@@ -80,7 +82,8 @@ interface Props extends ConnectedProps<typeof connector> {}
 
 
 const StateBooking={
-  CREATED:"Tạo booking thành công",
+  CREATED_FAIL:"Không có tài xế quanh đây",
+  CREATED_SUCCESS:"Tạo booking thành công",
   ACCEPTED:"Tài xế đã chấp nhận cuốc xe",
   UPDATE:"Tài xế đang đón",
   FINISH:"Người đặt đã đến nơi",
@@ -124,7 +127,7 @@ const Map = (props:Props) => {
     longitude:undefined,
     latitude:undefined
   });
-  const [stateBooking,setStateBooking]=useState<any>(StateBooking.CREATED);
+  const [stateBooking,setStateBooking]=useState<any>(StateBooking.CREATED_FAIL);
   const [finishSuccess,setFinishSuccess]=useState<responseFinishedRide>({
     endTime:undefined,
     rideId:undefined,
@@ -133,13 +136,19 @@ const Map = (props:Props) => {
   const [driverAccepted,setDriverAccepted]=useState<responseAcceptedRider>({
     bookingId:undefined
   });
-
+  const history=useHistory();
   useEffect(()=>{
-    console.log(payloadFCM)
      /* if (bookingCarForm.bookingForm.id === JSON.parse(payloadFCM.booking).bookingId) {*/
         //DRIVER ACCEPTED
     if(payloadFCM!==null) {
       /*if (bookingCarForm.bookingForm.id === JSON.parse(JSON.parse(payloadFCM.booking).bookingId)) */{
+        console.log(payloadFCM)
+        if(payloadFCM.body.toString().includes(BODYSTATES.HAD_DRIVER_IN_AREA)){
+          setStateBooking(StateBooking.CREATED_SUCCESS)
+        }
+        if(bookingCarForm.bookingForm.id===null){
+          setStateBooking(StateBooking.CREATED_FAIL)
+        }
         //DRIVER ACCEPTED
         if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_ACCEPTED)) {
           setDriverAccepted(JSON.parse(JSON.parse(payloadFCM.booking).bookingId) as responseAcceptedRider);
@@ -153,9 +162,9 @@ const Map = (props:Props) => {
           if(driverCoordinate.longitude===departureCoordinate.coordinate?.longitude && driverCoordinate.latitude===departureCoordinate.coordinate?.latitude){
             setStateBooking(StateBooking.DRIVERWELCOMEGUESTS);
             const setLineUpFromDriverToDestination = async () => {
-              await MapService.getDistanceCarMethod(driverCoordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
-                setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
-                setPolyLine(res.data.routes[0].geometry.coordinates);
+              await MapService.getDistanceAndRoute(driverCoordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
+                setProcessMove(res.data.features[0].properties.legs[0].steps.map(index => index.instruction.text))
+                setPolyLine(res.data.features[0].geometry.coordinates[0])
               })
             }
             setLineUpFromDriverToDestination()
@@ -163,18 +172,11 @@ const Map = (props:Props) => {
           else{
             setStateBooking(StateBooking.UPDATE);
             const setLineUpFromDriverToUser = async () => {
-              if (bookingCarForm.bookingForm.typeCar.includes(TYPECAR.car)) {
-                await MapService.getDistanceCarMethod(departureCoordinate.coordinate as coordinate, driverCoordinate).then((res) => {
-                  setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
-                  setPolyLine(res.data.routes[0].geometry.coordinates);
+              await MapService.getDistanceAndRoute(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate)
+                .then((res) =>{
+                  setProcessMove(res.data.features[0].properties.legs[0].steps.map(index => index.instruction.text))
+                  setPolyLine(res.data.features[0].geometry.coordinates[0])
                 })
-              }
-              else{
-                await MapService.getDistanceMotoMethod(departureCoordinate.coordinate as coordinate, driverCoordinate).then((res) => {
-                  setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
-                  setPolyLine(res.data.routes[0].geometry.coordinates);
-                })
-              }
             };
             setLineUpFromDriverToUser()
           }
@@ -193,28 +195,28 @@ const Map = (props:Props) => {
         setPayloadFCMValue(payloadFCM);
       }
     }
-    /*  }*/
-  },[payloadFCM])
-
-  useEffect(() => {
-    const setLineUp = async () => {
-      if (bookingCarForm.bookingForm.typeCar.includes(TYPECAR.car)) {
-        await MapService.getDistanceCarMethod(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
-          setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
-          setPolyLine(res.data.routes[0].geometry.coordinates);
-        });
-        await MapService.getDistanceMoto(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate).then(res =>console.log(res))
-      }
-      else{
-        await MapService.getDistanceMotoMethod(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
-          setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
-          setPolyLine(res.data.routes[0].geometry.coordinates);
-        })
+    else{
+      if(bookingCarForm.bookingForm.id===null){
+        setStateBooking(StateBooking.CREATED_FAIL)
       }
     }
-    setLineUp();
-  }, []);
-
+    /*  }*/
+  },[payloadFCM])
+  useEffect(()=> {
+    if(bookingCarForm.bookingForm.state!==undefined) {
+      if (bookingCarForm.bookingForm.state.includes("No Drive")) {
+        clearBookingCar();
+      }
+    }
+    const setLineUp=async ()=>{
+      await MapService.getDistanceAndRoute(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate)
+        .then((res) =>{
+          setProcessMove(res.data.features[0].properties.legs[0].steps.map(index => index.instruction.text))
+          setPolyLine(res.data.features[0].geometry.coordinates[0])
+        })
+    }
+    setLineUp()
+  },[])
   useEffect(() => {
     let isMessage=true;
     if(isMessage===true) {
@@ -384,7 +386,7 @@ const Map = (props:Props) => {
         <Descriptions.Item label="Trạng thái" span={3}>
           {StateBooking.FINISH.toString().includes(stateBooking)?
             <Badge status="success" text={stateBooking} />:
-            StateBooking.CANCELLEDBYDRIVER.toString().includes(stateBooking)?
+            (StateBooking.CANCELLEDBYDRIVER.toString().includes(stateBooking)||StateBooking.CREATED_FAIL.toString().includes(stateBooking))?
               <Badge status="error" text={stateBooking} />
               :
               <Badge status="processing" text={stateBooking} />

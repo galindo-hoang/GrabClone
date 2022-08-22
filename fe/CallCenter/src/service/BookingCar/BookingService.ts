@@ -23,7 +23,7 @@ class BookingService {
       else {
         price+=12500;
         let tempPrice=4300;
-        price = price +(tempPrice*distance);
+        price = price +(tempPrice*(distance-2));
         return price;
       }
     }
@@ -35,7 +35,7 @@ class BookingService {
       {
         price+=29000;
         let tempPrice=10000;
-        price = price +(tempPrice*distance);
+        price = price +(tempPrice*(distance-2));
         return price;
       }
     }

@@ -27,15 +27,7 @@ const mockProducts = [
   }
 ]
 
-const coordinateExample=[
-  {
-    longitude:106.665255,
-    latitude: 10.838685
-  } as coordinate,
-  {
-    longitude:106.665255,
-    latitude: 10.838685
-  } as coordinate,
+export const coordinateExample=[
   {
     longitude:106.665255,
     latitude: 10.838685
