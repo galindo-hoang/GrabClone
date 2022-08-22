@@ -28,12 +28,9 @@ class HomeFragment: Fragment() {
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
         this.mainActivity = activity as MainActivity
-//        setRecycleView()
-//        registerClickListener()
-//        registerViewChangeListener()
-        FirebaseMessaging.getInstance().token.addOnCompleteListener {
-            Log.e("----------",it.result)
-        }
+        setRecycleView()
+        registerClickListener()
+        registerViewChangeListener()
         return binding.root
     }
 
@@ -43,17 +40,17 @@ class HomeFragment: Fragment() {
     private fun registerClickListener() {
         binding.btnStartListening.setOnClickListener {
             homeFragmentViewModel.startListening().observe(viewLifecycleOwner){
-                common(it,this.mainActivity.startLooking())
+                common(it) { this.mainActivity.startLooking() }
             }
         }
         binding.btnStopListening.setOnClickListener {
             homeFragmentViewModel.stopListening().observe(viewLifecycleOwner) {
-                common(it,this.mainActivity.stopLooking())
+                common(it) { this.mainActivity.stopLooking() }
             }
         }
     }
 
-    private fun common(response: Response<out Any>, func: Unit) {
+    private fun common(response: Response<out Any>, func:() -> Unit) {
         when(response.status){
             Status.LOADING -> this.mainActivity.showProgressDialog()
             Status.ERROR -> {
@@ -63,9 +60,8 @@ class HomeFragment: Fragment() {
                 }else Toast.makeText(activity,response.message.toString(),Toast.LENGTH_LONG).show()
             }
             Status.SUCCESS -> {
+                func()
                 this.mainActivity.hideProgressDialog()
-                func
-                Toast.makeText(activity,"Complete",Toast.LENGTH_LONG).show()
             }
         }
     }

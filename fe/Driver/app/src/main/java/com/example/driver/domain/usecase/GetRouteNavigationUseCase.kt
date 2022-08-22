@@ -1,25 +1,20 @@
 package com.example.driver.domain.usecase
 
-import android.util.Log
-import com.example.user.data.model.route.Direction
-import com.example.user.domain.repository.RouteNavigationRepository
-import com.example.user.utils.Response
-import com.example.user.utils.TypeCar
+import com.example.driver.data.model.route.Direction
+import com.example.driver.domain.repository.BookingRepository
+import com.example.driver.utils.Response
+import com.example.driver.utils.TypeCar
 import javax.inject.Inject
 
 
 class GetRouteNavigationUseCase @Inject constructor(
-    private val routeNavigationRepository: RouteNavigationRepository
+    private val bookingRepository: BookingRepository
 ) {
-    suspend fun invoke(typeCar: TypeCar = TypeCar.CAR, origin: String, destination: String): Response<Direction> {
+    suspend fun invoke(origin: String, destination: String, typeCar: TypeCar = TypeCar.CAR): Response<Direction> {
          return try {
-             val response = routeNavigationRepository.getRouteNavigation("drive",origin, destination)
-             Log.e("---------", response.body()!!.features[0].geometry.coordinates[0].size.toString())
-             Log.e("---------", response.body()!!.statusCode.toString())
+             val response = bookingRepository.getRouteNavigation("drive",origin, destination)
              if(response.code() == 200){
-                 Log.e("------","hello")
                 if(response.body()?.statusCode == null){
-                    Log.e("------","hi")
                     Response.success(response.body()!!)
                 }else {
                     Response.error(

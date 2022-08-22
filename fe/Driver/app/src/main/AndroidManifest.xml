@@ -57,6 +57,10 @@
         </service>
 
         <service android:name=".presentation.service.CurrentLocationService"/>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/map_api" />
     </application>
 
 </manifest>

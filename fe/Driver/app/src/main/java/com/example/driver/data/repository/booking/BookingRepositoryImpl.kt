@@ -3,6 +3,7 @@ package com.example.driver.data.repository.booking
 import com.example.driver.data.dto.RegisterFCMBody
 import com.example.driver.data.dto.SubscribeBookingDto
 import com.example.driver.data.dto.UpdateLocation
+import com.example.driver.data.model.route.Direction
 import com.example.driver.domain.repository.BookingRepository
 import retrofit2.Response
 import javax.inject.Inject
@@ -28,6 +29,13 @@ class BookingRepositoryImpl @Inject constructor(
         bookingRemoteDataResource.sendCurrentLocation(updateLocation)
 
     override suspend fun sendAcceptBooking(): Response<Boolean> = bookingRemoteDataResource.sendAcceptBooking()
+
+    override suspend fun getRouteNavigation(
+        method: String,
+        origin: String,
+        destination: String
+    ): Response<Direction> = bookingRemoteDataResource.getRoute(method, origin, destination)
+
 
 }
 

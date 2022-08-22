@@ -10,7 +10,7 @@ import android.os.Looper
 import com.example.driver.data.dto.LatLong
 import com.example.driver.domain.repository.AuthenticationRepository
 import com.example.driver.domain.repository.BookingRepository
-import com.example.driver.domain.usecase.SendCurrentLocationService
+import com.example.driver.domain.usecase.SendCurrentLocationUseCase
 import com.example.driver.utils.Constant
 import com.example.driver.utils.RequestPermissions
 import com.example.driver.utils.Status
@@ -25,7 +25,7 @@ class CurrentLocationService: Service() {
     @Inject
     lateinit var authenticationRepository: AuthenticationRepository
     @Inject
-    lateinit var sendCurrentLocationService: SendCurrentLocationService
+    lateinit var sendCurrentLocationUseCase: SendCurrentLocationUseCase
     override fun onBind(p0: Intent?): IBinder? = null
 
     private var currentLatLong: LatLong? = null
@@ -69,10 +69,10 @@ class CurrentLocationService: Service() {
             super.onLocationResult(p0)
             currentLatLong = LatLong(p0.lastLocation?.latitude ?: 0.0, p0.lastLocation?.longitude ?: 0.0)
             runBlocking(Dispatchers.IO) {
-                val response = sendCurrentLocationService.invoke(currentLatLong!!)
+                val response = sendCurrentLocationUseCase.invoke(currentLatLong!!)
                 if(response.status == Status.ERROR && response.codeResponse == -2){
                     val intent = Intent(Constant.REFRESH_TOKEN_EXPIRED).apply {
-                        this.putExtra(Constant.REFRESH_TOKEN_EXPIRED_PUT_EXTRA_USERNAME,response.message)
+                        this.putExtra(Constant.REFRESH_TOKEN_EXPIRED_EXTRA_USERNAME,response.message)
                     }
                     sendBroadcast(intent)
                 }

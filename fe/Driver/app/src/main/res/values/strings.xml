@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Driver</string>
+    <string name="map_api">AIzaSyD7n1_X28Jgw0zCd3cB3LmyPiL7gnIoS4c</string>
     <string name="mapbox_access_token">pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvano3aTAxb20za256Z2J1ODNlMXgifQ.CGI8aoIJ1TpZLg0d-F5f_g</string>
 </resources>

@@ -8,14 +8,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import com.example.driver.R
+import com.example.driver.data.model.ReceiveBookingFCM
 import com.example.driver.domain.usecase.SetupServiceCurrentLocationUseCase
-import com.example.driver.exception.ExpiredRefreshTokenExceptionCustom
 import com.example.driver.presentation.login.LogInActivity
 import com.example.driver.presentation.main.StimulateActivity
 import com.example.driver.presentation.main.StimulateViewModel
 import com.example.driver.utils.Constant
 import com.example.driver.utils.Status
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
 import javax.inject.Inject
 
 open class BaseActivity @Inject constructor(): AppCompatActivity() {
@@ -31,20 +32,28 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     private lateinit var mExpiredTokenDialog: Dialog
     private lateinit var mNewBookingDialog: Dialog
 
+    private var haveNewBooking = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            this@BaseActivity.showNewBookingDialog(
+                Gson().fromJson(
+                    p1!!.getStringExtra(Constant.HAVE_NEW_BOOKING_EXTRA),
+                    ReceiveBookingFCM::class.java
+                )
+            )
+        }
+
+    }
+
     fun startLooking(){
         setupServiceCurrentLocationUseCase.start(application)
-        stimulateViewModel.haveBooking.observe(this) {
-            if(it) {
-                this.showNewBookingDialog()
-            }
-        }
+        registerReceiver(haveNewBooking,IntentFilter(Constant.HAVE_NEW_BOOKING))
     }
 
 
 
     fun stopLooking(){
         setupServiceCurrentLocationUseCase.stop()
-        stimulateViewModel.haveBooking.removeObservers(this)
+        unregisterReceiver(haveNewBooking)
     }
 
     private fun registerViewChangeExpired() {
@@ -84,18 +93,18 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         }
     }
 
-    private fun showNewBookingDialog(){
+    private fun showNewBookingDialog(receiveBookingFcm: ReceiveBookingFCM){
         this.mNewBookingDialog = Dialog(this)
         mNewBookingDialog.setContentView(R.layout.dialog_new_booking)
         this.mNewBookingDialog.findViewById<TextView>(R.id.tv_new_booking_des).text =
             Constant.convertLatLongToAddress(
                 this,
-                LatLng(stimulateViewModel.destination!!.lat,stimulateViewModel.destination!!.long)
+                LatLng(stimulateViewModel.destination!!.latitude,stimulateViewModel.destination!!.longitude)
             )
         this.mNewBookingDialog.findViewById<TextView>(R.id.tv_new_booking_src).text =
             Constant.convertLatLongToAddress(
                 this,
-                LatLng(stimulateViewModel.source!!.lat,stimulateViewModel.source!!.long)
+                LatLng(stimulateViewModel.origin!!.latitude,stimulateViewModel.origin!!.longitude)
             )
         registerClickListenerNewBooking()
         registerViewChangeNewBooking()
@@ -167,7 +176,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
 
     private val listeningRefreshToken: BroadcastReceiver = object : BroadcastReceiver(){
         override fun onReceive(p0: Context?, p1: Intent?) {
-            val userName = p1?.getStringExtra(Constant.REFRESH_TOKEN_EXPIRED_PUT_EXTRA_USERNAME)
+            val userName = p1?.getStringExtra(Constant.REFRESH_TOKEN_EXPIRED_EXTRA_USERNAME)
             if(userName?.isNotEmpty() == true){
                 this@BaseActivity.showExpiredTokenDialog(userName)
             }

@@ -36,6 +36,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class ApplicationModule {
+
+
+    @Provides
+    @Singleton
+    fun providesDirectionApi(): DirectionApi =
+        Retrofit
+            .Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl("https://api.geoapify.com")
+            .build()
+            .create(DirectionApi::class.java)
+
     @Provides
     @Singleton
     @BeforeLoginApi
@@ -134,8 +146,9 @@ class ApplicationModule {
     @Singleton
     fun providesBookingRemoteDataSource(
         bookingApi: BookingApi,
-        fcmApi: FCMApi
-    ): BookingRemoteDataResource = BookingRemoteDataResourceImpl(bookingApi,fcmApi)
+        fcmApi: FCMApi,
+        directionApi: DirectionApi
+    ): BookingRemoteDataResource = BookingRemoteDataResourceImpl(bookingApi,fcmApi,directionApi)
 
     @Provides
     @Singleton
