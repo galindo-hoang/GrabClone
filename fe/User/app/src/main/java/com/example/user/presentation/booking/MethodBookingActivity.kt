@@ -1,9 +1,10 @@
 package com.example.user.presentation.booking
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.user.R
 import com.example.user.data.api.AuthenticationApi
 import com.example.user.data.dto.Payment
 import com.example.user.data.dto.Vehicle
@@ -11,12 +12,14 @@ import com.example.user.databinding.ActivityMethodBookingBinding
 import com.example.user.presentation.BaseActivity
 import com.example.user.presentation.booking.adapter.PaymentAdapter
 import com.example.user.presentation.booking.adapter.VehicleAdapter
+import com.example.user.utils.PaymentMethod
 import com.example.user.utils.Status
-import com.google.android.material.divider.MaterialDividerItemDecoration
+import com.example.user.utils.TypeCar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 
+@SuppressLint("UseCompatLoadingForDrawables")
 @AndroidEntryPoint
 class MethodBookingActivity : BaseActivity() {
     @Inject
@@ -39,62 +42,60 @@ class MethodBookingActivity : BaseActivity() {
 
     private fun registerLickListener() {
         binding.btnSearchingCar.setOnClickListener {
-            bookingViewModel.searchingDriver()
+            bookingViewModel.searchingDriver().observe(this) {
+                when(it.status){
+                    Status.LOADING -> this.showProgressDialog()
+                    Status.ERROR -> {
+                        this.hideProgressDialog()
+                        if(it.responseCode == -2) this.showExpiredTokenDialog(it.message.toString())
+                        else Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
+                    }
+                    Status.SUCCESS -> {
+                        this.hideProgressDialog()
+                        finish()
+                    }
+                }
+            }
+        }
+        vehicleAdapter.setOnClickListener { it, position ->
+
+        }
+
+        paymentAdapter.setOnClickListener { it, position ->
+
         }
     }
 
     private fun registerViewChange() {
-        bookingViewModel.bookingRider.observe(this) {
-            when(it.status){
-                Status.LOADING -> this.showProgressDialog()
-                Status.ERROR -> {
-                    this.hideProgressDialog()
-                    Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
-                }
-                Status.SUCCESS -> {
-                    this.hideProgressDialog()
-                    finish()
-                }
-            }
-        }
     }
 
     private fun setRecyclerView() {
         binding.rcvVehicle.adapter = vehicleAdapter
         binding.rcvVehicle.layoutManager = LinearLayoutManager(this)
-        vehicleAdapter.setList(getDataV())
-        val dividerItemDecoration = MaterialDividerItemDecoration(
-            binding.root.context, LinearLayoutManager.VERTICAL
-        ).apply {
-            this.isLastItemDecorated = false
-        }
-        binding.rcvVehicle.addItemDecoration(dividerItemDecoration)
-        binding.rcvPayment.addItemDecoration(dividerItemDecoration)
-        vehicleAdapter.setOnClickListener { it, position ->
-            Log.e("---------",it.toString())
-            Log.e("=========",position.toString())
-        }
+        vehicleAdapter.setList(getTypeCarData())
+        bookingViewModel.car = vehicleAdapter.getItem()
+
         binding.rcvPayment.adapter = paymentAdapter
         binding.rcvPayment.layoutManager = LinearLayoutManager(this)
         paymentAdapter.setList(gePaymentData())
-        paymentAdapter.setOnClickListener { it, position ->
-            Log.e("---------",it.toString())
-            Log.e("=========",position.toString())
-        }
+        bookingViewModel.payment = paymentAdapter.getItem()
     }
 
-    private fun getDataV(): List<Vehicle>{
-        val a = mutableListOf<Vehicle>()
-        a.add(Vehicle(0))
-        a.add(Vehicle(0))
-        a.add(Vehicle(0))
-        return a
+    private fun getTypeCarData(): List<Vehicle> = mutableListOf<Vehicle>().apply {
+        this.add(Vehicle(
+            TypeCar.CAR,
+            getDrawable(R.drawable.ic_vehicle_car_40),
+            bookingViewModel.distance!!
+        ))
+        this.add(Vehicle(
+            TypeCar.MOTORCYCLE,
+            getDrawable(R.drawable.ic_vehicle_motorcycle_40),
+            bookingViewModel.distance!!
+        ))
     }
-    private fun gePaymentData(): List<Payment>{
-        val a = mutableListOf<Payment>()
-        a.add(Payment(0))
-        a.add(Payment(0))
-        a.add(Payment(0))
-        return a
+
+    private fun gePaymentData(): List<Payment> = mutableListOf<Payment>().apply {
+        this.add(Payment(PaymentMethod.CASH, getDrawable(R.drawable.ic_payment_cash_40)))
+        this.add(Payment(PaymentMethod.CREDIT_CARD, getDrawable(R.drawable.ic_payment_credit_card_40)))
     }
 }

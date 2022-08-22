@@ -78,44 +78,23 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     fun hideProgressDialog() {
         mProgressDialog?.dismiss()
     }
-
-    override fun onStart() {
-        super.onStart()
-        Log.e("============","check")
-        registerReceiver(updateAccessToken, IntentFilter(Constant.SERVICE_ACCESS_TOKEN))
-    }
-    override fun onPause() {
-        unregisterReceiver(updateAccessToken)
-        super.onPause()
-
-    }
-    private val updateAccessToken: BroadcastReceiver = object : BroadcastReceiver(){
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            Log.e("--------", p1?.getIntExtra(Constant.SERVICE_ACCESS_TOKEN_BOOLEAN,0).toString())
-        }
-    }
-
     ////////////////////////////////////////////////////////////////////////////
     private var updateLocationDriver: BroadcastReceiver? = null
-    fun onStartUpdateLocationDriver(receiver: BroadcastReceiver) {
-        this.updateLocationDriver = object : BroadcastReceiver() {
-            override fun onReceive(p0: Context?, p1: Intent?) {
-                Log.e("--------", p1?.getIntExtra(Constant.UPDATE_LOCATION_DRIVER_STRING,0).toString())
-            }
-        }
+    fun registerLocationDriver(receiver: BroadcastReceiver) {
+        this.updateLocationDriver = receiver
         registerReceiver(updateLocationDriver, IntentFilter(Constant.UPDATE_LOCATION_DRIVER))
     }
-    fun onStopUpdateLocationDriver() {
+    fun unRegisterLocationDriver() {
         if(updateLocationDriver != null) unregisterReceiver(updateLocationDriver)
         updateLocationDriver = null
     }
     private var isFinishMoving: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
-            onStopUpdateLocationDriver()
+            unRegisterLocationDriver()
             unregisterReceiver(this)
         }
     }
-    fun onRegisterFinishMoving() {
+    fun registerFinishMoving() {
         registerReceiver(isFinishMoving, IntentFilter(Constant.FINISH_MOVING_STRING))
     }
 }

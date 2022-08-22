@@ -21,10 +21,9 @@ class RouteNavigationRemoteDataSourceImpl @Inject constructor(
         destination: String,
     ): Response<Direction> =
         directionApi.getRoutes(
-            method = method,
-            origin = origin,
-            destination = destination,
-            token = BuildConfig.MAPBOX_API
+            latLng = "$origin|$destination",
+            mode = method,
+            api = BuildConfig.API_ADRRESS
         )
 
     override suspend fun getAddressFromText(text: String): Response<AddressFromText> =
