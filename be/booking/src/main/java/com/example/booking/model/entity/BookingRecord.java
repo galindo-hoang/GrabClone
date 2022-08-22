@@ -19,6 +19,7 @@ import java.util.Date;
 @Data
 @Builder
 public class BookingRecord implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

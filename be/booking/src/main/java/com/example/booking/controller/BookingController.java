@@ -1,9 +1,6 @@
 package com.example.booking.controller;
 
-import com.example.booking.model.domain.BookingState;
-import com.example.booking.model.domain.PaymentMethod;
-import com.example.booking.model.domain.RideState;
-import com.example.booking.model.domain.TypeCar;
+import com.example.booking.model.domain.*;
 import com.example.booking.model.dto.*;
 import com.example.booking.model.entity.BookingRecord;
 import com.example.booking.model.entity.DriverRecord;
@@ -20,6 +17,7 @@ import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -111,18 +109,9 @@ public class BookingController {
                 // Send notification request to FCM service
                 notificationRequestClient.sendPnsToTopic(notificationRequestDto);
 
-                // unsubscribe drivers
-                for (DriverRecord driverRecord : driverRecordsInArea) {
-                    SubscriptionRequestDto subscriptionRequestDto = SubscriptionRequestDto.builder()
-                            .username(driverRecord.getDriverUsername())
-                            .topicName("booking-" + bookingRecordSaving.getId())
-                            .build();
-                    notificationRequestClient.unsubscribeFromTopic(subscriptionRequestDto);
-                }
-
                 // Return success response
                 return ResponseEntity.ok(bookingRecordSaving);
-            }else {
+            } else {
                 return ResponseEntity.badRequest().build();
             }
 
@@ -149,7 +138,7 @@ public class BookingController {
             // Unsubscribe the accepted driver from the booking topic
             SubscriptionRequestDto subscriptionRequestDtoForUnSubscribeDriver = SubscriptionRequestDto.builder()
                     .username(bookingAcceptanceDto.getUsername())
-                    .topicName("booking")
+                    .topicName("booking-" + bookingAcceptanceDto.getBookingId())
                     .build();
             notificationRequestClient.unsubscribeFromTopic(subscriptionRequestDtoForUnSubscribeDriver);
 
@@ -158,7 +147,7 @@ public class BookingController {
             bookingAcceptanceDto.setAcceptanceDriverDateTime(new Date());
             // Send booking already accepted notification to all drivers using FCM service
             NotificationRequestDto notificationRejectTopic = NotificationRequestDto.builder()
-                    .target("booking")
+                    .target("booking-" + bookingAcceptanceDto.getBookingId())
                     .title("Booking claimed")
                     .body("The booking has been claimed by another driver")
                     .data(new HashMap<>() {
@@ -334,15 +323,6 @@ public class BookingController {
 
             notificationRequestClient.sendPnsToUser(notificationForPassenger);
 
-
-            // Re-subscribe the driver to the booking topic
-            SubscriptionRequestDto subscriptionToDriverForNextRide = SubscriptionRequestDto.builder()
-                    .username(finishRideDto.getUsername())
-                    .topicName("booking")
-                    .build();
-
-            notificationRequestClient.subscribeToTopic(subscriptionToDriverForNextRide);
-
             // Return success response
             return notificationRequestClient.sendPnsToUser(notificationForPassenger);
         } catch (Exception e) {
@@ -378,8 +358,9 @@ public class BookingController {
             jsonObject.put("bookingId", bookingId);
             jsonObject.put("createdAt", createdAt);
             jsonObject.put("endedAt", endedAt);
+
             NotificationRequestDto notificationForDriverCanceled = NotificationRequestDto.builder()
-                    .target("booking")
+                    .target("booking-"+bookingId)
                     .title("Booking cancelled")
                     .body("The booking has been cancelled")
                     .data(new HashMap<>() {
@@ -515,4 +496,27 @@ public class BookingController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PostMapping("/topDepartures")
+    public ResponseEntity<List<BookingRecordDto>> topDepartures(@RequestBody TopLocationRequestDto request) {
+        try {
+            // Get Booking Records according phonenumber
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/booking/{bookingId}")
+    public ResponseEntity<BookingRecordDto> getBooking(@PathVariable Integer bookingId) {
+        try {
+            // Get Booking Record according bookingId
+            BookingRecord bookingRecord=bookingService.findById(bookingId);
+            System.out.println(bookingRecord);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
