@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.io.Serializable;
 
 @Embeddable
 @Getter
@@ -11,7 +12,8 @@ import javax.persistence.Embeddable;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class MapCoordinate {
+public class MapCoordinate implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Double latitude;
     private Double longitude;
 }
