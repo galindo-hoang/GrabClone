@@ -26,6 +26,7 @@ export const AppReducer = (state = initialState, action) =>
         draft.closeSideNav = !state.closeSideNav
         break
       case types.CLEAR_FCM:
+        draft.payloadFCM=null;
         break
       default:
         return state
