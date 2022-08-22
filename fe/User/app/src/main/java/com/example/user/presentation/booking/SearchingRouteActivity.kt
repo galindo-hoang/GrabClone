@@ -1,5 +1,6 @@
 package com.example.user.presentation.booking
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,7 +12,6 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.BuildConfig
@@ -19,7 +19,6 @@ import com.example.user.R
 import com.example.user.data.dto.CurrentLocationDriver
 import com.example.user.data.dto.LatLong
 import com.example.user.data.model.place.Address
-import com.example.user.data.repository.route.RouteNavigationRemoteDataSource
 import com.example.user.databinding.ActivitySearchingRouteBinding
 import com.example.user.domain.usecase.GetRouteNavigationUseCase
 import com.example.user.presentation.BaseActivity
@@ -28,15 +27,19 @@ import com.example.user.utils.Constant
 import com.example.user.utils.Status
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 
+@SuppressLint("UseCompatLoadingForDrawables")
 @AndroidEntryPoint
 class SearchingRouteActivity : BaseActivity() {
     @Inject
@@ -46,6 +49,7 @@ class SearchingRouteActivity : BaseActivity() {
     lateinit var origin: LatLng
     lateinit var destination: LatLng
     private val addressAdapter = AddressAdapter()
+    private var marker: Marker? = null
     private var isOrigin: Boolean? = null
     private lateinit var binding: ActivitySearchingRouteBinding
     private lateinit var map: GoogleMap
@@ -83,15 +87,14 @@ class SearchingRouteActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         isBooking()
-        updateLocationDriver()
     }
 
     private fun isBooking() {
         if(bookingViewModel.isBooking){
             val listeningDriver = object : BroadcastReceiver() {
                 override fun onReceive(p0: Context?, p1: Intent?) {
-                    updateLocationDriver()
-                    this@SearchingRouteActivity.onRegisterFinishMoving()
+                    this@SearchingRouteActivity.registerFinishMoving()
+                    this@SearchingRouteActivity.registerLocationDriver(updateDriverLocation)
                     unregisterReceiver(this)
                 }
             }
@@ -100,41 +103,52 @@ class SearchingRouteActivity : BaseActivity() {
         }
     }
 
-    private fun updateLocationDriver() {
-        val updateLocation = object : BroadcastReceiver() {
-            override fun onReceive(p0: Context?, p1: Intent?) {
-                val currentLocationDriver = Gson().fromJson(
+
+    val updateDriverLocation = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            marker?.remove()
+            marker = null
+            var currentLocationDriver: CurrentLocationDriver? = null
+            var bitmapDescriptor: BitmapDescriptor? = null
+            CoroutineScope(Dispatchers.IO).launch {
+                currentLocationDriver = Gson().fromJson(
                     p1?.getStringExtra(Constant.UPDATE_LOCATION_DRIVER_STRING),
                     CurrentLocationDriver::class.java
                 )
+                bitmapDescriptor = Constant.convertDrawableToBitMap(
+                    getDrawable(R.drawable.navigation_puck_icon_24)
+                ) ?.let { it1 -> BitmapDescriptorFactory.fromBitmap(it1) }
             }
+            marker = map.addMarker(
+                MarkerOptions().apply {
+                    this.position(
+                        LatLng(
+                            currentLocationDriver!!.driverLocation.latitude,
+                            currentLocationDriver!!.driverLocation.longitude
+                        )
+                    )
+                    this.icon(bitmapDescriptor)
+                }
+            )
         }
-        this.onStartUpdateLocationDriver(updateLocation)
     }
-
 
 
     private fun registerClickListener() {
         binding.btnSearchingCar.setOnClickListener {
-            Log.e("------",binding.btnSearchingCar.text.toString())
             if(binding.btnSearchingCar.text.toString() == Constant.SEARCHING_ROUTE)
                 bookingViewModel.searchingRoute()
             else
                 startActivity(Intent(this,MethodBookingActivity::class.java))
         }
-        (supportFragmentManager.findFragmentById(R.id.map_view_in_booking_activity)
-                as SupportMapFragment).getMapAsync {
-            this.map = it
-        }
     }
 
-    var delay: Long = 1000 // 1 seconds after user stops typing
+    var delay: Long = 1500 // 1.5 seconds after user stops typing
     var lastEditText: Long = 0
     var handler: Handler = Handler(Looper.myLooper()!!)
     private val inputOriginChecker = object : Runnable {
         override fun run() {
             if (System.currentTimeMillis() > lastEditText + delay - 500) {
-                Log.e(")))",")))")
                 if(isOrigin == true) {
                     bookingViewModel.getListAddress(binding.etOrigin.text.toString())
                 }
@@ -146,7 +160,6 @@ class SearchingRouteActivity : BaseActivity() {
     private val inputDestinationChecker = object : Runnable {
         override fun run() {
             if (System.currentTimeMillis() > lastEditText + delay - 500) {
-                Log.e("++++","+")
                 if(isOrigin == false)
                     bookingViewModel.getListAddress(binding.etDestination.text.toString())
             }else{
@@ -203,7 +216,8 @@ class SearchingRouteActivity : BaseActivity() {
                     this.hideProgressDialog()
 
                     val feature = it.data!!.features[0]
-                    listPoints = feature.geometry.coordinates[0].map { position ->
+                    bookingViewModel.distance = (feature.properties.distance/1000.0).roundToInt()
+                    val listPoints = feature.geometry.coordinates[0].map { position ->
                         LatLng(position[1],position[0])
                     }
                     PolylineOptions()
@@ -233,39 +247,36 @@ class SearchingRouteActivity : BaseActivity() {
                         12f
                     ))
                     binding.btnSearchingCar.text = Constant.CONTINUE
-                    checkingUpdateLocationDriver()
+//                    checkingUpdateLocationDriver()
                 }
             }
         }
     }
-    private lateinit var listPoints: List<LatLng>
 
-    private var marker: Marker? = null
-
-    private fun checkingUpdateLocationDriver() {
-        CoroutineScope(Dispatchers.IO).launch {
-            repeat(listPoints.size) {
-                withContext(Dispatchers.Main) {
-                    val drawable = getDrawable(R.drawable.navigation_puck_icon_24)
-                    val bitmap = drawable!!.toBitmap(
-                        drawable.intrinsicWidth,
-                        drawable.intrinsicHeight
-                    )
-                    marker = map.addMarker(
-                        MarkerOptions().apply {
-                            this.position(listPoints[it])
-                            this.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-                        }
-                    )
-                }
-                delay(1000)
-                withContext(Dispatchers.Main) {
-                    marker?.remove()
-                }
-                marker = null
-            }
-        }
-    }
+//    private lateinit var listPoints: List<LatLng>
+//    private fun checkingUpdateLocationDriver() {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            repeat(listPoints.size) {
+//                withContext(Dispatchers.Main) {
+//                    marker = map.addMarker(
+//                        MarkerOptions().apply {
+//                            this.position(listPoints[it])
+//                            this.icon(
+//                                Constant.convertDrawableToBitMap(
+//                                    getDrawable(R.drawable.navigation_puck_icon_24)
+//                                ) ?.let { it1 -> BitmapDescriptorFactory.fromBitmap(it1) }
+//                            )
+//                        }
+//                    )
+//                }
+//                delay(1000)
+//                withContext(Dispatchers.Main) {
+//                    marker?.remove()
+//                }
+//                marker = null
+//            }
+//        }
+//    }
 
     private fun addMarker(bounds: LatLngBounds.Builder, latLng: LatLng, marker: String){
         map.addMarker(

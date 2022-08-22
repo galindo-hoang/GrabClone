@@ -1,9 +1,12 @@
 package com.example.user.utils
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.location.Address
 import android.location.Geocoder
 import android.util.Log
+import androidx.core.graphics.drawable.toBitmap
 import com.example.user.data.model.authentication.BodyAccessToken
 import com.example.user.data.model.authentication.BodyRefreshToken
 import com.google.android.gms.maps.model.LatLng
@@ -12,11 +15,6 @@ import java.util.*
 
 
 object Constant {
-    const val ROUTE_LAYER_ID = "route-layer-id"
-    const val ROUTE_SOURCE_ID = "route-source-id"
-    const val ICON_LAYER_ID = "icon-layer-id"
-    const val ICON_SOURCE_ID = "icon-source-id"
-    const val RED_PIN_ICON_ID = "red-pin-icon-id"
     const val FINISH_MOVING_STRING: String = "FINISH_MOVING_STRING"
     const val FINISH_MOVING: String = "FINISH_MOVING"
     const val UPDATE_LOCATION_DRIVER_STRING: String = "UPDATE_LOCATION_DRIVER_STRING"
@@ -25,8 +23,6 @@ object Constant {
     const val HAVE_DRIVER: String = "HAVE_DRIVER"
     const val SEARCHING_ROUTE: String = "Searching Route"
     const val CONTINUE: String = "Continue"
-    const val SERVICE_ACCESS_TOKEN: String = "SERVICE_ACCESS_TOKEN"
-    const val SERVICE_ACCESS_TOKEN_BOOLEAN: String = "SERVICE_ACCESS_TOKEN"
     const val REQUEST_CURRENT_LOCATION = 1
 
 
@@ -102,7 +98,6 @@ object Constant {
         )
 
     fun getErrorBody(){
-
 //            val type = object : TypeToken<ResponseValidateRegister>() {}.type
 //            var errorResponse: ResponseValidateRegister? = Gson().fromJson(b.errorBody()!!.charStream(), type)
 //            Log.e("-----", errorResponse.toString())
@@ -113,4 +108,10 @@ object Constant {
 
     fun checkPhone(str: String): Boolean =
         str.matches("^(0|\\+84)(\\s|\\.)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\\d)(\\s|\\.)?(\\d{3})(\\s|\\.)?(\\d{3})$".toRegex())
+
+    fun convertDrawableToBitMap(drawable: Drawable?): Bitmap? =
+        drawable?.toBitmap(
+            drawable.intrinsicWidth,
+            drawable.intrinsicHeight
+        )
 }
