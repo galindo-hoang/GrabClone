@@ -360,7 +360,7 @@ public class BookingController {
             jsonObject.put("endedAt", endedAt);
 
             NotificationRequestDto notificationForDriverCanceled = NotificationRequestDto.builder()
-                    .target("booking-"+bookingId)
+                    .target("booking-" + bookingId)
                     .title("Booking cancelled")
                     .body("The booking has been cancelled")
                     .data(new HashMap<>() {
@@ -498,10 +498,20 @@ public class BookingController {
     }
 
     @PostMapping("/topDepartures")
-    public ResponseEntity<List<BookingRecordDto>> topDepartures(@RequestBody TopLocationRequestDto request) {
+    public ResponseEntity<List<BookingResponseDto>> topDepartures(@RequestBody TopLocationRequestDto request) {
         try {
             // Get Booking Records according phonenumber
-            return new ResponseEntity<>(null, HttpStatus.OK);
+            return new ResponseEntity<>(bookingService.findTopDeparture(request.getPhoneNumber(), request.getLimit()), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/topDestination")
+    public ResponseEntity<List<BookingResponseDto>> topDestination(@RequestBody TopLocationRequestDto request) {
+        try {
+            // Get Booking Records according phonenumber
+            return new ResponseEntity<>(bookingService.findTopDestination(request.getPhoneNumber(), request.getLimit()), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -511,7 +521,7 @@ public class BookingController {
     public ResponseEntity<BookingRecordDto> getBooking(@PathVariable Integer bookingId) {
         try {
             // Get Booking Record according bookingId
-            BookingRecord bookingRecord=bookingService.findById(bookingId);
+            BookingRecord bookingRecord = bookingService.findById(bookingId);
             System.out.println(bookingRecord);
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (Exception e) {
