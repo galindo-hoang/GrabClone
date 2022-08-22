@@ -7,7 +7,7 @@ import com.example.driver.domain.repository.BookingRepository
 import com.example.driver.utils.Response
 import javax.inject.Inject
 
-class SendCurrentLocationService @Inject constructor(
+class SendCurrentLocationUseCase @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val bookingRepository: BookingRepository
 ) {

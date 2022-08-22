@@ -68,7 +68,7 @@ class ApplicationModule {
         Retrofit
             .Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://api.mapbox.com")
+            .baseUrl("https://api.geoapify.com")
             .build()
             .create(DirectionApi::class.java)
 

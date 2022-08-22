@@ -16,8 +16,7 @@ class RouteNavigationRepositoryImpl @Inject constructor(
         method: String,
         origin: String,
         destination: String
-    ): Response<Direction> =
-        routeNavigationRemoteDataSource.getRoutes(method, origin, destination)
+    ): Response<Direction> = routeNavigationRemoteDataSource.getRoutes(method, origin, destination)
 
     override suspend fun getAddressFromText(text: String): Response<AddressFromText> =
         routeNavigationRemoteDataSource.getAddressFromText(text)
