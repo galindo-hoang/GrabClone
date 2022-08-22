@@ -17,6 +17,7 @@ export const createBookingCar = (payload:createBooking) => async dispatch => {
   }).then(()=>{
     ProcessBookingService.createBooking(payload)
       .then(reponse=>{
+        console.log(reponse)
         return dispatch(actions.createBookingCar(reponse.data as responseCreateBooking));
       })
       .catch(error=>console.log(error))

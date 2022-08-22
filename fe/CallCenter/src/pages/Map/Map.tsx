@@ -202,7 +202,8 @@ const Map = (props:Props) => {
         await MapService.getDistanceCarMethod(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
           setProcessMove(res.data.routes[0].legs[0].steps.map(index => index.maneuver.instruction))
           setPolyLine(res.data.routes[0].geometry.coordinates);
-        })
+        });
+        await MapService.getDistanceMoto(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate).then(res =>console.log(res))
       }
       else{
         await MapService.getDistanceMotoMethod(departureCoordinate.coordinate as coordinate, destinationCoordinate.coordinate as coordinate).then((res) => {

@@ -1,3 +1,4 @@
+/*
 package com.example.booking.config;
 
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -15,4 +16,4 @@ public class LocationConfig {
         RedisTemplate<byte[], byte[]> template = new RedisTemplate<byte[], byte[]>();
         return template;
     }
-}
+}*/

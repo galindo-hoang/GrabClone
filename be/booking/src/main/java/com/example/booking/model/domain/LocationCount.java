@@ -1,5 +1,6 @@
 package com.example.booking.model.domain;
 
+import com.example.clients.feign.DriverLocation.MapCoordinate;
 import lombok.*;
 
 import javax.persistence.Embeddable;

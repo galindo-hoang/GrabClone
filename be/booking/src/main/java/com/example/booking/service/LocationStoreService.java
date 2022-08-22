@@ -1,3 +1,4 @@
+/*
 package com.example.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,3 +22,4 @@ public class LocationStoreService {
         return redisTemplate.opsForValue().get(id);
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package com.example.booking.repository;
 
 import org.springframework.data.repository.CrudRepository;
@@ -8,4 +9,4 @@ import com.example.booking.model.entity.BookingLocation;
 @Repository
 public interface LocationRepository extends CrudRepository<BookingLocation, String> {
 
-}
+}*/
