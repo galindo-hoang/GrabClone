@@ -25,6 +25,7 @@ import {collection, getDocs,addDoc} from 'firebase/firestore'
 import firebase from "firebase/compat";
 import DownOutlined from "@ant-design/icons/lib/icons/DownOutlined";
 import ProcessBookingService from "../../service/BookingCar/ProcessBookingService";
+import { coordinateExample } from "src/apis/product.api";
 
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 const mapStateToProps = state => ({})
@@ -88,6 +89,9 @@ const BookingCar = (props: Props) => {
   const history = useHistory();
   const debounceDestination = useDebounce(destination.value, 500)
   const debounceDeparture = useDebounce(departure.value, 500);
+  const [dataDesinationMost,setDataDestinationMost]=useState<featuresLocation[]>([]);
+  const [dataDepartureMost,setDataDepartureMost]=useState<featuresLocation[]>([]);
+  const deboundTop5AddressMost = useDebounce(phoneNumber, 500)
 
   useEffect(() => {
     let isApi = true;
@@ -179,6 +183,30 @@ const BookingCar = (props: Props) => {
     }) as recentPhoneNumber
     setPhoneNumber(temp[0]?.phonenumber)
   }
+  useEffect(()=>{
+    console.log(phoneNumber)
+    const listAddressDestination:featuresLocation[]=[];
+    const listAddressDeparture:featuresLocation[]=[];
+    if(deboundTop5AddressMost) {
+      const get5AddressMost = async () => {
+        coordinateExample.forEach(async index=>{
+          await BookingService.convertCoordinateToAddress(index).then(response => {
+            listAddressDeparture.push({value:response.data.features[0].properties.formatted,coordinate:{
+                longitude:response.data.features[0].geometry.coordinates[1],
+                latitude:response.data.features[0].geometry.coordinates[0]
+              }});
+            listAddressDestination.push({value:response.data.features[0].properties.formatted,coordinate:{
+                longitude:response.data.features[0].geometry.coordinates[1],
+                latitude:response.data.features[0].geometry.coordinates[0]
+              }})
+          })
+        })
+      }
+      get5AddressMost();
+      setDataDepartureMost(listAddressDeparture);
+      setDataDestinationMost(listAddressDestination)
+    }
+  },[deboundTop5AddressMost])
   const onSelectedDeparture = (address) => {
     const temp: { value: string; coordinate: coordinate }[] | undefined = departureAutocomplete?.filter(index => (
       index.value === address
@@ -199,6 +227,7 @@ const BookingCar = (props: Props) => {
   }
 
   const onChangePhoneNumber = (data) => {
+
     setPhoneNumber(data)
   }
   const onChangeDeparture = (data) => {
@@ -242,7 +271,7 @@ const BookingCar = (props: Props) => {
               <Row style={{position: "relative", width: "500px"}}>
                 <Col xs lg md sm="12">
                   <Dropdown.Button
-                    className="float-left mb-1"
+                    className="float-left mb-1 "
                     icon={<DownOutlined />}
                     overlay={dropdownTypeCar}
                   >
@@ -255,6 +284,23 @@ const BookingCar = (props: Props) => {
                   <label className="float-left mb-1">Địa chỉ đón</label>
                 </Col>
               </Row>
+             {/* <Row style={{position: "relative"}} gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                <Col className="gutter-row" span={16}>
+                  <AutoComplete
+                    className="form-control form-control-lg mb-3"
+                    options={departureAutocomplete}
+                    value={departure.value}
+                    onChange={onChangeDeparture}
+                    onSelect={onSelectedDeparture}
+                    placeholder="Điền địa chỉ đón"
+                  />
+                </Col>
+                <Col className="gutter-row" span={8}>
+                  <button className="btn  btn-info btn-md" onClick={() => setVisibleDeparture(true)}>
+                    Lịch sử đón
+                  </button>
+                </Col>
+              </Row>*/}
               <Row style={{position: "relative", width: "500px"}}>
                 <Col xs lg md sm="8">
                   <AutoComplete
@@ -270,7 +316,15 @@ const BookingCar = (props: Props) => {
                   />
                 </Col>
                 <Col xs lg md sm="4" className="">
-                  <button className="btn  btn-info btn-md" onClick={() => setVisibleDeparture(true)}>
+                  <button className="btn  btn-info btn-md" onClick={() =>{
+                    if(dataDepartureMost.length===5)
+                    {
+                      setVisibleDeparture(true)
+                    }
+                    else{
+                      MessageWarningService.getInstance("Đang load")
+                    }
+                  }}>
                     Lịch sử đón
                   </button>
                 </Col>
@@ -295,7 +349,16 @@ const BookingCar = (props: Props) => {
                   />
                 </Col>
                 <Col xs lg md sm="4" className="">
-                  <button className="btn  btn-info btn-md" onClick={() => setVisibleDesination(true)}>
+                  <button className="btn  btn-info btn-md" onClick={() => {
+                    if(dataDesinationMost.length===5)
+                    {
+                      setVisibleDesination(true)
+                    }
+                    else{
+                      MessageWarningService.getInstance("Đang load")
+                    }
+
+                  }}>
                     Lịch sử đến
                   </button>
                 </Col>
@@ -333,12 +396,9 @@ const BookingCar = (props: Props) => {
                     date:firebase.firestore.Timestamp.fromDate(new Date()),
                     phonenumber:phoneNumber
                   }
-                  addPhoneRecent(collection(databaseFireBase , "HistoryPhoneNumber"),recentPhoneNumber)
-                  history.push(PATH.MAP);
+                  addPhoneRecent(collection(databaseFireBase , "HistoryPhoneNumber"),recentPhoneNumber);
+                  history.push(PATH.MAP)
                 } else {
-                  ProcessBookingService.finishBooking()
-                    .then(payoad=>console.log(payoad))
-                    .catch(ex=>console.log(ex))
                   const message = MessageWarningService.getInstance("Vui lòng điền đầy đủ thông tin")
                 }
               }}>
@@ -356,9 +416,7 @@ const BookingCar = (props: Props) => {
         onCancel={() => setVisibleDeparture(false)}
         width={1000}
       >
-        <p>some contents...</p>
-        <p>some contents...</p>
-        <p>some contents...</p>
+        <HistoryItem dataDeparture={dataDepartureMost} setDeparture={(index)=>setDeparture(index)}/>
       </Modal>
       <Modal
         title="Lịch sử đến"
@@ -368,7 +426,7 @@ const BookingCar = (props: Props) => {
         onCancel={() => setVisibleDesination(false)}
         width={1000}
       >
-        <HistoryItem/>
+        <HistoryItem dataDestination={dataDesinationMost} setDestination={(index)=>setDestination(index)}/>
       </Modal>
     </MainLayout>
   )
@@ -382,37 +440,51 @@ interface DataType {
   dateTime: string;
 }
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Số điện thoại',
-    dataIndex: 'phoneNumber',
-    render: text => <a>{text}</a>,
-  },
-  {
-    title: 'Địa chỉ',
-    dataIndex: 'address',
-    render: text => <a style={{color: 'blue', textDecorationLine: "underline"}}>{text}</a>,
-  },
-  {
-    title: 'Thời gian đặt',
-    dataIndex: 'dateTime',
-    render: text => <a>{text}</a>,
-  },
-];
 
-const data: DataType[] = [];
-for (let i = 0; i < 5; i++) {
-  data.push({
-    key: i,
-    phoneNumber: `0935955314`,
-    address: "Bà Hom",
-    dateTime: `17-01-2022`,
-  });
-}
 
-const HistoryItem = () => {
+const HistoryItem = (props:any) => {
+  const {dataDeparture ,dataDestination,setDeparture,setDestination}=props;
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(false);
+  const data: DataType[] = [];
+  if(dataDestination===undefined) {
+    dataDeparture.forEach((index) => {
+      data.push({
+        key: 1,
+        phoneNumber: `0935955314`,
+        address: index.value.toString(),
+        dateTime: `17-01-2022`,
+      });
+    })
+  }
+  else
+  {
+    dataDestination.forEach((index) => {
+      data.push({
+        key: 2,
+        phoneNumber: `0935955314`,
+        address: index.value.toString(),
+        dateTime: `17-01-2022`,
+      });
+    })
+  }
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Số điện thoại',
+      dataIndex: 'phoneNumber',
+      render: text => <a>{text}</a>,
+    },
+    {
+      title: 'Địa chỉ',
+      dataIndex: 'address',
+      render: text => <a style={{color: 'blue', textDecorationLine: "underline"}}>{text}</a>,
+    },
+    {
+      title: 'Thời gian đặt',
+      dataIndex: 'dateTime',
+      render: text => <a>{text}</a>,
+    },
+  ];
 
   const start = () => {
     setLoading(true);
@@ -425,6 +497,7 @@ const HistoryItem = () => {
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
+
 
   const rowSelection = {
     selectedRowKeys,
