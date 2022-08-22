@@ -1,7 +1,9 @@
 package com.example.booking.service;
 
+import com.example.booking.model.dto.BookingResponseDto;
 import com.example.booking.utils.BookingNotFoundException;
-import com.querydsl.jpa.impl.JPAQuery;
+import org.hibernate.Session;
+import org.hibernate.transform.ResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -14,6 +16,7 @@ import com.example.booking.model.entity.BookingRecord;
 import com.example.booking.repository.BookingRepository;
 
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
 
@@ -24,38 +27,85 @@ public class BookingStoreService {
     private BookingRepository bookingRepository;
     @PersistenceContext
     private javax.persistence.EntityManager entityManager;
+
     public BookingRecord save(BookingRecord bookingRecord) {
         return bookingRepository.save(bookingRecord);
     }
 
-    @Cacheable(value="BookingRecord")
+    @Cacheable(value = "BookingRecord")
     public List<BookingRecord> findAll() {
         return bookingRepository.findAll();
     }
 
-    @Cacheable(value="BookingRecord", key="#id")
+    @Cacheable(value = "BookingRecord", key = "#id")
     public BookingRecord findById(Integer id) {
         return bookingRepository.findById(id).orElseThrow(() -> new BookingNotFoundException("Booking Not Found"));
     }
 
-    @Cacheable(value = "BookingRecord", key = "#page")
-    public List<BookingRecord> findPages(Integer page) {
-        return bookingRepository.findAll(PageRequest.of(page,5)).getContent();
-    }
-    public List<BookingRecord> findTopDeparture(String phoneNumber, Integer limit) {
-           JPAQuery<BookingRecord> query = new JPAQuery<>(entityManager);
-        return bookingRepository.findAll(PageRequest.of(0,limit)).getContent();
+    @Cacheable(value = "BookingRecord")
+    public List<BookingResponseDto> findTopDeparture(String phoneNumber, Integer limit) {
+        Query query = entityManager.createQuery("select b.pickupCoordinate.latitude as latitude,b.pickupCoordinate.longitude as longitude,count(b.id) as count " +
+                "from BookingRecord b " +
+                "where b.phonenumber = :phoneNumber " +
+                "group by b.pickupCoordinate.latitude,b.pickupCoordinate.longitude " +
+                "order by count(b.id) desc ").setMaxResults(limit);
+        return (List<BookingResponseDto>) query
+                .setParameter("phoneNumber", phoneNumber)
+                .unwrap(org.hibernate.query.Query.class)
+                .setResultTransformer(
+                        new ResultTransformer() {
+                            @Override
+                            public Object transformTuple(Object[] objects, String[] strings) {
+                                return new BookingResponseDto(((Double) objects[0]).doubleValue(),
+                                        ((Double) objects[1]).doubleValue(),
+                                        ((Long) objects[2]).intValue());
+                            }
+
+                            @Override
+                            public List transformList(List list) {
+                                return list;
+                            }
+                        }
+                )
+                .getResultList();
     }
 
-    @CacheEvict(value="BookingRecord", key="#id")
+    @Cacheable(value = "BookingRecord")
+    public List<BookingResponseDto> findTopDestination(String phoneNumber, Integer limit) {
+        Query query = entityManager.createQuery("select b.dropoffCoordinate.latitude as latitude,b.dropoffCoordinate.longitude as longitude,count(b.id) as count " +
+                "from BookingRecord b " +
+                "where b.phonenumber = :phoneNumber " +
+                "group by b.dropoffCoordinate.latitude,b.dropoffCoordinate.longitude " +
+                "order by count(b.id) desc ").setMaxResults(limit);
+        return (List<BookingResponseDto>) query
+                .setParameter("phoneNumber", phoneNumber)
+                .unwrap(org.hibernate.query.Query.class)
+                .setResultTransformer(
+                        new ResultTransformer() {
+                            @Override
+                            public Object transformTuple(Object[] objects, String[] strings) {
+                                return new BookingResponseDto(((Double) objects[0]).doubleValue(),
+                                        ((Double) objects[1]).doubleValue(),
+                                        ((Long) objects[2]).intValue());
+                            }
+
+                            @Override
+                            public List transformList(List list) {
+                                return list;
+                            }
+                        }
+                )
+                .getResultList();
+    }
+    @CacheEvict(value = "BookingRecord", key = "#id")
     public void removeBooking(Integer id) {
-        BookingRecord bookingRecord=bookingRepository.findById(id).orElseThrow(() -> new BookingNotFoundException("Booking Not Found"));
+        BookingRecord bookingRecord = bookingRepository.findById(id).orElseThrow(() -> new BookingNotFoundException("Booking Not Found"));
         bookingRepository.delete(bookingRecord);
     }
 
-    @CachePut(value="BookingRecord", key="#id")
+    @CachePut(value = "BookingRecord", key = "#id")
     public BookingRecord updateBooking(Integer id, BookingRecord bookingRecord) {
-        BookingRecord bookingRecordFindById=bookingRepository.findById(id).orElseThrow(() -> new BookingNotFoundException("Booking Not Found"));
+        BookingRecord bookingRecordFindById = bookingRepository.findById(id).orElseThrow(() -> new BookingNotFoundException("Booking Not Found"));
         //ToDo set new properties
         bookingRecordFindById.setCreatedAt(new Date());
 
