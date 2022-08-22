@@ -1,24 +1,26 @@
 package com.example.driver.domain.usecase
 
+import com.example.driver.data.dto.AcceptBooking
+import com.example.driver.data.model.booking.ResponseAcceptBooking
+import com.example.driver.domain.repository.AuthenticationRepository
 import com.example.driver.domain.repository.BookingRepository
 import com.example.driver.utils.Response
 import javax.inject.Inject
 
 class AcceptBookingUseCase @Inject constructor(
-    private val bookingRepository: BookingRepository
+    private val bookingRepository: BookingRepository,
+    private val authenticationRepository: AuthenticationRepository
 ) {
-    suspend fun invoke(): Response<Int>{
-        val response = bookingRepository.sendAcceptBooking()
-        return when(response.code()){
-            200 -> {
-                val body = response.body()
-                if(body != null) Response.success(1)
-                else Response.success(-1)
+    suspend fun invoke(id: Int): Response<ResponseAcceptBooking>{
+        val response = bookingRepository.sendAcceptBooking(
+            AcceptBooking(id, authenticationRepository.getAccount().username.toString())
+        )
+        return try {
+            when(response.code()){
+                200 -> { Response.success(response.body()!!) }
+                401 -> { Response.error(null,-2,response.message()) }
+                else -> Response.error(null,response.code(),"fail to connect db")
             }
-            401 -> {
-                Response.error(null,-2,response.message())
-            }
-            else -> Response.error(null,response.code(),"fail to connect db")
-        }
+        } catch (e:Exception) { Response.error(null,-1,e.message.toString())}
     }
 }

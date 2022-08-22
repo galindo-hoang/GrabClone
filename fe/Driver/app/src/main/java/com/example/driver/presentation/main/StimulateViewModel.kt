@@ -1,10 +1,8 @@
 package com.example.driver.presentation.main
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.example.driver.data.dto.LatLong
-import com.example.driver.data.model.route.Direction
 import com.example.driver.domain.usecase.AcceptBookingUseCase
 import com.example.driver.domain.usecase.GetRouteNavigationUseCase
 import com.example.driver.utils.Response
@@ -18,12 +16,12 @@ class StimulateViewModel @Inject constructor(
     private val acceptBookingUseCase: AcceptBookingUseCase,
     private val getRouteNavigationUseCase: GetRouteNavigationUseCase
 ): ViewModel() {
-    val origin: LatLong? = null
-    val destination: LatLong? = null
+    val origin: LatLong? = LatLong(10.838678,106.665290)
+    val destination: LatLong? = LatLong(10.771423,106.698471)
 
-    fun acceptBooking() = liveData {
+    fun acceptBooking(id: Int) = liveData {
         emit(Response.loading(null))
-        emit(acceptBookingUseCase.invoke())
+        emit(acceptBookingUseCase.invoke(id))
     }
 
     fun doneDriving() = liveData {

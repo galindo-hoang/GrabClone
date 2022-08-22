@@ -13,13 +13,12 @@
     <application
         android:name=".presentation.BaseApplication"
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Driver"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
             android:name=".presentation.login.LogInActivity"
@@ -35,11 +34,11 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.main.StimulateActivity"
+            android:name=".presentation.main.MainActivity"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.main.MainActivity"
+            android:name=".presentation.main.StimulateActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,8 +54,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
-        <service android:name=".presentation.service.CurrentLocationService"/>
+        <service android:name=".presentation.service.CurrentLocationService" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

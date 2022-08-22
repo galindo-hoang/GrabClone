@@ -1,4 +1,6 @@
 package com.example.driver.data.model.fcm
 
-class ResponseSubscribe {
-}
+data class ResponseSubscribe(
+    val id: Int,
+    val topicName: String
+)

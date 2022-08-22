@@ -3,7 +3,6 @@ package com.example.driver.presentation.main
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
 import com.example.driver.BuildConfig
@@ -20,7 +19,6 @@ import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import java.util.*
 import javax.inject.Inject
 
 
@@ -37,15 +35,13 @@ class StimulateActivity: BaseActivity() {
     private var listPoints : List<LatLng>? = null
     private lateinit var binding: ActivityStimulateBinding
     private lateinit var map: GoogleMap
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         binding = ActivityStimulateBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupGoogleMap()
-        registerViewChangeListener()
         registerClickListener()
     }
-
     private fun registerClickListener() {
         binding.btnDoneDriving.setOnClickListener {
             stimulateViewModel.doneDriving().observe(this) {
@@ -68,7 +64,6 @@ class StimulateActivity: BaseActivity() {
     private fun setupGoogleMap() {
         if(!Places.isInitialized())
             Places.initialize(this,BuildConfig.GOOGLE_MAP_API)
-
         (supportFragmentManager.findFragmentById(R.id.mapView)
                 as SupportMapFragment).getMapAsync {
             this.map = it
@@ -93,7 +88,7 @@ class StimulateActivity: BaseActivity() {
                     PolylineOptions()
                         .apply {
                             this.addAll(listPoints!!)
-                            this.width(10f)
+                            this.width(20f)
                             this.color(Color.RED)
                             this.geodesic(true)
                         }
@@ -115,7 +110,7 @@ class StimulateActivity: BaseActivity() {
                             (origin!!.latitude+ destination!!.latitude)/2,
                             (origin!!.longitude+ destination!!.longitude)/2,
                         ),
-                        12f
+                        13f
                     ))
                     stimulation()
                 }
@@ -138,6 +133,7 @@ class StimulateActivity: BaseActivity() {
                             this.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
                         }
                     )
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(listPoints!![it],15f))
                 }
                 sendCurrentLocationUseCase.invoke(
                     LatLong(listPoints!![it].latitude, listPoints!![it].longitude)
