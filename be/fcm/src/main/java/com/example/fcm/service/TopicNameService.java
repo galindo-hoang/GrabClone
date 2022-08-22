@@ -19,4 +19,5 @@ public class TopicNameService {
     public TopicNameRecord save(TopicNameRecord topicNameRecord) {
         return topicNameRepository.save(topicNameRecord);
     }
+
 }

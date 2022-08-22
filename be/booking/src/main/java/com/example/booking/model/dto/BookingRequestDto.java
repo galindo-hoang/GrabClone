@@ -1,6 +1,6 @@
 package com.example.booking.model.dto;
 
-import com.example.booking.model.domain.MapCoordinate;
+import com.example.clients.feign.DriverLocation.MapCoordinate;
 import lombok.*;
 
 @Data

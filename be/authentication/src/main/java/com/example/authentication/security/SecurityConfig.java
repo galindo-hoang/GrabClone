@@ -41,13 +41,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 authenticationManagerBean()
         );
         customAuthenticationFilter.setFilterProcessesUrl("/login");
-        http.cors().configurationSource(request -> {
-            CorsConfiguration configuration = new CorsConfiguration();
-            configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-            configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-            configuration.setAllowedHeaders(List.of("*"));
-            return configuration;
-        });
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers("/login/**", "/refresh-token/**",

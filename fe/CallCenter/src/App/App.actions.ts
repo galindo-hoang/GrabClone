@@ -12,3 +12,6 @@ export const receivedFCM=(payload:object)=>({
   type:types.RECEIVED_FCM,
   payload:payload
 })
+export const clearFCM=()=>({
+  type:types.CLEAR_FCM
+})
