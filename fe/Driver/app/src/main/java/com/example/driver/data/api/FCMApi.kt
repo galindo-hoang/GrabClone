@@ -3,6 +3,8 @@ package com.example.driver.data.api
 import com.example.driver.data.dto.RegisterFCMBody
 import com.example.driver.data.dto.SubscribeBookingDto
 import com.example.driver.data.dto.UpdateLocation
+import com.example.driver.data.model.fcm.ResponseSubscribe
+import com.example.driver.data.model.fcm.ResponseUnSubscribe
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -13,7 +15,7 @@ interface FCMApi {
     @POST("/api/v1/fcm/update")
     fun sendCurrentLocation(@Body updateLocation: UpdateLocation): Response<Any>
     @POST("/api/v1/fcm-publish/subscribe")
-    fun subscribeListeningBooking(@Body subscribeBookingDto: SubscribeBookingDto): Response<Any>
+    fun subscribeListeningBooking(@Body subscribeBookingDto: SubscribeBookingDto): Response<ResponseSubscribe>
     @POST("/api/v1/fcm-publish/unsubscribe")
-    fun unsubscribeListeningBooking(@Body subscribeBookingDto: SubscribeBookingDto): Response<Any>
+    fun unsubscribeListeningBooking(@Body subscribeBookingDto: SubscribeBookingDto): Response<ResponseUnSubscribe>
 }

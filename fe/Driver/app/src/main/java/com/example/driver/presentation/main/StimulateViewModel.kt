@@ -1,13 +1,11 @@
 package com.example.driver.presentation.main
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.example.driver.data.dto.LatLong
 import com.example.driver.domain.usecase.AcceptBookingUseCase
-import com.example.driver.exception.ExpiredRefreshTokenExceptionCustom
+import com.example.driver.domain.usecase.GetRouteNavigationUseCase
 import com.example.driver.utils.Response
-import com.example.driver.utils.Status
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -15,22 +13,25 @@ import javax.inject.Singleton
 
 @Singleton
 class StimulateViewModel @Inject constructor(
-    private val acceptBookingUseCase: AcceptBookingUseCase
+    private val acceptBookingUseCase: AcceptBookingUseCase,
+    private val getRouteNavigationUseCase: GetRouteNavigationUseCase
 ): ViewModel() {
-    val source: LatLong? = null
-    val destination: LatLong? = null
-    private val _haveBooking = MutableLiveData(false)
-    val haveBooking get() = _haveBooking
+    val origin: LatLong? = LatLong(10.838678,106.665290)
+    val destination: LatLong? = LatLong(10.771423,106.698471)
 
-    fun acceptBooking() = liveData {
+    fun acceptBooking(id: Int) = liveData {
         emit(Response.loading(null))
-        emit(acceptBookingUseCase.invoke())
+        emit(acceptBookingUseCase.invoke(id))
     }
 
     fun doneDriving() = liveData {
         emit(Response.loading(null))
         runBlocking(Dispatchers.IO) {
-
         }
+    }
+
+    fun getNavigation() = liveData {
+        emit(Response.loading(null))
+        emit(getRouteNavigationUseCase.invoke(origin.toString(),destination.toString()))
     }
 }

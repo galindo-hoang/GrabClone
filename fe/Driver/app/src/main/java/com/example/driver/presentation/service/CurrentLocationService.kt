@@ -8,9 +8,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import com.example.driver.data.dto.LatLong
-import com.example.driver.domain.repository.AuthenticationRepository
-import com.example.driver.domain.repository.BookingRepository
-import com.example.driver.domain.usecase.SendCurrentLocationService
+import com.example.driver.domain.usecase.SendCurrentLocationUseCase
 import com.example.driver.utils.Constant
 import com.example.driver.utils.RequestPermissions
 import com.example.driver.utils.Status
@@ -21,24 +19,34 @@ import javax.inject.Inject
 
 class CurrentLocationService: Service() {
     @Inject
-    lateinit var bookingRepository: BookingRepository
-    @Inject
-    lateinit var authenticationRepository: AuthenticationRepository
-    @Inject
-    lateinit var sendCurrentLocationService: SendCurrentLocationService
+    lateinit var sendCurrentLocationUseCase: SendCurrentLocationUseCase
     override fun onBind(p0: Intent?): IBinder? = null
 
     private var currentLatLong: LatLong? = null
     private lateinit var mLocationRequest: LocationRequest
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
+    lateinit var loopUpdateLocationHandler: Handler
+    private val loopUpdateLocation = object : Runnable {
+        override fun run() {
+            this@CurrentLocationService.getCurrentLocation()
+            loopUpdateLocationHandler.postDelayed(this, 1000)
+        }
+    }
     override fun onCreate() {
         super.onCreate()
-        mainHandler = Handler(Looper.myLooper()!!)
+        loopUpdateLocationHandler = Handler(Looper.myLooper()!!)
         setUpCurrentRequestLocation()
-        getCurrentLocation()
     }
-
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        loopUpdateLocationHandler.post(loopUpdateLocation)
+        return START_STICKY
+    }
+    override fun onDestroy() {
+        loopUpdateLocationHandler.removeCallbacks(loopUpdateLocation)
+        super.onDestroy()
+    }
+////////////////////////////////////////////////////////////////////////////////////////////////////
     private fun setUpCurrentRequestLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         mLocationRequest = LocationRequest.create()
@@ -69,32 +77,14 @@ class CurrentLocationService: Service() {
             super.onLocationResult(p0)
             currentLatLong = LatLong(p0.lastLocation?.latitude ?: 0.0, p0.lastLocation?.longitude ?: 0.0)
             runBlocking(Dispatchers.IO) {
-                val response = sendCurrentLocationService.invoke(currentLatLong!!)
+                val response = sendCurrentLocationUseCase.invoke(currentLatLong!!)
                 if(response.status == Status.ERROR && response.codeResponse == -2){
-                    val intent = Intent(Constant.REFRESH_TOKEN_EXPIRED).apply {
-                        this.putExtra(Constant.REFRESH_TOKEN_EXPIRED_PUT_EXTRA_USERNAME,response.message)
+                    val intent = Intent(Constant.REFRESH_TOKEN_EXPIRED_WHEN_SEND_LOCATION).apply {
+                        this.putExtra(Constant.REFRESH_TOKEN_EXPIRED_WHEN_SEND_LOCATION_EXTRA_USERNAME,response.message)
                     }
                     sendBroadcast(intent)
                 }
             }
         }
-    }
-
-    lateinit var mainHandler: Handler
-    private val looper = object : Runnable {
-        override fun run() {
-            this@CurrentLocationService.getCurrentLocation()
-            mainHandler.postDelayed(this, 1000)
-        }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        mainHandler.post(looper)
-        return START_STICKY
-    }
-
-    override fun onDestroy() {
-        mainHandler.removeCallbacks(looper)
-        super.onDestroy()
     }
 }

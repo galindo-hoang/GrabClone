@@ -16,10 +16,10 @@ class SplashUseCase @Inject constructor(
     private val bookingRepository: BookingRepository
 ) {
     suspend fun invoke(): Response<Int> {
-        val token = authenticationRepository.getNumberToken()
-        val account = authenticationRepository.getNumberAccount()
+        val tokenSize = authenticationRepository.getNumberToken()
+        val accountSize = authenticationRepository.getNumberAccount()
         return try {
-            if (token == 1 && account == 1) {
+            if (tokenSize == 1 && accountSize == 1) {
                 val token = FirebaseMessaging.getInstance().token.await()
                 val userDto = authenticationRepository.getAccount()
                 bookingRepository.postRegisterFcmToken(RegisterFCMBody(token, userDto.username!!))

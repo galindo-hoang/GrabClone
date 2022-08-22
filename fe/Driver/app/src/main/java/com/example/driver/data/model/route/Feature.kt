@@ -1,4 +1,4 @@
-package com.example.user.data.model.route
+package com.example.driver.data.model.route
 
 data class Feature(
     val geometry: Geometry,

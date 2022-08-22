@@ -4,13 +4,11 @@ import android.content.Intent
 import android.os.Handler
 import android.util.Log
 import com.example.user.data.dto.RegisterFCMBody
-import com.example.user.data.model.booking.ReceiveDriver
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.domain.repository.BookingRepository
 import com.example.user.utils.Constant
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -31,33 +29,34 @@ class MyFirebaseMessaging: FirebaseMessagingService() {
             }catch (e:Exception) {Log.e("-------", e.message.toString())}
         }
     }
-
-    var countWaiting = 0
-    var isWaiting = false
-    var isMoving = false
-    lateinit var mainHandler: Handler
-    private val looper = object : Runnable {
-        override fun run() {
-            if(countWaiting < 20){
-                countWaiting += 1
-                mainHandler.postDelayed(this, 1000)
-            }else {
-                stopListening()
+    companion object {
+        var countWaiting = 0
+        var isWaiting = false
+        var isMoving = false
+        lateinit var mainHandler: Handler
+        private val waitingDriver = object : Runnable {
+            override fun run() {
+                if(countWaiting < 20){
+                    countWaiting += 1
+                    mainHandler.postDelayed(this, 1000)
+                }else {
+                    stopListening()
+                }
             }
         }
-    }
 
-    fun startListening(){
-        countWaiting = 0
-        isWaiting = true
-        mainHandler.post(looper)
-    }
+        fun startListening(){
+            countWaiting = 0
+            isWaiting = true
+            mainHandler.post(waitingDriver)
+        }
 
-    fun stopListening(){
-        isWaiting = false
-        mainHandler.removeCallbacks(looper)
-    }
+        fun stopListening(){
+            isWaiting = false
+            mainHandler.removeCallbacks(waitingDriver)
+        }
 
+    }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         if(remoteMessage.data.isNotEmpty() && remoteMessage.data.containsKey("booking")) {

@@ -1,6 +1,7 @@
 package com.example.driver.domain.usecase
 
 import com.example.driver.data.dto.SubscribeBookingDto
+import com.example.driver.data.model.fcm.ResponseSubscribe
 import com.example.driver.domain.repository.AuthenticationRepository
 import com.example.driver.domain.repository.BookingRepository
 import com.example.driver.utils.Response
@@ -10,14 +11,14 @@ class StartListeningBookingUseCase @Inject constructor(
     private val bookingRepository: BookingRepository,
     private val authenticationRepository: AuthenticationRepository
 ) {
-    suspend fun invoke(): Response<Any> {
+    suspend fun invoke(): Response<ResponseSubscribe> {
         return try {
             val userDto = authenticationRepository.getAccount()
-            val response = bookingRepository.unsubscribeListenBooking(
+            val response = bookingRepository.subscribeListenBooking(
                 SubscribeBookingDto("booking", userDto.username!!)
             )
             when(response.code()){
-                200 -> Response.success(1)
+                200 -> Response.success(response.body()!!)
                 401 -> Response.error(null,-2,response.message())
                 else -> Response.error(null,response.code(),"fail to connect db")
             }

@@ -2,20 +2,21 @@ package com.example.driver.presentation
 
 import android.app.Dialog
 import android.content.*
+import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatEditText
 import com.example.driver.R
+import com.example.driver.data.model.booking.ReceiveNewBooking
+import com.example.driver.databinding.DialogLoginBinding
+import com.example.driver.databinding.DialogNewBookingBinding
 import com.example.driver.domain.usecase.SetupServiceCurrentLocationUseCase
-import com.example.driver.exception.ExpiredRefreshTokenExceptionCustom
 import com.example.driver.presentation.login.LogInActivity
 import com.example.driver.presentation.main.StimulateActivity
 import com.example.driver.presentation.main.StimulateViewModel
 import com.example.driver.utils.Constant
 import com.example.driver.utils.Status
-import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
 import javax.inject.Inject
 
 open class BaseActivity @Inject constructor(): AppCompatActivity() {
@@ -31,116 +32,95 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     private lateinit var mExpiredTokenDialog: Dialog
     private lateinit var mNewBookingDialog: Dialog
 
-    fun startLooking(){
-        setupServiceCurrentLocationUseCase.start(application)
-        stimulateViewModel.haveBooking.observe(this) {
-            if(it) {
-                this.showNewBookingDialog()
-            }
+    private var haveNewBooking = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            this@BaseActivity.showNewBookingDialog(
+                Gson().fromJson(p1!!.getStringExtra(Constant.HAVE_NEW_BOOKING_EXTRA), ReceiveNewBooking::class.java)
+            )
         }
     }
-
-
-
-    fun stopLooking(){
-        setupServiceCurrentLocationUseCase.stop()
-        stimulateViewModel.haveBooking.removeObservers(this)
-    }
-
-    private fun registerViewChangeExpired() {
-        baseViewModel.isLogin.observe(this) {
-            when(it){
-                1 -> {
-                    baseViewModel.password = null
-                    baseViewModel.userName = null
-                    hideProgressDialog()
-                    hideExpiredTokenDialog()
-                }
-                -1 -> {
-                    hideProgressDialog()
-                    Toast.makeText(this, "password wrong", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    private fun registerClickListenerExpired() {
-        this.mExpiredTokenDialog.findViewById<AppCompatButton>(R.id.btn_re_login_accept).setOnClickListener {
-            val password = this@BaseActivity.mExpiredTokenDialog.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
-            if(password.isEmpty())
-                Toast.makeText(this,"Please write password",Toast.LENGTH_LONG).show()
-            else {
-                baseViewModel.password = password
-                baseViewModel.login()
-                this@BaseActivity.showProgressDialog("Please waiting...")
-            }
-        }
-
-        this.mExpiredTokenDialog.findViewById<AppCompatButton>(R.id.btn_re_login_cancel).setOnClickListener {
-            this.mExpiredTokenDialog.dismiss()
-            baseViewModel.logout()
-            finishAffinity()
-            startActivity(Intent(this, LogInActivity::class.java))
-        }
-    }
-
-    private fun showNewBookingDialog(){
+    private fun showNewBookingDialog(receiveNewBooking: ReceiveNewBooking){
         this.mNewBookingDialog = Dialog(this)
-        mNewBookingDialog.setContentView(R.layout.dialog_new_booking)
-        this.mNewBookingDialog.findViewById<TextView>(R.id.tv_new_booking_des).text =
-            Constant.convertLatLongToAddress(
-                this,
-                LatLng(stimulateViewModel.destination!!.lat,stimulateViewModel.destination!!.long)
-            )
-        this.mNewBookingDialog.findViewById<TextView>(R.id.tv_new_booking_src).text =
-            Constant.convertLatLongToAddress(
-                this,
-                LatLng(stimulateViewModel.source!!.lat,stimulateViewModel.source!!.long)
-            )
-        registerClickListenerNewBooking()
-        registerViewChangeNewBooking()
-        this.mNewBookingDialog.show()
-    }
-
-    private fun registerClickListenerNewBooking() {
-        this.mNewBookingDialog.findViewById<AppCompatButton>(R.id.btn_new_booking_accept).setOnClickListener {
-            stimulateViewModel.acceptBooking().observe(this) {
+        val dialogNewBookingBinding = DialogNewBookingBinding.inflate(LayoutInflater.from(this))
+        this.mNewBookingDialog.setContentView(dialogNewBookingBinding.root)
+        dialogNewBookingBinding.tvNewBookingDes.text = Constant.convertLatLongToAddress(this, receiveNewBooking.origin.convertToLatLng())
+        dialogNewBookingBinding.tvNewBookingSrc.text = Constant.convertLatLongToAddress(this, receiveNewBooking.destination.convertToLatLng())
+        dialogNewBookingBinding.btnNewBookingAccept.setOnClickListener {
+            stimulateViewModel.acceptBooking(receiveNewBooking.bookingId).observe(this) {
                 this.mNewBookingDialog.dismiss()
-                when(it.status){
+                when(it.status) {
                     Status.LOADING -> this.showProgressDialog()
                     Status.SUCCESS -> {
-                        // stop to stimulate current location
                         setupServiceCurrentLocationUseCase.stop()
                         this.hideProgressDialog()
-                        startActivity(Intent(this, StimulateActivity::class.java))
+                        startActivity(Intent(this,StimulateActivity::class.java))
                     }
                     Status.ERROR -> {
                         this.hideProgressDialog()
-                        if(it.codeResponse == -2) this.showExpiredTokenDialog(it.message.toString())
+                        if(it.codeResponse == -2) this.showProgressDialog(it.message.toString())
                         else Toast.makeText(this,it.message.toString(),Toast.LENGTH_LONG).show()
                     }
                 }
             }
         }
-        this.mNewBookingDialog.findViewById<AppCompatButton>(R.id.btn_new_booking_cancel).setOnClickListener {
+        dialogNewBookingBinding.btnNewBookingCancel.setOnClickListener {
             this.mNewBookingDialog.dismiss()
         }
+        this.mNewBookingDialog.show()
     }
-
-    private fun registerViewChangeNewBooking() {}
-
+    fun startLooking(){
+        setupServiceCurrentLocationUseCase.start(application)
+        registerReceiver(haveNewBooking,IntentFilter(Constant.HAVE_NEW_BOOKING))
+    }
+    fun stopLooking(){
+        setupServiceCurrentLocationUseCase.stop()
+        unregisterReceiver(haveNewBooking)
+    }
+////////////////////////////////////////////////////////////////////////////////////////////////////
     fun showExpiredTokenDialog(userName: String){
         this.mExpiredTokenDialog = Dialog(this)
-        mExpiredTokenDialog.setContentView(R.layout.dialog_login)
+        val dialogLoginBinding = DialogLoginBinding.inflate(LayoutInflater.from(this))
+        mExpiredTokenDialog.setContentView(dialogLoginBinding.root)
         baseViewModel.userName = userName
-        registerClickListenerExpired()
-        registerViewChangeExpired()
+        dialogLoginBinding.btnReLoginAccept.setOnClickListener {
+            val password = dialogLoginBinding.etReLogin.text.toString()
+            if(password.isEmpty()) Toast.makeText(this,"Please write password",Toast.LENGTH_LONG).show()
+            else {
+                baseViewModel.password = password
+                baseViewModel.login().observe(this) {
+                    when(it.status) {
+                        Status.LOADING -> this.showProgressDialog()
+                        Status.SUCCESS -> {
+                            baseViewModel.password = null
+                            baseViewModel.userName = null
+                            this.hideProgressDialog()
+                            this.mExpiredTokenDialog.dismiss()
+                        }
+                        Status.ERROR -> {
+                            this.hideProgressDialog()
+                            when(it.codeResponse) {
+                                -1 -> {
+                                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                                    this.mExpiredTokenDialog.dismiss()
+                                    baseViewModel.logout()
+                                    finishAffinity()
+                                    startActivity(Intent(this, LogInActivity::class.java))
+                                }
+                                401 -> Toast.makeText(this,"Unauthorized",Toast.LENGTH_LONG).show()
+                                else -> Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        dialogLoginBinding.btnReLoginCancel.setOnClickListener {
+            this.mExpiredTokenDialog.dismiss()
+            baseViewModel.logout()
+            finishAffinity()
+            startActivity(Intent(this, LogInActivity::class.java))
+        }
         this.mExpiredTokenDialog.show()
-    }
-
-    private fun hideExpiredTokenDialog() {
-        baseViewModel.isLogin.removeObservers(this)
-        mExpiredTokenDialog.dismiss()
     }
 
     fun showProgressDialog(text: String = "Please waiting...") {
@@ -150,14 +130,12 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         mProgressDialog.show()
     }
 
-    fun hideProgressDialog() {
-        mProgressDialog.dismiss()
-    }
+    fun hideProgressDialog() { mProgressDialog.dismiss() }
 
 
     override fun onStart() {
         super.onStart()
-        registerReceiver(listeningRefreshToken, IntentFilter(Constant.REFRESH_TOKEN_EXPIRED))
+        registerReceiver(listeningRefreshToken, IntentFilter(Constant.REFRESH_TOKEN_EXPIRED_WHEN_SEND_LOCATION))
     }
 
     override fun onPause() {
@@ -167,7 +145,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
 
     private val listeningRefreshToken: BroadcastReceiver = object : BroadcastReceiver(){
         override fun onReceive(p0: Context?, p1: Intent?) {
-            val userName = p1?.getStringExtra(Constant.REFRESH_TOKEN_EXPIRED_PUT_EXTRA_USERNAME)
+            val userName = p1?.getStringExtra(Constant.REFRESH_TOKEN_EXPIRED_WHEN_SEND_LOCATION_EXTRA_USERNAME)
             if(userName?.isNotEmpty() == true){
                 this@BaseActivity.showExpiredTokenDialog(userName)
             }

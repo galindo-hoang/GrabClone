@@ -18,6 +18,8 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String","API_ADRRESS", "\"ce49dd1f7cb14bce8674f53bb21ee1c7\""
+        buildConfigField "String","GOOGLE_MAP_API","\"AIzaSyD7n1_X28Jgw0zCd3cB3LmyPiL7gnIoS4c\""
         buildConfigField "String","LOCALHOST", "\"http://locahost:8085\""
         buildConfigField "String","GCP", "\"http://34.142.192.100:8085\""
     }
@@ -75,17 +77,18 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.10'
-    // mapbox
-    implementation "com.mapbox.navigation:android:2.6.0"
-//    implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:9.2.1@aar"
-//    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:6.6.0'
-//    implementation "com.mapbox.navigation:ui-dropin:2.6.0"
-//    implementation 'com.mapbox.plugin:maps-scalebar:10.7.0'
-//    // direction
-//    implementation "com.mapbox.mapboxsdk:mapbox-sdk-services:6.6.0"
-//    implementation "com.mapbox.navigator:mapbox-navigation-native:106.0.0"
-//    implementation "com.mapbox.mapboxsdk:mapbox-android-navigation:0.43.0-alpha.1"
-//    implementation ('com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.43.0-alpha.1')
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:30.3.2')
+    // TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+    // Google Maps Location Services
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-analytics:18.0.1'
+    implementation 'com.google.android.libraries.places:places:2.6.0'
     // Google Maps Location Services
     implementation 'com.google.android.gms:play-services-location:20.0.0'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
