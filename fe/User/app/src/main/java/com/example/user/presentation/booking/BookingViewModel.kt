@@ -30,7 +30,7 @@ class BookingViewModel @Inject constructor(
     var destination: Address? = Address(LatLong(10.799194,106.680264),"")
     private val _routes = MutableLiveData<Response<Direction>>()
     lateinit var payment: Payment
-    lateinit var car: Vehicle
+    lateinit var vehicle: Vehicle
     var isBooking = false
     var distance: Int? = null
 
@@ -64,8 +64,8 @@ class BookingViewModel @Inject constructor(
                     destination = LatLong(destination!!.position.latitude,destination!!.position.longitude),
                     origin = LatLong(origin!!.position.latitude,origin!!.position.longitude),
                     paymentMethod = payment.method,
-                    price = car.getPrice().toDouble(),
-                    typeCar = car.typeCar
+                    price = vehicle.getPrice().toDouble(),
+                    typeCar = vehicle.typeCar
                 )
             )
         )

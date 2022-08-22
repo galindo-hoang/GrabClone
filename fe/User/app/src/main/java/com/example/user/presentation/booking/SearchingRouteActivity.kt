@@ -23,6 +23,7 @@ import com.example.user.databinding.ActivitySearchingRouteBinding
 import com.example.user.domain.usecase.GetRouteNavigationUseCase
 import com.example.user.presentation.BaseActivity
 import com.example.user.presentation.booking.adapter.AddressAdapter
+import com.example.user.service.MyFirebaseMessaging
 import com.example.user.utils.Constant
 import com.example.user.utils.Status
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -91,6 +92,7 @@ class SearchingRouteActivity : BaseActivity() {
 
     private fun isBooking() {
         if(bookingViewModel.isBooking){
+            MyFirebaseMessaging.startListening()
             val listeningDriver = object : BroadcastReceiver() {
                 override fun onReceive(p0: Context?, p1: Intent?) {
                     this@SearchingRouteActivity.registerFinishMoving()

@@ -27,8 +27,6 @@ class MethodBookingActivity : BaseActivity() {
     @Inject
     lateinit var paymentAdapter: PaymentAdapter
     @Inject
-    lateinit var authenticationApi: AuthenticationApi
-    @Inject
     lateinit var bookingViewModel: BookingViewModel
     private lateinit var binding: ActivityMethodBookingBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,13 +55,8 @@ class MethodBookingActivity : BaseActivity() {
                 }
             }
         }
-        vehicleAdapter.setOnClickListener { it, position ->
-
-        }
-
-        paymentAdapter.setOnClickListener { it, position ->
-
-        }
+        vehicleAdapter.setOnClickListener { it, _ -> bookingViewModel.vehicle = it }
+        paymentAdapter.setOnClickListener { it, _ -> bookingViewModel.payment = it }
     }
 
     private fun registerViewChange() {
@@ -73,7 +66,7 @@ class MethodBookingActivity : BaseActivity() {
         binding.rcvVehicle.adapter = vehicleAdapter
         binding.rcvVehicle.layoutManager = LinearLayoutManager(this)
         vehicleAdapter.setList(getTypeCarData())
-        bookingViewModel.car = vehicleAdapter.getItem()
+        bookingViewModel.vehicle = vehicleAdapter.getItem()
 
         binding.rcvPayment.adapter = paymentAdapter
         binding.rcvPayment.layoutManager = LinearLayoutManager(this)
