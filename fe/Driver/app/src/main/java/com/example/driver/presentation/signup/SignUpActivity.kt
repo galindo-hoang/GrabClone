@@ -24,7 +24,6 @@ class SignUpActivity : BaseActivity() {
         binding = DataBindingUtil.setContentView(this,R.layout.activity_sign_up)
         binding.lifecycleOwner = this
         binding.viewModel = signUpViewModel
-        Log.e("tag", signUpViewModel.toString())
         registerViewChangeListener()
         registerClickListener()
     }
@@ -38,11 +37,8 @@ class SignUpActivity : BaseActivity() {
     private fun registerViewChangeListener() {
         signUpViewModel.phoneNumber.observe(this){
             if(it != null) {
-                if(it.isNotEmpty() && !Constant.checkPhone(it)){
-                    signUpViewModel.isValidPhoneNumber.postValue(false)
-                }else {
-                    signUpViewModel.isValidPhoneNumber.postValue(true)
-                }
+                signUpViewModel.isValidPhoneNumber.value =
+                    !(it.isNotEmpty() && !Constant.checkPhone(it))
             }
         }
 

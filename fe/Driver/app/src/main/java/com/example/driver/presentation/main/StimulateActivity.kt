@@ -41,6 +41,7 @@ class StimulateActivity: BaseActivity() {
         setContentView(binding.root)
         setupGoogleMap()
         registerClickListener()
+        registerViewChangeListener()
     }
     private fun registerClickListener() {
         binding.btnDoneDriving.setOnClickListener {
@@ -54,7 +55,8 @@ class StimulateActivity: BaseActivity() {
                     }
                     Status.ERROR -> {
                         this.hideProgressDialog()
-                        Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
+                        if(it.codeResponse == -2) this.showExpiredTokenDialog(it.message.toString())
+                        else Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -135,9 +137,7 @@ class StimulateActivity: BaseActivity() {
                     )
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(listPoints!![it],15f))
                 }
-                sendCurrentLocationUseCase.invoke(
-                    LatLong(listPoints!![it].latitude, listPoints!![it].longitude)
-                )
+                sendCurrentLocationUseCase.invoke(LatLong(listPoints!![it].latitude, listPoints!![it].longitude))
                 delay(1000)
                 withContext(Dispatchers.Main) {
                     marker?.remove()

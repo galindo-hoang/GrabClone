@@ -24,7 +24,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.splash.SplashActivity"
+            android:name=".presentation.booking.SearchingRouteActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.login.LogInActivity"
@@ -43,11 +43,15 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
+            android:name=".presentation.signup.UpdateAccountActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
             android:name=".presentation.booking.MethodBookingActivity"
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.booking.SearchingRouteActivity"
+            android:name=".presentation.splash.SplashActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -69,13 +73,11 @@
         -->
         <service
             android:name=".service.MyFirebaseMessaging"
-            android:enabled="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/map_api" />

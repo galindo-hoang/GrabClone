@@ -5,7 +5,9 @@ import com.google.gson.annotations.SerializedName
 data class ResponseLogin(
 //    @SerializedName("token")
 //    val tokenAuthentication: TokenAuthentication,
-    val user: User,
+    var user: User,
+    @SerializedName("phonenumber")
+    val phoneNumber: String,
     val accessToken: String,
     val refreshToken: String,
 )

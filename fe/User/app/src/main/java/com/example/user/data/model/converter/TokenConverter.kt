@@ -15,6 +15,6 @@ object TokenConverter: ObjectConverter<ResponseLogin,TokenAuthentication> {
     }
 
     override fun convertToNetwork(domain: TokenAuthentication): ResponseLogin {
-        return ResponseLogin(User(0,"","",""),"","")
+        return ResponseLogin(User(0,"","",""),"","","")
     }
 }

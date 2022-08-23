@@ -1,7 +1,6 @@
 package com.example.driver.presentation.main
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import androidx.fragment.app.Fragment
 import com.example.driver.databinding.FragmentHomeBinding
 import com.example.driver.utils.Response
 import com.example.driver.utils.Status
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -28,7 +26,6 @@ class HomeFragment: Fragment() {
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
         this.mainActivity = activity as MainActivity
-        setRecycleView()
         registerClickListener()
         registerViewChangeListener()
         return binding.root
@@ -55,9 +52,8 @@ class HomeFragment: Fragment() {
             Status.LOADING -> this.mainActivity.showProgressDialog()
             Status.ERROR -> {
                 this.mainActivity.hideProgressDialog()
-                if(response.codeResponse == -2) {
-                    this.mainActivity.showExpiredTokenDialog(response.message.toString())
-                }else Toast.makeText(activity,response.message.toString(),Toast.LENGTH_LONG).show()
+                if(response.codeResponse == -2) this.mainActivity.showExpiredTokenDialog(response.message.toString())
+                else Toast.makeText(activity,response.message.toString(),Toast.LENGTH_LONG).show()
             }
             Status.SUCCESS -> {
                 func()
@@ -65,6 +61,4 @@ class HomeFragment: Fragment() {
             }
         }
     }
-
-    private fun setRecycleView() {}
 }

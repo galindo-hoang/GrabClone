@@ -4,6 +4,6 @@ import com.google.gson.annotations.SerializedName
 
 data class SubscribeBookingDto(
     val topicName: String,
-    @SerializedName("userName")
-    val username: String
+    @SerializedName("username")
+    val userName: String
 )

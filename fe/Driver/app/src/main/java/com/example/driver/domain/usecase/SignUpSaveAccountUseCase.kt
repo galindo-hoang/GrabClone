@@ -1,5 +1,6 @@
 package com.example.driver.domain.usecase
 
+import android.util.Log
 import com.example.driver.data.dto.UserDto
 import com.example.driver.data.model.authentication.ErrorBodyValidateOrRegister
 import com.example.driver.domain.repository.AuthenticationRepository
@@ -12,19 +13,18 @@ class SignUpSaveAccountUseCase @Inject constructor(
     private val authenticationRepository: AuthenticationRepository
 ) {
     suspend fun invoke(userDto: UserDto): Response<String> {
-        val response = authenticationRepository.postRequestRegisterSaveAccount(userDto)
-        return when(response.code()){
-            201 -> {
-                val body = response.body()
-                if(body != null) Response.success("Create successfully")
-                else Response.error("Cant save data",response.code(),"FAIL")
+        Log.e("=====",userDto.toString())
+        return try {
+            val response = authenticationRepository.postRequestRegisterSaveAccount(userDto)
+            return when(response.code()){
+                201 ->  Response.success("Create successfully")
+                500 -> {
+                    val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type
+                    val a:ErrorBodyValidateOrRegister = Gson().fromJson(response.errorBody()!!.charStream(), type)
+                    Response.error("Create information of account fail",response.code(),a.message)
+                }
+                else -> Response.error(response.message(),response.code(),response.message())
             }
-            500 -> {
-                val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type
-                val a:ErrorBodyValidateOrRegister = Gson().fromJson(response.errorBody()!!.charStream(), type)
-                Response.error("Create information of account fail",response.code(),a.message)
-            }
-            else -> throw Exception("cant connect to database")
-        }
+        } catch (e:Exception) { Response.error(null,-1,e.message.toString()) }
     }
 }

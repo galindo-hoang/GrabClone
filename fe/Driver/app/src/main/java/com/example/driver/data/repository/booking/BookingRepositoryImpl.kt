@@ -1,10 +1,9 @@
 package com.example.driver.data.repository.booking
 
-import com.example.driver.data.dto.AcceptBooking
-import com.example.driver.data.dto.RegisterFCMBody
-import com.example.driver.data.dto.SubscribeBookingDto
-import com.example.driver.data.dto.UpdateLocation
+import com.example.driver.data.dto.*
 import com.example.driver.data.model.booking.ResponseAcceptBooking
+import com.example.driver.data.model.booking.ResponseRegisterFcmToken
+import com.example.driver.data.model.booking.ResponseUpdateLocation
 import com.example.driver.data.model.fcm.ResponseSubscribe
 import com.example.driver.data.model.fcm.ResponseUnSubscribe
 import com.example.driver.data.model.route.Direction
@@ -25,22 +24,24 @@ class BookingRepositoryImpl @Inject constructor(
         subscribeBookingDto: SubscribeBookingDto
     ): Response<ResponseUnSubscribe> = bookingRemoteDataResource.unsubscribeListenBooking(subscribeBookingDto)
 
-    override suspend fun postRegisterFcmToken(
-        registerFCMBody: RegisterFCMBody
-    ): Response<Int> = bookingRemoteDataResource.registerFcmToken(registerFCMBody)
+    override suspend fun postRegisterFcmToken(registerFCMBody: RegisterFCMBody): Response<ResponseRegisterFcmToken> =
+        bookingRemoteDataResource.registerFcmToken(registerFCMBody)
 
-    override suspend fun updateCurrentLocation(updateLocation: UpdateLocation): Response<Any> =
-        bookingRemoteDataResource.sendCurrentLocation(updateLocation)
+    override suspend fun updateCurrentLocation (
+        updateLocation: UpdateLocation
+    ): Response<ResponseUpdateLocation> = bookingRemoteDataResource.sendCurrentLocation(updateLocation)
 
-    override suspend fun sendAcceptBooking(acceptBooking: AcceptBooking): Response<ResponseAcceptBooking> =
-        bookingRemoteDataResource.sendAcceptBooking(acceptBooking)
+    override suspend fun sendAcceptBooking(
+        acceptBooking: AcceptBooking
+    ): Response<ResponseAcceptBooking> = bookingRemoteDataResource.sendAcceptBooking(acceptBooking)
 
-    override suspend fun getRouteNavigation(
-        method: String,
-        origin: String,
-        destination: String
+    override suspend fun getRouteNavigation (
+        method: String, origin: String, destination: String
     ): Response<Direction> = bookingRemoteDataResource.getRoute(method, origin, destination)
 
+    override suspend fun sendFinishRoute (
+        finishBooking: FinishBooking
+    ): Response<String> = bookingRemoteDataResource.sendFinishRoute(finishBooking)
 
 }
 
