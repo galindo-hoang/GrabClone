@@ -7,8 +7,15 @@ import {MessageWarningService} from "src/service/Message/MessageService";
 import "antd/dist/antd.css";
 import {AutoComplete, Button, Dropdown, Menu, MenuProps, Modal, Space, Table} from 'antd';
 import {connect, ConnectedProps} from "react-redux"
-import {createBookingCar, saveAddressBooking} from "./BookingCar.thunks";
-import {bookingCarForm, createBooking, featuresLocation, info2Location, timestamp} from "../../@types/bookingcar";
+import {clearBookingCar, createBookingCar, saveAddressBooking} from "./BookingCar.thunks";
+import {
+  bookingCarForm, convertResponseTop5Location,
+  createBooking,
+  featuresLocation,
+  info2Location,
+  responseTop5Location,
+  timestamp
+} from "../../@types/bookingcar";
 import BookingService from "../../service/BookingCar/BookingService";
 import {coordinate} from "../../@types/map";
 import {recentPhoneNumber} from "../../@types/bookingcar";
@@ -26,13 +33,20 @@ import firebase from "firebase/compat";
 import DownOutlined from "@ant-design/icons/lib/icons/DownOutlined";
 import ProcessBookingService from "../../service/BookingCar/ProcessBookingService";
 import { coordinateExample } from "src/apis/product.api";
+import {reFreshPageFunction} from "../Map/Map.thunks";
+import {clearFCM} from "../../App/App.thunk";
 
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
-const mapStateToProps = state => ({})
+const mapStateToProps = state => ({
+  refreshPageValue: state.map.refreshPageValue,
+})
 
 const mapDispatchToProps = {
   saveAddressBooking,
-  createBookingCar
+  createBookingCar,
+  reFreshPageFunction,
+  clearFCM,
+  clearBookingCar
 }
 
 const isBlank = (index: string) => {
@@ -51,7 +65,7 @@ interface Props extends ConnectedProps<typeof connector> {
 
 
 const BookingCar = (props: Props) => {
-  const {saveAddressBooking,createBookingCar} = props
+  const {saveAddressBooking,createBookingCar,clearFCM} = props
   const [carType, setCarType] = useState("Chọn loại xe");
   const userCollection = collection(databaseFireBase , "HistoryPhoneNumber");
   const [recentPhoneNumber, setRecentPhoneNumber] = useState<object[]>([]);
@@ -67,11 +81,16 @@ const BookingCar = (props: Props) => {
             return arr
           });
           setRecentPhoneNumber(getPhoneNumber(array));
+
         }
       getData();
     return (()=>{
     })
   },[]);
+
+  useEffect(()=>{
+    clearFCM();
+  },[])
 
   const [departure, setDeparture] = useState<featuresLocation>({
     value: undefined,
@@ -89,8 +108,8 @@ const BookingCar = (props: Props) => {
   const history = useHistory();
   const debounceDestination = useDebounce(destination.value, 500)
   const debounceDeparture = useDebounce(departure.value, 500);
-  const [dataDesinationMost,setDataDestinationMost]=useState<featuresLocation[]>([]);
-  const [dataDepartureMost,setDataDepartureMost]=useState<featuresLocation[]>([]);
+  const [dataDesinationMost,setDataDestinationMost]=useState<convertResponseTop5Location[]>([]);
+  const [dataDepartureMost,setDataDepartureMost]=useState<convertResponseTop5Location[]>([]);
   const deboundTop5AddressMost = useDebounce(phoneNumber, 500)
 
   useEffect(() => {
@@ -183,30 +202,49 @@ const BookingCar = (props: Props) => {
     }) as recentPhoneNumber
     setPhoneNumber(temp[0]?.phonenumber)
   }
+
+  //setLocationRecent
   useEffect(()=>{
-    console.log(phoneNumber)
-    const listAddressDestination:featuresLocation[]=[];
-    const listAddressDeparture:featuresLocation[]=[];
+    console.log(phoneNumber);
     if(deboundTop5AddressMost) {
+      let tempDataLocationDepartureRecent:convertResponseTop5Location[]=[];
+      let tempDataLocationDestinationRecent:convertResponseTop5Location[]=[];
       const get5AddressMost = async () => {
-        coordinateExample.forEach(async index=>{
-          await BookingService.convertCoordinateToAddress(index).then(response => {
-            listAddressDeparture.push({value:response.data.features[0].properties.formatted,coordinate:{
-                longitude:response.data.features[0].geometry.coordinates[1],
-                latitude:response.data.features[0].geometry.coordinates[0]
-              }});
-            listAddressDestination.push({value:response.data.features[0].properties.formatted,coordinate:{
-                longitude:response.data.features[0].geometry.coordinates[1],
-                latitude:response.data.features[0].geometry.coordinates[0]
-              }})
-          })
-        })
+        await BookingService.top5LocationDepartureRecent(phoneNumber as string)
+          .then(response=>{
+            response.data.forEach(async index=> {
+              await BookingService.convertCoordinateToAddress({longitude:index.longitude,latitude:index.latitude} as coordinate)
+                .then(response=>{
+                  const object:convertResponseTop5Location={
+                    address:response.data.features[0].properties.formatted,
+                    count:index.count
+                  }
+                  tempDataLocationDepartureRecent.push(object);
+                })
+            })
+            })
+        await BookingService.top5LocationDestinationRecent(phoneNumber as string)
+          .then(response=> {
+            response.data.forEach(async index => {
+              await BookingService.convertCoordinateToAddress({
+                longitude: index.longitude,
+                latitude: index.latitude
+              } as coordinate)
+                .then(response => {
+                  const object: convertResponseTop5Location = {
+                    address: response.data.features[0].properties.formatted,
+                    count: index.count
+                  }
+                  tempDataLocationDestinationRecent.push(object);
+                })
+            })
+          });
       }
       get5AddressMost();
-      setDataDepartureMost(listAddressDeparture);
-      setDataDestinationMost(listAddressDestination)
+      setDataDepartureMost(tempDataLocationDepartureRecent as convertResponseTop5Location[]);
+      setDataDestinationMost(tempDataLocationDestinationRecent as convertResponseTop5Location[]);
     }
-  },[deboundTop5AddressMost])
+  },[deboundTop5AddressMost]);
   const onSelectedDeparture = (address) => {
     const temp: { value: string; coordinate: coordinate }[] | undefined = departureAutocomplete?.filter(index => (
       index.value === address
@@ -317,12 +355,12 @@ const BookingCar = (props: Props) => {
                 </Col>
                 <Col xs lg md sm="4" className="">
                   <button className="btn  btn-info btn-md" onClick={() =>{
-                    if(dataDepartureMost.length===5)
+                    if(dataDepartureMost.length>0)
                     {
                       setVisibleDeparture(true)
                     }
                     else{
-                      MessageWarningService.getInstance("Đang load")
+                      MessageWarningService.getInstance("Không có lịch sử")
                     }
                   }}>
                     Lịch sử đón
@@ -350,12 +388,12 @@ const BookingCar = (props: Props) => {
                 </Col>
                 <Col xs lg md sm="4" className="">
                   <button className="btn  btn-info btn-md" onClick={() => {
-                    if(dataDesinationMost.length===5)
+                    if(dataDesinationMost.length>0)
                     {
                       setVisibleDesination(true)
                     }
                     else{
-                      MessageWarningService.getInstance("Đang load")
+                      MessageWarningService.getInstance("Không có lịch sử")
                     }
 
                   }}>
@@ -416,7 +454,7 @@ const BookingCar = (props: Props) => {
         onCancel={() => setVisibleDeparture(false)}
         width={1000}
       >
-        <HistoryItem dataDeparture={dataDepartureMost} setDeparture={(index)=>setDeparture(index)}/>
+        <HistoryItem dataDeparture={dataDepartureMost} phoneNumber={phoneNumber}  />
       </Modal>
       <Modal
         title="Lịch sử đến"
@@ -426,7 +464,7 @@ const BookingCar = (props: Props) => {
         onCancel={() => setVisibleDesination(false)}
         width={1000}
       >
-        <HistoryItem dataDestination={dataDesinationMost} setDestination={(index)=>setDestination(index)}/>
+        <HistoryItem dataDestination={dataDesinationMost} phoneNumber={phoneNumber} />
       </Modal>
     </MainLayout>
   )
@@ -435,40 +473,47 @@ const BookingCar = (props: Props) => {
 
 interface DataType {
   key: React.Key;
+  number?:number,
   phoneNumber: string;
   address: string;
-  dateTime: string;
 }
 
 
 
 const HistoryItem = (props:any) => {
-  const {dataDeparture ,dataDestination,setDeparture,setDestination}=props;
+  const {dataDeparture ,dataDestination,phoneNumber}=props;
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(false);
   const data: DataType[] = [];
+  console.log(dataDeparture);
+  console.log(dataDestination)
   if(dataDestination===undefined) {
-    dataDeparture.forEach((index) => {
+    dataDeparture.forEach((index,number) => {
       data.push({
         key: 1,
-        phoneNumber: `0935955314`,
-        address: index.value.toString(),
-        dateTime: `17-01-2022`,
+        number:number,
+        phoneNumber: phoneNumber,
+        address: index.address.toString(),
       });
     })
   }
   else
   {
-    dataDestination.forEach((index) => {
+    dataDestination.forEach((index,number) => {
       data.push({
         key: 2,
-        phoneNumber: `0935955314`,
-        address: index.value.toString(),
-        dateTime: `17-01-2022`,
+        number:number,
+        phoneNumber: phoneNumber,
+        address: index.address.toString(),
       });
     })
   }
   const columns: ColumnsType<DataType> = [
+    {
+      title: 'Số thứ tự',
+      dataIndex: 'number',
+      render: text => <a>{text}</a>,
+    },
     {
       title: 'Số điện thoại',
       dataIndex: 'phoneNumber',
@@ -477,11 +522,6 @@ const HistoryItem = (props:any) => {
     {
       title: 'Địa chỉ',
       dataIndex: 'address',
-      render: text => <a style={{color: 'blue', textDecorationLine: "underline"}}>{text}</a>,
-    },
-    {
-      title: 'Thời gian đặt',
-      dataIndex: 'dateTime',
       render: text => <a>{text}</a>,
     },
   ];

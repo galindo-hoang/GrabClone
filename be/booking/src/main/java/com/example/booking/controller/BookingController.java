@@ -126,6 +126,7 @@ public class BookingController {
                 // Return success response
                 return ResponseEntity.ok(bookingRecordSaving);
             } else {
+                bookingRecordMap.remove(bookingRecordSaving.getId());
                 return ResponseEntity.badRequest().build();
             }
 

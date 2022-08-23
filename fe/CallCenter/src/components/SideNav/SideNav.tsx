@@ -7,12 +7,15 @@ import list from "src/assets/images/list.svg"
 import call from "src/assets/images/call.svg"
 import { connect, ConnectedProps } from "react-redux"
 import AuthenticatedGuard from "src/guards/AuthenticatedGuard"
+import {clearFCM} from "../../App/App.thunk";
 
 const mapStateToProps = state => ({
   closeSideNav: state.app.closeSideNav
 })
 
-const mapDispatchToProps = {}
+const mapDispatchToProps = {
+  clearFCM
+}
 
 const connector = connect(mapStateToProps, mapDispatchToProps)
 
@@ -22,7 +25,7 @@ const getAccessToken=()=>{
   return localStorage.getItem("accessToken");
 }
 function SideNav(props: Props) {
-  const {closeSideNav} = props
+  const {closeSideNav,clearFCM} = props
   return (
     <Nav className={closeSideNav ? "close" : ""}>
       <NavLink  exact to={getAccessToken()?PATH.HOME:PATH.LOGIN}>
@@ -41,7 +44,7 @@ function SideNav(props: Props) {
           </NavLink>
         </li>
         <li>
-          <NavLink exact to={getAccessToken()?PATH.BOOKINGCAR:PATH.LOGIN}>
+          <NavLink exact to={getAccessToken()?PATH.BOOKINGCAR:PATH.LOGIN} onClick={()=>clearFCM()}>
             <img src={call} alt=""/>
             <span>Đặt xe</span>
           </NavLink>

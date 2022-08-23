@@ -39,9 +39,13 @@ instance.interceptors.response.use(async response =>{
   if(error?.response?.status===403){
     const history = useHistory();
     history.push(PATH.LOGIN);
-    MessageWarningService.getInstance("refresh token het han")
+    MessageWarningService.getInstance("refresh token hết hạn")
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+  }
+  //Thiệu chặn
+  if(error?.response?.status===412){
+    MessageWarningService.getInstance("Số điện thoại đang trong quá trình đặt xe, vui lòng nhập số điện thoại khác")
   }
 })
 

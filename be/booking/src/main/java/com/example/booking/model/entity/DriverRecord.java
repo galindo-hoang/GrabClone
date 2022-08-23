@@ -31,10 +31,10 @@ public class DriverRecord {
     private MapCoordinate location;
 
     @Column
-    private Float starEvalute;
+    private Float starEvaluate;
 
     @Column
-    private Integer countEvalute;
+    private Integer countEvaluate;
 
     @Column
     private Integer countRide;
