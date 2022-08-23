@@ -31,10 +31,10 @@ class UpdateAccountActivity : BaseActivity() {
             signUpViewModel.signUpSaveAccount.observe(this){
                 when(it.status){
                     Status.SUCCESS -> {
+                        signUpViewModel.clear()
                         this.hideProgressDialog()
-                        startActivity(
-                            Intent(this@UpdateAccountActivity, LogInActivity::class.java)
-                        )
+                        finishAffinity()
+                        startActivity(Intent(this@UpdateAccountActivity, LogInActivity::class.java))
                     }
                     Status.LOADING -> it.data?.let { it1 -> this.showProgressDialog(it1) }
                     Status.ERROR -> {

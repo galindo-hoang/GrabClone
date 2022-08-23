@@ -6,6 +6,7 @@ import com.example.user.data.api.FCMApi
 import com.example.user.data.dto.BookingDto
 import com.example.user.data.dto.RegisterFCMBody
 import com.example.user.data.model.booking.ResponseBooking
+import com.example.user.data.model.fcm.ResponseRegisterFcmToken
 import com.example.user.data.repository.booking.BookingRemoteDataResource
 import retrofit2.Response
 import javax.inject.Inject
@@ -18,6 +19,6 @@ class BookingRemoteDataResourceImpl @Inject constructor(
     override suspend fun bookingDriver(bookingDto: BookingDto): Response<ResponseBooking> =
         bookingApi.createBooking(bookingDto)
 
-    override suspend fun registerFcmToken(registerFCMBody: RegisterFCMBody): Response<Int> =
+    override suspend fun registerFcmToken(registerFCMBody: RegisterFCMBody): Response<ResponseRegisterFcmToken> =
         fcmApi.registerToken(registerFCMBody)
 }

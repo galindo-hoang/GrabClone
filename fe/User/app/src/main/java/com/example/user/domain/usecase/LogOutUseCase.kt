@@ -1,6 +1,5 @@
 package com.example.user.domain.usecase
 
-import android.util.Log
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.utils.Response
 import javax.inject.Inject

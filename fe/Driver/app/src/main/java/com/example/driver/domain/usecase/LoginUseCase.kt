@@ -7,21 +7,16 @@ import com.example.driver.data.dto.UserDto
 import com.example.driver.domain.repository.AuthenticationRepository
 import com.example.driver.domain.repository.BookingRepository
 import com.example.driver.utils.Response
-import com.google.android.gms.tasks.Task
-import com.google.firebase.messaging.FirebaseMessaging
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import javax.inject.Inject
-import kotlin.coroutines.resumeWithException
 
 
 class LoginUseCase @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val bookingRepository: BookingRepository
 ) {
-    suspend fun invoke(login: Login): Response<UserDto> {
+    suspend fun invoke(token: String, login: Login): Response<UserDto> {
         val requestBody: RequestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("username", login.username)
@@ -29,24 +24,19 @@ class LoginUseCase @Inject constructor(
             .build()
         return try {
             val response = authenticationRepository.postAccountLogin(requestBody)
+            Log.e("**",response.body().toString())
             when(response.code()) {
                 200 -> {
+                    response.body()!!.user.phoneNumber = response.body()!!.phoneNumber
                     val userDto = authenticationRepository.updateAccount(response.body()!!)
-                    val token = FirebaseMessaging.getInstance().token.await()
-                    bookingRepository.postRegisterFcmToken(RegisterFCMBody(token,userDto.username!!))
-                    Response.success(userDto)
+                    val responseFcm = bookingRepository.postRegisterFcmToken(RegisterFCMBody(token,userDto.username!!))
+                    when(responseFcm.code()) {
+                        200 -> Response.success(userDto)
+                        else -> Response.error(null,responseFcm.code(),responseFcm.message())
+                    }
                 }
                 else -> Response.error(null,response.code(),response.message())
             }
         } catch (e:Exception) { Response.error(null,-1, e.message.toString())}
-    }
-
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun <TResult> Task<TResult>.await(): String {
-        return suspendCancellableCoroutine { cont ->
-            if(isSuccessful) cont.resume(result.toString(),null)
-            else if(isCanceled) cont.resumeWithException(Exception(exception))
-        }
     }
 }

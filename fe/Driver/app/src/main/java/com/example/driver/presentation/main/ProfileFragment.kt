@@ -30,31 +30,26 @@ class ProfileFragment: Fragment() {
     ): View {
         mainActivity = activity as MainActivity
         binding = FragmentProfileBinding.inflate(layoutInflater,container,false)
-//        binding.lifecycleOwner = viewLifecycleOwner
-//        binding.viewModel = profileViewModel
-
         registerClickListener()
-        registerViewChangeListener()
         return binding.root
     }
-
-    private fun registerViewChangeListener() {
-        profileFragmentViewModel.logout.observe(viewLifecycleOwner){
-            when (it.status){
-                Status.LOADING -> mainActivity.showProgressDialog("please waiting...")
-                Status.ERROR -> {
-                    mainActivity.hideProgressDialog()
-                    Toast.makeText(activity,"Cant log out", Toast.LENGTH_LONG).show()
-                }
-                Status.SUCCESS -> {
-                    mainActivity.hideProgressDialog()
-                    setupServiceCurrentLocationUseCase.stop()
-                    mainActivity.finishAffinity()
-                    mainActivity.startActivity(Intent(activity,LogInActivity::class.java))
+    private fun registerClickListener() {
+        binding.btnLogOut.setOnClickListener {
+            profileFragmentViewModel.logout().observe(viewLifecycleOwner){
+                when (it.status){
+                    Status.LOADING -> mainActivity.showProgressDialog()
+                    Status.ERROR -> {
+                        mainActivity.hideProgressDialog()
+                        Toast.makeText(activity,"Cant log out", Toast.LENGTH_LONG).show()
+                    }
+                    Status.SUCCESS -> {
+                        mainActivity.hideProgressDialog()
+                        setupServiceCurrentLocationUseCase.stop()
+                        mainActivity.finishAffinity()
+                        mainActivity.startActivity(Intent(activity,LogInActivity::class.java))
+                    }
                 }
             }
         }
     }
-
-    private fun registerClickListener() {}
 }

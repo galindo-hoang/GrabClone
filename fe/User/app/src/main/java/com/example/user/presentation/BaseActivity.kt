@@ -3,14 +3,17 @@ package com.example.user.presentation
 import android.app.Dialog
 import android.content.*
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import com.example.user.R
+import com.example.user.databinding.DialogLoginBinding
 import com.example.user.presentation.login.LogInActivity
 import com.example.user.utils.Constant
+import com.example.user.utils.Status
 import javax.inject.Inject
 
 open class BaseActivity @Inject constructor(): AppCompatActivity() {
@@ -18,54 +21,55 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     lateinit var baseViewModel: BaseViewModel
 
     private var mProgressDialog: Dialog? = null
-    private var mExpiredTokenDialog: Dialog? = null
+    private lateinit var mExpiredTokenDialog: Dialog
 
     fun showExpiredTokenDialog(userName: String){
         this.mExpiredTokenDialog = Dialog(this)
-        mExpiredTokenDialog!!.setContentView(R.layout.dialog_login)
+        val dialogLoginBinding = DialogLoginBinding.inflate(LayoutInflater.from(this))
+        mExpiredTokenDialog.setContentView(dialogLoginBinding.root)
         baseViewModel.userName = userName
-        registerClickListenerExpiredToken()
-        registerViewChangeExpiredToken()
-        this.mExpiredTokenDialog!!.show()
-    }
-    private fun hideExpiredTokenDialog() {
-        baseViewModel.isLogin.removeObservers(this)
-        mExpiredTokenDialog?.dismiss()
-    }
-    private fun registerViewChangeExpiredToken() {
         baseViewModel.isLogin.observe(this) {
-            when(it){
-                1 -> {
+            when(it.status){
+                Status.LOADING -> this.showProgressDialog()
+                Status.ERROR -> {
+                    this.hideProgressDialog()
+                    when(it.responseCode) {
+                        -1 -> {
+                            Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                            this.mExpiredTokenDialog.dismiss()
+                            baseViewModel.logout()
+                            finishAffinity()
+                            startActivity(Intent(this, LogInActivity::class.java))
+                        }
+                        401 -> Toast.makeText(this,"Unauthorized",Toast.LENGTH_LONG).show()
+                        else -> Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
+                    }
+                }
+                Status.SUCCESS -> {
                     baseViewModel.password = null
                     baseViewModel.userName = null
-                    hideProgressDialog()
-                    hideExpiredTokenDialog()
-                }
-                -1 -> {
-                    hideProgressDialog()
-                    Toast.makeText(this, "password wrong", Toast.LENGTH_LONG).show()
+                    this.hideProgressDialog()
+                    this.mExpiredTokenDialog.dismiss()
                 }
             }
         }
-    }
-    private fun registerClickListenerExpiredToken() {
-        this.mExpiredTokenDialog!!.findViewById<AppCompatButton>(R.id.btn_re_login_accept).setOnClickListener {
-            val password = this@BaseActivity.mExpiredTokenDialog!!.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
+        dialogLoginBinding.btnReLoginAccept.setOnClickListener {
+            val password = this@BaseActivity.mExpiredTokenDialog.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
             if(password.isEmpty())
                 Toast.makeText(this,"Please write password",Toast.LENGTH_LONG).show()
             else {
                 baseViewModel.password = password
-                baseViewModel.login()
+                baseViewModel.login(BaseApplication.token)
                 this@BaseActivity.showProgressDialog("Please waiting...")
             }
         }
-
-        this.mExpiredTokenDialog!!.findViewById<AppCompatButton>(R.id.btn_re_login_cancel).setOnClickListener {
-            this.mExpiredTokenDialog!!.dismiss()
+        dialogLoginBinding.btnReLoginCancel.setOnClickListener {
+            this.mExpiredTokenDialog.dismiss()
             baseViewModel.logout()
             finishAffinity()
             startActivity(Intent(this, LogInActivity::class.java))
         }
+        this.mExpiredTokenDialog.show()
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
@@ -75,9 +79,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         mProgressDialog!!.findViewById<TextView>(R.id.tvProgress).text = text
         mProgressDialog!!.show()
     }
-    fun hideProgressDialog() {
-        mProgressDialog?.dismiss()
-    }
+    fun hideProgressDialog() { mProgressDialog?.dismiss() }
     ////////////////////////////////////////////////////////////////////////////
     private var updateLocationDriver: BroadcastReceiver? = null
     fun registerLocationDriver(receiver: BroadcastReceiver) {

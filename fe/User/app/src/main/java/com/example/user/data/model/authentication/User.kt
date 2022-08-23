@@ -20,13 +20,4 @@ data class User(
     @SerializedName("phonenumber")
     var phoneNumber: String?,
 
-) {
-    @Ignore
-    var authorities: List<Authority> = listOf()
-//    private lateinit var authority: String
-//    init {
-//        if(authorities.isNotEmpty()) {
-//            authority = authorities[0].authority
-//        }
-//    }
-}
+)

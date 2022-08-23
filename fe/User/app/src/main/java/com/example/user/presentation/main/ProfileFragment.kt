@@ -29,31 +29,27 @@ class ProfileFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         mainActivity = activity as MainActivity
-        binding = DataBindingUtil.setContentView(mainActivity, R.layout.fragment_profile)
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = profileViewModel
-
+        binding = FragmentProfileBinding.inflate(layoutInflater)
         registerClickListener()
-        registerViewChangeListener()
         return binding.root
     }
 
-    private fun registerViewChangeListener() {
-        profileViewModel.logout.observe(viewLifecycleOwner){
-            when (it.status){
-                Status.LOADING -> mainActivity.showProgressDialog("please waiting...")
-                Status.ERROR -> {
-                    mainActivity.hideProgressDialog()
-                    Toast.makeText(activity,"Cant log out", Toast.LENGTH_LONG).show()
-                }
-                Status.SUCCESS -> {
-                    mainActivity.hideProgressDialog()
-                    mainActivity.finishAffinity()
-                    mainActivity.startActivity(Intent(activity,LogInActivity::class.java))
+    private fun registerClickListener() {
+        binding.btnLogOut.setOnClickListener {
+            profileViewModel.logout().observe(viewLifecycleOwner){
+                when (it.status){
+                    Status.LOADING -> mainActivity.showProgressDialog("please waiting...")
+                    Status.ERROR -> {
+                        mainActivity.hideProgressDialog()
+                        Toast.makeText(activity,"Cant log out", Toast.LENGTH_LONG).show()
+                    }
+                    Status.SUCCESS -> {
+                        mainActivity.hideProgressDialog()
+                        mainActivity.finishAffinity()
+                        mainActivity.startActivity(Intent(activity,LogInActivity::class.java))
+                    }
                 }
             }
         }
     }
-
-    private fun registerClickListener() {}
 }

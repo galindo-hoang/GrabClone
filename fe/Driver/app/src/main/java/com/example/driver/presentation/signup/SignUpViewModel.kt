@@ -4,15 +4,19 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.example.driver.data.dto.UserDto
 import com.example.driver.data.dto.ValidateOTP
+import com.example.driver.data.model.authentication.BodyValidateOrRegister
 import com.example.driver.domain.usecase.SignUpPhoneNumberUseCase
 import com.example.driver.domain.usecase.SignUpSaveAccountUseCase
 import com.example.driver.domain.usecase.ValidateOtpUseCase
 import com.example.driver.utils.Response
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.flow
-import java.util.*
+import com.example.driver.utils.Status
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,7 +35,7 @@ class SignUpViewModel @Inject constructor(
     private var _isValidPhoneNumber = MutableLiveData(true)
     private var _otp = MutableLiveData<Int?>()
     private var _inputOtp = MutableLiveData<String>()
-    private var _checkOtp = MutableLiveData<Boolean>()
+    private var _checkOtp = MutableLiveData<Response<BodyValidateOrRegister>>()
 
 
     val userName get() = _userName
@@ -47,27 +51,28 @@ class SignUpViewModel @Inject constructor(
 
     fun signUpPhoneNumber() {
         if(_phoneNumber.value.toString().isNotEmpty()){
-            var otp: Int
+            var otp = -1
             runBlocking(Dispatchers.IO) {
-                otp = signUpPhoneNumberUseCase.invoke(
+                val response = signUpPhoneNumberUseCase.invoke(
                     UserDto(
                         password = _password.value,
                         username = _userName.value,
                         phoneNumber = "+84" + _phoneNumber.value?.substring(1))
                 )
+                if(response.status == Status.SUCCESS) otp = response.data!!
             }
             _otp.postValue(otp)
         }
     }
 
-    val signUpSaveAccount = liveData(Dispatchers.IO) {
-        if(confirmPassword.value == password.value &&
-            (confirmPassword.value ?: "").isNotEmpty() &&
-            (userName.value ?: "").isNotEmpty()
-        ){
-            emit(Response.loading("Loading data"))
-            emit(
-                signUpSaveAccountUseCase.invoke(
+    val signUpSaveAccount = liveData {
+        emit(Response.loading("Loading data"))
+        Log.e("++++++++",_phoneNumber.value.toString())
+        Log.e("++++++++",_userName.value.toString())
+        if(_rePassword.value == _password.value && (_rePassword.value ?: "").isNotEmpty() && (_userName.value ?: "").isNotEmpty()) {
+            var response: Response<String>
+            withContext(Dispatchers.IO) {
+                response = signUpSaveAccountUseCase.invoke(
                     UserDto(
                         password = _password.value,
                         username = _userName.value,
@@ -75,29 +80,30 @@ class SignUpViewModel @Inject constructor(
                         otp = _inputOtp.value
                     )
                 )
-            )
-        }
+            }
+            emit(response)
+        } else emit(Response.error(null,-1,"please write data"))
     }
 
-    fun checkOtp() = _checkOtp.postValue(_otp.value.toString() == _inputOtp.value)
-
-    fun validateOTP(): Int {
-        var responseCode: Int
-        runBlocking(Dispatchers.IO) {
-            responseCode = validateOtpUseCase.invoke(
+    fun validateOTP() = viewModelScope.launch {
+        _checkOtp.value = Response.loading(null)
+        var response: Response<BodyValidateOrRegister>
+        withContext(Dispatchers.IO) {
+            response = validateOtpUseCase.invoke(
                 ValidateOTP(
                     onceTimePassword = _otp.value!!,
                     phoneNumber = "+84" + _phoneNumber.value?.substring(1)
                 )
             )
         }
-        if(responseCode == 1){
-            _userName.postValue(null)
-            _phoneNumber.postValue(null)
-            _password.postValue(null)
-            _rePassword.postValue(null)
-            _otp.postValue(null)
-        }
-        return responseCode
+        _checkOtp.value = response
+    }
+
+    fun clear() {
+        _userName.postValue(null)
+        _phoneNumber.postValue(null)
+        _password.postValue(null)
+        _rePassword.postValue(null)
+        _otp.postValue(null)
     }
 }

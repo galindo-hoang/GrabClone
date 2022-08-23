@@ -106,7 +106,7 @@
             android:background="@drawable/solid_green_button"
             android:gravity="center"
             android:text="Confirm"
-            android:onClick="@{() -> viewModel.checkOtp()}"
+            android:onClick="@{() -> viewModel.validateOTP()}"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="20sp"
