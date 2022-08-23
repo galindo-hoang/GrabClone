@@ -4,14 +4,14 @@ import ProductRoutes from "./ProductRoutes"
 import LoginRoutes from "./LoginRoutes"
 import HomeRoutes from "./HomeRoutes"
 import BookingCarRoutes from "./BookingCarRoutes";
-import HistoryRoutes from "./HistoryRoutes";
+import UserInfoRoutes from "./UserInfoRoutes";
 import MapRoutes from "./MapRoutes";
 
 export default function Routes() {
   return (
     <BrowserRouter>
       <LoginRoutes />
-      <HistoryRoutes/>
+      <UserInfoRoutes/>
       <HomeRoutes />
       <BookingCarRoutes/>
       <ProductRoutes />

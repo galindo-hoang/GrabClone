@@ -4,14 +4,14 @@ import AuthenticatedGuard from "src/guards/AuthenticatedGuard"
 import { PATH } from "src/constants/paths"
 import Loading from "src/components/Loading/Loading"
 import MapGuard from "../guards/MapGuard";
-const History = lazy(() => import("src/pages/History/History"))
+const History = lazy(() => import("src/pages/UserInfo/UserInfo"))
 
-export default function HistoryRoutes() {
+export default function UserInfoRoutes() {
   
   return (
     <Switch>
       <AuthenticatedGuard
-        exact path={PATH.HISTORY}
+        exact path={PATH.USERINFO}
         component={() => (
           <Suspense fallback={<Loading />}>
             <History />

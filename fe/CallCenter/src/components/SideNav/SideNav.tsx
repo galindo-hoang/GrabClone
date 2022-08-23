@@ -47,9 +47,9 @@ function SideNav(props: Props) {
           </NavLink>
         </li>
         <li>
-          <NavLink exact to={getAccessToken()?PATH.HISTORY:PATH.LOGIN}>
+          <NavLink exact to={getAccessToken()?PATH.USERINFO:PATH.LOGIN}>
             <img src={list} alt=""/>
-            <span>Lịch sử đặt xe</span>
+            <span>Thông tin tài xế</span>
           </NavLink>
         </li>
       </Menu>

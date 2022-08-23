@@ -5,6 +5,7 @@ import {homeReducer} from "../pages/Home/Home.reducer";
 import { ProductListReducer } from "src/pages/Product/ProductList/ProductList.reducer"
 import { productItemReducer } from "src/pages/Product/ProductItem/ProductItem.reducer"
 import { bookingCarReducer } from "src/pages/BookingCar/BookingCar.reducer";
+import UserInfo from "../pages/UserInfo/UserInfo";
 
 const rootReducer = combineReducers({
   app: AppReducer,
