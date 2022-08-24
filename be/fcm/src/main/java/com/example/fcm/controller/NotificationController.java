@@ -3,6 +3,7 @@ package com.example.fcm.controller;
 import com.example.clients.feign.DriverLocation.DriverLocationClients;
 import com.example.clients.feign.DriverLocation.DriverLocationDto;
 import com.example.clients.feign.NotificationRequest.NotificationRequestDto;
+import com.example.rabbitmq.RabbitMQMessageProducer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -34,7 +35,8 @@ public class NotificationController {
 
     @Autowired
     private UserTopicService userTopicService;
-
+    @Autowired
+    private RabbitMQMessageProducer rabbitMQMessageProducer;
 
     @PostMapping("/subscribe")
     public ResponseEntity<Object> subscribeToTopic(@RequestBody SubscriptionRequestDto subscriptionRequestDto) {
@@ -44,7 +46,10 @@ public class NotificationController {
             if (tokenRecord != null) {
                 SubscriptionRequest subscriptionRequest = new SubscriptionRequest(subscriptionRequestDto.getTopicName()
                         , tokenRecord.getFcmToken());
-                notificationService.subscribeToTopic(subscriptionRequest);
+                //notificationService.subscribeToTopic(subscriptionRequest);
+                rabbitMQMessageProducer.publish(subscriptionRequest,
+                        "internal.exchange",
+                        "internal.subscribe-topic.routing-key");
                 if (topicNameService.findByTopicName(subscriptionRequestDto.getTopicName()) == null) {
                     TopicNameRecord topicNameRc = new TopicNameRecord();
                     topicNameRc.setTopicName(subscriptionRequestDto.getTopicName());
@@ -100,7 +105,10 @@ public class NotificationController {
                 if (topicNameRecord != null) {
                     SubscriptionRequest subscriptionRequest = new SubscriptionRequest(
                             subscriptionRequestDto.getTopicName(), tokenRecord.getFcmToken());
-                    notificationService.unsubscribeFromTopic(subscriptionRequest);
+                    rabbitMQMessageProducer.publish(subscriptionRequest,
+                            "internal.exchange",
+                            "internal.unsubscribe-topic.routing-key");
+                    //notificationService.unsubscribeFromTopic(subscriptionRequest);
                     TopicNameRecord topicNameRc = topicNameService.findByTopicName(subscriptionRequestDto.getTopicName());
                     UserTopicRecord userTopicRecord = userTopicService.findByUsernameAndTopicNameRecord(subscriptionRequestDto.getUsername(), topicNameRc);
                     userTopicRecord.setTopicState(TopicState.UNSUBSCRIBE);
@@ -120,7 +128,7 @@ public class NotificationController {
                         subscriptionRequestDto.getTopicName(), subscriptionRequestDto.getUsername());
             }
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(topicNameRecord);
         } catch (Exception e) {
             log.error("Unsubscribe to topic: {} for userId: {} error", subscriptionRequestDto.getTopicName(),
                     subscriptionRequestDto.getUsername(), e);
@@ -140,16 +148,14 @@ public class NotificationController {
                         notificationRequestDto.getTitle(),
                         notificationRequestDto.getBody(),
                         notificationRequestDto.getData());
-                String response = notificationService.sendPnsToDevice(notificationRequest);
-                if (response != null) {
-                    log.info("Send PNS to device: {} for userId: {}, title: {}, body: {}, data: {} success",
-                            tokenRecord.getFcmToken(), notificationRequestDto.getTarget(),
-                            notificationRequestDto.getTitle(), notificationRequestDto.getBody(),
-                            notificationRequestDto.getData());
-                    return ResponseEntity.ok(response);
-                } else {
-                    log.info("No response from FCM for userId: {}", notificationRequestDto.getTarget());
-                }
+                rabbitMQMessageProducer.publish(notificationRequest,"internal.exchange",
+                        "internal.send-notification-device.routing-key");
+                //String response = notificationService.sendPnsToDevice(notificationRequest);
+                log.info("Send PNS to device: {} for userId: {}, title: {}, body: {}, data: {} success",
+                        tokenRecord.getFcmToken(), notificationRequestDto.getTarget(),
+                        notificationRequestDto.getTitle(), notificationRequestDto.getBody(),
+                        notificationRequestDto.getData());
+                return ResponseEntity.ok().build();
             } else {
                 log.info("No token found for userId: {}", notificationRequestDto.getTarget());
             }
@@ -170,7 +176,9 @@ public class NotificationController {
                         notificationRequestDto.getBody(),
                         notificationRequestDto.getData());
                 log.info("Send PNS to topic: {} success", notificationRequestDto.getTarget());
-                return ResponseEntity.ok(notificationService.sendPnsToTopic(notificationRequest));
+                rabbitMQMessageProducer.publish(notificationRequest,"internal.exchange",
+                        "internal.send-notification-topic.routing-key");
+                return ResponseEntity.ok().build();
             } else {
                 log.info("No topic found for topicName: {}", notificationRequestDto.getTarget());
             }

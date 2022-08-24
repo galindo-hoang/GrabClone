@@ -13,6 +13,7 @@ import com.example.fcm.service.NotificationService;
 import com.example.fcm.service.TokenStoreService;
 import com.example.fcm.service.TopicNameService;
 import com.example.fcm.service.UserTopicService;
+import com.example.rabbitmq.RabbitMQMessageProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,8 @@ public class PublishController {
     @Autowired
     private UserTopicService userTopicService;
 
-
+    @Autowired
+    private RabbitMQMessageProducer rabbitMQMessageProducer;
     @PostMapping("/register")
     public ResponseEntity<Object> register(@RequestBody RegistrationRequestDto registrationRequestDto) {
         try {
@@ -85,7 +87,10 @@ public class PublishController {
             if (tokenRecord != null) {
                 SubscriptionRequest subscriptionRequest = new SubscriptionRequest(subscriptionRequestDto.getTopicName()
                         , tokenRecord.getFcmToken());
-                notificationService.subscribeToTopic(subscriptionRequest);
+                //notificationService.subscribeToTopic(subscriptionRequest);
+                rabbitMQMessageProducer.publish(subscriptionRequest,
+                        "internal.exchange",
+                        "internal.notification.routing-key");
                 if (topicNameService.findByTopicName(subscriptionRequestDto.getTopicName()) == null) {
                     TopicNameRecord topicNameRc = new TopicNameRecord();
                     topicNameRc.setTopicName(subscriptionRequestDto.getTopicName());
@@ -161,7 +166,7 @@ public class PublishController {
                         subscriptionRequestDto.getTopicName(), subscriptionRequestDto.getUsername());
             }
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(topicNameRecord);
         } catch (Exception e) {
             log.error("Unsubscribe to topic: {} for userId: {} error", subscriptionRequestDto.getTopicName(),
                     subscriptionRequestDto.getUsername(), e);

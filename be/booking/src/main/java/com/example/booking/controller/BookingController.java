@@ -1,6 +1,9 @@
 package com.example.booking.controller;
 
-import com.example.booking.model.domain.*;
+import com.example.booking.model.domain.BookingState;
+import com.example.booking.model.domain.PaymentMethod;
+import com.example.booking.model.domain.RideState;
+import com.example.booking.model.domain.TypeCar;
 import com.example.booking.model.dto.*;
 import com.example.booking.model.entity.BookingRecord;
 import com.example.booking.model.entity.DriverRecord;
@@ -37,6 +40,7 @@ public class BookingController {
     private NotificationRequestClient notificationRequestClient;
     @Autowired
     private DriverStoreService driverStoreService;
+
     private DistanceApiService distanceApiService = new DistanceApiService();
     // The key is the booking id
     private HashMap<Integer, BookingRecord> bookingRecordMap;

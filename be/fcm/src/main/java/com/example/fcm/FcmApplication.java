@@ -8,6 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication(
 		scanBasePackages = {
 				"com.example.fcm",
+				"com.example.rabbitmq"
 		}
 )
 @EnableEurekaClient

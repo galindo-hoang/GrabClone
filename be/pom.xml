@@ -25,6 +25,7 @@
         <module>rabbit-mq</module>
         <module>clients</module>
         <module>booking</module>
+        <module>firebase</module>
     </modules>
     <dependencyManagement>
         <dependencies>
