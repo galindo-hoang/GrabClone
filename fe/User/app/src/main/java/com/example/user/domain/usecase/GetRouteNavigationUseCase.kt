@@ -1,5 +1,6 @@
 package com.example.user.domain.usecase
 
+import android.util.Log
 import com.example.user.data.model.route.Direction
 import com.example.user.domain.repository.RouteNavigationRepository
 import com.example.user.utils.Response
@@ -13,8 +14,10 @@ class GetRouteNavigationUseCase @Inject constructor(
     suspend fun invoke(typeCar: TypeCar = TypeCar.CAR, origin: String, destination: String): Response<Direction> {
          return try {
              val response = routeNavigationRepository.getRouteNavigation("drive",origin, destination)
+             Log.e("3",response.toString())
              if(response.code() == 200){
-                if(response.body()?.statusCode == null){
+                 Log.e("3",response.body().toString())
+                 if(response.body()?.statusCode == null){
                     Response.success(response.body()!!)
                 }else {
                     Response.error(

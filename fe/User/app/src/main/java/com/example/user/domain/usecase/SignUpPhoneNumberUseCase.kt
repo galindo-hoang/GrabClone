@@ -1,5 +1,6 @@
 package com.example.user.domain.usecase
 
+import android.util.Log
 import com.example.user.data.dto.UserDto
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.utils.Response
@@ -11,8 +12,12 @@ class SignUpPhoneNumberUseCase @Inject constructor(
     suspend fun invoke(userDto: UserDto): Response<Int?> {
         return try {
             val response = authenticationRepository.postRequestRegisterPhoneNumber(userDto)
+            Log.e("5",response.toString())
             when(response.code()) {
-                200 -> Response.success(response.body()?.otp?.toInt())
+                200 -> {
+                    Log.e("5",response.body().toString())
+                    Response.success(response.body()?.otp?.toInt())
+                }
 //                500 -> {}
                 else -> {
 //                    val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type

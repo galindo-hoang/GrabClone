@@ -18,9 +18,12 @@ class BookingCarUseCase @Inject constructor(
             bookingDto.phoneNumber = userDto.phoneNumber.toString()
             bookingDto.username = userDto.username.toString()
             val response = bookingRepository.bookingDriver(bookingDto)
-            Log.e("------",response.toString())
+            Log.e("1",response.toString())
              when(response.code()){
-                200 -> Response.success(response.body()!!)
+                200 -> {
+                    Log.e("1",response.body().toString())
+                    Response.success(response.body()!!)
+                }
                 401 -> Response.error(null,-2,response.message())
                 else -> Response.error(null, response.code(), message = response.message())
             }

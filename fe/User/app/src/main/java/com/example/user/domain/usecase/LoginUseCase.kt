@@ -1,5 +1,6 @@
 package com.example.user.domain.usecase
 
+import android.util.Log
 import com.example.user.data.dto.Login
 import com.example.user.data.dto.RegisterFCMBody
 import com.example.user.data.dto.UserDto
@@ -23,13 +24,20 @@ class LoginUseCase @Inject constructor(
             .build()
         return try {
             val response = authenticationRepository.postAccountLogin(requestBody)
+            Log.e("4",response.toString())
             when(response.code()) {
                 200 -> {
+                    Log.e("4",response.body().toString())
+                    Log.e("4",response.body().toString())
                     response.body()!!.user.phoneNumber = response.body()!!.phoneNumber
                     val userDto = authenticationRepository.updateAccount(response.body()!!)
                     val responseFcm = bookingRepository.postRegisterFcmToken(RegisterFCMBody(token, userDto.username!!))
+                    Log.e("4",responseFcm.toString())
                     when(responseFcm.code()) {
-                        200 -> Response.success(userDto)
+                        200 -> {
+                            Log.e("4",responseFcm.body().toString())
+                            Response.success(userDto)
+                        }
                         else -> Response.error(null,responseFcm.code(),responseFcm.message())
                     }
                 }
