@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.ConnectivityManager
@@ -21,7 +22,7 @@ object RequestPermissions {
     }
 
     fun turnOnLocation(context: Context){
-        context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+        context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply { this.flags = FLAG_ACTIVITY_NEW_TASK })
     }
 
 

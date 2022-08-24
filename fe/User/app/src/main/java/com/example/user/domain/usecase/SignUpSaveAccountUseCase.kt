@@ -1,5 +1,6 @@
 package com.example.user.domain.usecase
 
+import android.util.Log
 import com.example.user.data.dto.UserDto
 import com.example.user.data.model.authentication.ErrorBodyValidateOrRegister
 import com.example.user.domain.repository.AuthenticationRepository
@@ -14,8 +15,10 @@ class SignUpSaveAccountUseCase @Inject constructor(
     suspend fun invoke(userDto: UserDto): Response<String> {
         return try {
             val response = authenticationRepository.postRequestRegisterSaveAccount(userDto)
+            Log.e("6",response.toString())
             when(response.code()){
                 201 -> {
+                    Log.e("6",response.body().toString())
                     Response.success("Create successfully")
                 }
                 500 -> {

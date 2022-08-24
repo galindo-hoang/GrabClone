@@ -13,7 +13,8 @@ interface BookingRepository {
     suspend fun subscribeListenBooking(subscribeBookingDto: SubscribeBookingDto): Response<ResponseSubscribe>
     suspend fun unsubscribeListenBooking(subscribeBookingDto: SubscribeBookingDto): Response<ResponseUnSubscribe>
     suspend fun postRegisterFcmToken(registerFCMBody: RegisterFCMBody): Response<ResponseRegisterFcmToken>
-    suspend fun updateCurrentLocation(updateLocation: UpdateLocation): Response<ResponseUpdateLocation>
+    suspend fun updateCurrentLocationBeforeAccept(updateLocation: UpdateLocation): Response<ResponseUpdateLocation>
+    suspend fun updateCurrentLocationAfterAccept(updateLocation: UpdateLocation): Response<ResponseUpdateLocation>
     suspend fun sendAcceptBooking(acceptBooking: AcceptBooking): Response<ResponseAcceptBooking>
     suspend fun getRouteNavigation(method: String, origin: String, destination: String): Response<Direction>
     suspend fun sendFinishRoute(finishBooking: FinishBooking): Response<String>

@@ -16,8 +16,12 @@ class SignUpSaveAccountUseCase @Inject constructor(
         Log.e("=====",userDto.toString())
         return try {
             val response = authenticationRepository.postRequestRegisterSaveAccount(userDto)
+            Log.e("7",response.toString())
             return when(response.code()){
-                201 ->  Response.success("Create successfully")
+                201 -> {
+                    Log.e("7",response.body().toString())
+                    Response.success("Create successfully")
+                }
                 500 -> {
                     val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type
                     val a:ErrorBodyValidateOrRegister = Gson().fromJson(response.errorBody()!!.charStream(), type)

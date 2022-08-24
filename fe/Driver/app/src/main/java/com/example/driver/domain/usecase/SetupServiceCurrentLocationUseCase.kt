@@ -23,6 +23,5 @@ class SetupServiceCurrentLocationUseCase @Inject constructor() {
             this.application!!.stopService(intent)
             this.application = null
         }
-
     }
 }

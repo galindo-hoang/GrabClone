@@ -21,12 +21,12 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     lateinit var baseViewModel: BaseViewModel
 
     private var mProgressDialog: Dialog? = null
-    private lateinit var mExpiredTokenDialog: Dialog
+    private var mExpiredTokenDialog: Dialog? = null
 
     fun showExpiredTokenDialog(userName: String){
         this.mExpiredTokenDialog = Dialog(this)
         val dialogLoginBinding = DialogLoginBinding.inflate(LayoutInflater.from(this))
-        mExpiredTokenDialog.setContentView(dialogLoginBinding.root)
+        mExpiredTokenDialog?.setContentView(dialogLoginBinding.root)
         baseViewModel.userName = userName
         baseViewModel.isLogin.observe(this) {
             when(it.status){
@@ -36,7 +36,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
                     when(it.responseCode) {
                         -1 -> {
                             Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                            this.mExpiredTokenDialog.dismiss()
+                            this.mExpiredTokenDialog?.dismiss()
                             baseViewModel.logout()
                             finishAffinity()
                             startActivity(Intent(this, LogInActivity::class.java))
@@ -49,12 +49,12 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
                     baseViewModel.password = null
                     baseViewModel.userName = null
                     this.hideProgressDialog()
-                    this.mExpiredTokenDialog.dismiss()
+                    this.mExpiredTokenDialog?.dismiss()
                 }
             }
         }
         dialogLoginBinding.btnReLoginAccept.setOnClickListener {
-            val password = this@BaseActivity.mExpiredTokenDialog.findViewById<AppCompatEditText>(R.id.et_re_login).text.toString()
+            val password = this@BaseActivity.mExpiredTokenDialog?.findViewById<AppCompatEditText>(R.id.et_re_login)?.text.toString()
             if(password.isEmpty())
                 Toast.makeText(this,"Please write password",Toast.LENGTH_LONG).show()
             else {
@@ -64,12 +64,12 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
             }
         }
         dialogLoginBinding.btnReLoginCancel.setOnClickListener {
-            this.mExpiredTokenDialog.dismiss()
+            this.mExpiredTokenDialog?.dismiss()
             baseViewModel.logout()
             finishAffinity()
             startActivity(Intent(this, LogInActivity::class.java))
         }
-        this.mExpiredTokenDialog.show()
+        this.mExpiredTokenDialog?.show()
     }
 
     /////////////////////////////////////////////////////////////////////////////////////

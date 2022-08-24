@@ -2,6 +2,7 @@ package com.example.driver.presentation
 
 import android.app.Dialog
 import android.content.*
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
@@ -28,26 +29,20 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     @Inject
     lateinit var stimulateViewModel: StimulateViewModel
 
-    private lateinit var mProgressDialog: Dialog
-    private lateinit var mExpiredTokenDialog: Dialog
-    private lateinit var mNewBookingDialog: Dialog
+    private var mProgressDialog: Dialog? = null
+    private var mExpiredTokenDialog: Dialog? = null
+    private var mNewBookingDialog: Dialog? = null
 
-    private var haveNewBooking = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            this@BaseActivity.showNewBookingDialog(
-                Gson().fromJson(p1!!.getStringExtra(Constant.HAVE_NEW_BOOKING_EXTRA), ReceiveNewBooking::class.java)
-            )
-        }
-    }
+    private var haveNewBooking: BroadcastReceiver? = null
     private fun showNewBookingDialog(receiveNewBooking: ReceiveNewBooking){
         this.mNewBookingDialog = Dialog(this)
         val dialogNewBookingBinding = DialogNewBookingBinding.inflate(LayoutInflater.from(this))
-        this.mNewBookingDialog.setContentView(dialogNewBookingBinding.root)
+        this.mNewBookingDialog?.setContentView(dialogNewBookingBinding.root)
         dialogNewBookingBinding.tvNewBookingDes.text = Constant.convertLatLongToAddress(this, receiveNewBooking.origin.convertToLatLng())
         dialogNewBookingBinding.tvNewBookingSrc.text = Constant.convertLatLongToAddress(this, receiveNewBooking.destination.convertToLatLng())
         dialogNewBookingBinding.btnNewBookingAccept.setOnClickListener {
             stimulateViewModel.acceptBooking(receiveNewBooking.bookingId).observe(this) {
-                this.mNewBookingDialog.dismiss()
+                this.mNewBookingDialog?.dismiss()
                 when(it.status) {
                     Status.LOADING -> this.showProgressDialog()
                     Status.SUCCESS -> {
@@ -66,23 +61,32 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
             }
         }
         dialogNewBookingBinding.btnNewBookingCancel.setOnClickListener {
-            this.mNewBookingDialog.dismiss()
+            this.mNewBookingDialog?.dismiss()
         }
-        this.mNewBookingDialog.show()
+        this.mNewBookingDialog?.show()
     }
-    fun startLooking(){
+    fun startLooking() {
+        haveNewBooking = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                this@BaseActivity.showNewBookingDialog(
+                    Gson().fromJson(p1!!.getStringExtra(Constant.HAVE_NEW_BOOKING_EXTRA), ReceiveNewBooking::class.java)
+                )
+            }
+        }
         setupServiceCurrentLocationUseCase.start(application)
         registerReceiver(haveNewBooking,IntentFilter(Constant.HAVE_NEW_BOOKING))
     }
     fun stopLooking(){
-        setupServiceCurrentLocationUseCase.stop()
-        unregisterReceiver(haveNewBooking)
+        if(haveNewBooking != null) {
+            setupServiceCurrentLocationUseCase.stop()
+            unregisterReceiver(haveNewBooking)
+        }
     }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
     fun showExpiredTokenDialog(userName: String){
         this.mExpiredTokenDialog = Dialog(this)
         val dialogLoginBinding = DialogLoginBinding.inflate(LayoutInflater.from(this))
-        mExpiredTokenDialog.setContentView(dialogLoginBinding.root)
+        mExpiredTokenDialog?.setContentView(dialogLoginBinding.root)
         baseViewModel.userName = userName
         dialogLoginBinding.btnReLoginAccept.setOnClickListener {
             val password = dialogLoginBinding.etReLogin.text.toString()
@@ -96,14 +100,14 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
                             baseViewModel.password = null
                             baseViewModel.userName = null
                             this.hideProgressDialog()
-                            this.mExpiredTokenDialog.dismiss()
+                            this.mExpiredTokenDialog?.dismiss()
                         }
                         Status.ERROR -> {
                             this.hideProgressDialog()
                             when(it.codeResponse) {
                                 -1 -> {
                                     Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                                    this.mExpiredTokenDialog.dismiss()
+                                    this.mExpiredTokenDialog?.dismiss()
                                     baseViewModel.logout()
                                     finishAffinity()
                                     startActivity(Intent(this, LogInActivity::class.java))
@@ -117,22 +121,22 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
             }
         }
         dialogLoginBinding.btnReLoginCancel.setOnClickListener {
-            this.mExpiredTokenDialog.dismiss()
+            this.mExpiredTokenDialog?.dismiss()
             baseViewModel.logout()
             finishAffinity()
             startActivity(Intent(this, LogInActivity::class.java))
         }
-        this.mExpiredTokenDialog.show()
+        this.mExpiredTokenDialog?.show()
     }
 
     fun showProgressDialog(text: String = "Please waiting...") {
         this.mProgressDialog = Dialog(this)
-        mProgressDialog.setContentView(R.layout.dialog_progress)
-        mProgressDialog.findViewById<TextView>(R.id.tvProgress).text = text
-        mProgressDialog.show()
+        mProgressDialog?.setContentView(R.layout.dialog_progress)
+        mProgressDialog?.findViewById<TextView>(R.id.tvProgress)?.text = text
+        mProgressDialog?.show()
     }
 
-    fun hideProgressDialog() { mProgressDialog.dismiss() }
+    fun hideProgressDialog() { mProgressDialog?.dismiss() }
 
 
     override fun onStart() {
