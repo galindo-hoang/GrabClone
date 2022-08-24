@@ -35,10 +35,7 @@ import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -109,35 +106,62 @@ class SearchingRouteActivity : BaseActivity() {
 
     private fun isBooking() {
         if(bookingViewModel.isBooking){
-            MyFirebaseMessaging.startListening()
-            val listeningDriver = object : BroadcastReceiver() {
-                override fun onReceive(p0: Context?, p1: Intent?) {
-                    this@SearchingRouteActivity.registerFinishMoving()
-                    this@SearchingRouteActivity.registerLocationDriver(updateDriverLocation)
-                    unregisterReceiver(this)
-                }
-            }
-            registerReceiver(listeningDriver, IntentFilter(Constant.HAVE_DRIVER))
-            bookingViewModel.isBooking = false
+//            MyFirebaseMessaging.startListening()
+//            val listeningDriver = object : BroadcastReceiver() {
+//                override fun onReceive(p0: Context?, p1: Intent?) {
+//                    this@SearchingRouteActivity.registerFinishMoving()
+//                    this@SearchingRouteActivity.registerLocationDriver(updateDriverLocation)
+//                    unregisterReceiver(this)
+//                }
+//            }
+//            registerReceiver(listeningDriver, IntentFilter(Constant.HAVE_DRIVER))
+//            bookingViewModel.isBooking = false
+
+
+            registerLocationDriver(updateDriverLocation)
+            registerFinishMoving()
+
         }
     }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    val updateDriverLocation = object : BroadcastReceiver() {
+
+    private var updateLocationDriver: BroadcastReceiver? = null
+    private fun registerLocationDriver(receiver: BroadcastReceiver) {
+        this.updateLocationDriver = receiver
+        registerReceiver(updateLocationDriver, IntentFilter(Constant.UPDATE_LOCATION_DRIVER))
+    }
+    fun unRegisterLocationDriver() {
+        if(updateLocationDriver != null) unregisterReceiver(updateLocationDriver)
+        updateLocationDriver = null
+    }
+    private var isFinishMoving: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            bookingViewModel.clear()
+            unRegisterLocationDriver()
+            unregisterReceiver(this)
+        }
+    }
+    private fun registerFinishMoving() {
+        registerReceiver(isFinishMoving, IntentFilter(Constant.FINISH_MOVING))
+    }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private val updateDriverLocation = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
             marker?.remove()
             marker = null
-            var currentLocationDriver: CurrentLocationDriver? = null
-            var bitmapDescriptor: BitmapDescriptor? = null
-            CoroutineScope(Dispatchers.IO).launch {
-                currentLocationDriver = Gson().fromJson(
-                    p1?.getStringExtra(Constant.UPDATE_LOCATION_DRIVER_STRING),
-                    CurrentLocationDriver::class.java
-                )
-                bitmapDescriptor = Constant.convertDrawableToBitMap(
-                    getDrawable(R.drawable.navigation_puck_icon_24)
-                ) ?.let { it1 -> BitmapDescriptorFactory.fromBitmap(it1) }
-            }
+            Log.e("+++++++===",p1?.getStringExtra(Constant.UPDATE_LOCATION_DRIVER_STRING).toString())
+            val currentLocationDriver: CurrentLocationDriver? = Gson().fromJson(
+                p1?.getStringExtra(Constant.UPDATE_LOCATION_DRIVER_STRING),
+                CurrentLocationDriver::class.java
+            )
+            val bitmapDescriptor: BitmapDescriptor? = Constant.convertDrawableToBitMap(
+                getDrawable(R.drawable.navigation_puck_icon_24)
+            ) ?.let { it1 -> BitmapDescriptorFactory.fromBitmap(it1) }
+            Log.e("*******",currentLocationDriver.toString())
             marker = map.addMarker(
                 MarkerOptions().apply {
                     this.position(
@@ -210,7 +234,7 @@ class SearchingRouteActivity : BaseActivity() {
                 Status.LOADING -> this.showProgressDialog()
                 Status.SUCCESS -> {
                     this.hideProgressDialog()
-                    Log.e("---------",it.data.toString())
+                    Log.e("---------", it.data.toString())
                     addressAdapter.setList(it.data?.features!!.map { feature ->
                         Address(
                             LatLong(feature.properties.lat,feature.properties.lon),
@@ -221,7 +245,7 @@ class SearchingRouteActivity : BaseActivity() {
                 }
                 Status.ERROR -> {
                     this.hideProgressDialog()
-                    Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, it.message,Toast.LENGTH_LONG).show()
                 }
             }
         }

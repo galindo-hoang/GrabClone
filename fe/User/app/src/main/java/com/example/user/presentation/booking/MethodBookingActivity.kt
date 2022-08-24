@@ -50,6 +50,7 @@ class MethodBookingActivity : BaseActivity() {
                     }
                     Status.SUCCESS -> {
                         this.hideProgressDialog()
+                        bookingViewModel.isBooking = true
                         finish()
                     }
                 }

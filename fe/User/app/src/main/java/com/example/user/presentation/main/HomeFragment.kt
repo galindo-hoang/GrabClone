@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.databinding.FragmentHomeBinding
+import com.example.user.presentation.BaseApplication
 import com.example.user.presentation.booking.SearchingRouteActivity
 import com.example.user.presentation.main.adapter.BookingAdapter
 import com.example.user.presentation.main.adapter.PromptAdapter
@@ -29,6 +30,7 @@ class HomeFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.e("+",BaseApplication.token)
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
         setRecycleView()
         registerClickListener()

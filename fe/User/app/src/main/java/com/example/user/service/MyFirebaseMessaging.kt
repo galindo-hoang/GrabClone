@@ -3,6 +3,7 @@ package com.example.user.service
 import android.content.Intent
 import android.os.Handler
 import android.util.Log
+import com.example.user.data.dto.CurrentLocationDriver
 import com.example.user.data.dto.RegisterFCMBody
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.domain.repository.BookingRepository
@@ -10,6 +11,7 @@ import com.example.user.presentation.BaseApplication
 import com.example.user.utils.Constant
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -61,6 +63,7 @@ class MyFirebaseMessaging: FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        Log.e("-------",remoteMessage.data.toString())
         if(remoteMessage.data.isNotEmpty() && remoteMessage.data.containsKey("booking")) {
             if(isWaiting){
                 sendBroadcast(
@@ -76,29 +79,24 @@ class MyFirebaseMessaging: FirebaseMessagingService() {
             }
         }
         if(remoteMessage.data.isNotEmpty() && remoteMessage.data.containsKey("ride")) {
-            if(isMoving) {
-                sendBroadcast(
-                    Intent(Constant.UPDATE_LOCATION_DRIVER).apply {
-                        this.putExtra(
-                            Constant.UPDATE_LOCATION_DRIVER_STRING,
-                            remoteMessage.data["ride"]
-                        )
-                    }
-                )
-            }
+            val stringRide = remoteMessage.data["ride"]?.replace("\\","")?.replace("\"{","{")?.replace("}\"","}")
+            Log.e("=======",stringRide.toString())
+            sendBroadcast(
+                Intent(Constant.UPDATE_LOCATION_DRIVER).apply {
+                    this.putExtra(Constant.UPDATE_LOCATION_DRIVER_STRING,stringRide)
+                }
+            )
         }
         if(remoteMessage.data.isNotEmpty() && remoteMessage.data.containsKey("finish_ride")) {
-            if(isMoving) {
-                sendBroadcast(
-                    Intent(Constant.FINISH_MOVING).apply {
-                        this.putExtra(
-                            Constant.FINISH_MOVING_STRING,
-                            remoteMessage.data["ride"]
-                        )
-                    }
-                )
-                isMoving = false
-            }
+            sendBroadcast(
+                Intent(Constant.FINISH_MOVING).apply {
+                    this.putExtra(
+                        Constant.FINISH_MOVING_STRING,
+                        remoteMessage.data["ride"]
+                    )
+                }
+            )
+            isMoving = false
         }
     }
 }

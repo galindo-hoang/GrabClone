@@ -81,22 +81,4 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     }
     fun hideProgressDialog() { mProgressDialog?.dismiss() }
     ////////////////////////////////////////////////////////////////////////////
-    private var updateLocationDriver: BroadcastReceiver? = null
-    fun registerLocationDriver(receiver: BroadcastReceiver) {
-        this.updateLocationDriver = receiver
-        registerReceiver(updateLocationDriver, IntentFilter(Constant.UPDATE_LOCATION_DRIVER))
-    }
-    fun unRegisterLocationDriver() {
-        if(updateLocationDriver != null) unregisterReceiver(updateLocationDriver)
-        updateLocationDriver = null
-    }
-    private var isFinishMoving: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            unRegisterLocationDriver()
-            unregisterReceiver(this)
-        }
-    }
-    fun registerFinishMoving() {
-        registerReceiver(isFinishMoving, IntentFilter(Constant.FINISH_MOVING_STRING))
-    }
 }
