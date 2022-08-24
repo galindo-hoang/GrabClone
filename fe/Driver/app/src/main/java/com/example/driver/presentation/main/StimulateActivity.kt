@@ -50,6 +50,7 @@ class StimulateActivity: BaseActivity() {
                     Status.LOADING -> this.showProgressDialog()
                     Status.SUCCESS -> {
                         this.hideProgressDialog()
+                        stimulateViewModel.afterDoneDriving = true
                         finishAffinity()
                         startActivity(Intent(this,MainActivity::class.java))
                     }

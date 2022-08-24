@@ -46,11 +46,14 @@ class CurrentLocationService: Service() {
     }
     override fun onDestroy() {
         loopUpdateLocationHandler.removeCallbacks(loopUpdateLocation)
+        fusedLocationProviderClient.removeLocationUpdates(mLocationCallback)
+        Log.e("service","stop")
         super.onDestroy()
     }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
     private fun setUpCurrentRequestLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
         mLocationRequest = LocationRequest.create()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { mLocationRequest.priority = android.location.LocationRequest.QUALITY_HIGH_ACCURACY }
         mLocationRequest.interval = 1000

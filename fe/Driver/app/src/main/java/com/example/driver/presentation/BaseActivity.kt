@@ -65,7 +65,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         }
         this.mNewBookingDialog?.show()
     }
-    fun startLooking(){
+    fun startLooking() {
         haveNewBooking = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
                 this@BaseActivity.showNewBookingDialog(

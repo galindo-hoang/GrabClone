@@ -21,6 +21,7 @@ class StimulateViewModel @Inject constructor(
 ): ViewModel() {
     var origin: LatLong? = LatLong(10.838678,106.665290)
     var destination: LatLong? = LatLong(10.771423,106.698471)
+    var afterDoneDriving = false
 
     fun acceptBooking(id: Int) = liveData {
         emit(Response.loading(null))
@@ -30,9 +31,7 @@ class StimulateViewModel @Inject constructor(
     fun doneDriving() = liveData {
         emit(Response.loading(null))
         var response: Response<String>
-        withContext(Dispatchers.IO) {
-            response = doneDrivingUseCase.invoke()
-        }
+        withContext(Dispatchers.IO) { response = doneDrivingUseCase.invoke() }
         emit(response)
     }
 
