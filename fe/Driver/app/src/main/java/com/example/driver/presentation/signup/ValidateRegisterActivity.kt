@@ -2,19 +2,19 @@ package com.example.driver.presentation.signup
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.example.driver.R
 import com.example.driver.databinding.ActivityValidateRegisterBinding
+import com.example.driver.presentation.BaseActivity
+import com.example.driver.utils.Status
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ValidateRegisterActivity : AppCompatActivity() {
+class ValidateRegisterActivity : BaseActivity() {
     private lateinit var binding: ActivityValidateRegisterBinding
-    private var otp: Int = 0
+
     @Inject
     lateinit var signUpViewModel: SignUpViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,15 +26,18 @@ class ValidateRegisterActivity : AppCompatActivity() {
     }
 
     private fun registerListenerViewChange() {
-        signUpViewModel.checkOtp.observe(this){
-            if(it){
-                if(signUpViewModel.validateOTP() == 1){
-                    Toast.makeText(this, "validate success",Toast.LENGTH_LONG).show()
+        signUpViewModel.checkOtp.observe(this) {
+            when(it.status) {
+                Status.LOADING -> this.showProgressDialog()
+                Status.SUCCESS -> {
+                    this.hideProgressDialog()
                     startActivity(Intent(this,UpdateAccountActivity::class.java))
-                }else{
-                    Log.e("-------","fail")
                 }
-            }else Toast.makeText(this,"OTP invalid",Toast.LENGTH_LONG).show()
+                Status.ERROR -> {
+                    this.hideProgressDialog()
+                    Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 }

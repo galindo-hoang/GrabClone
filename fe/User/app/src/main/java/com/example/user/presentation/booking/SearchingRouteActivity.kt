@@ -9,6 +9,8 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -28,6 +30,7 @@ import com.example.user.utils.Constant
 import com.example.user.utils.Status
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.gson.Gson
@@ -36,6 +39,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -61,9 +65,20 @@ class SearchingRouteActivity : BaseActivity() {
         setContentView(binding.root)
         if(!Places.isInitialized())
             Places.initialize(this, BuildConfig.GOOGLE_MAP_API)
+        setupGoogleMap()
         setupRecyclerView()
         registerClickListener()
         registerViewChangeListener()
+    }
+
+
+    private fun setupGoogleMap() {
+        if(!Places.isInitialized())
+            Places.initialize(this,BuildConfig.GOOGLE_MAP_API)
+        (supportFragmentManager.findFragmentById(R.id.map_view_in_booking_activity)
+                as SupportMapFragment).getMapAsync {
+            this.map = it
+        }
     }
 
 
@@ -72,10 +87,12 @@ class SearchingRouteActivity : BaseActivity() {
             if(isOrigin == true){
                 bookingViewModel.origin = address
                 binding.etOrigin.setText(address.name)
+                handler.removeCallbacks(inputOriginChecker)
             }
             if(isOrigin == false){
                 bookingViewModel.destination = address
                 binding.etDestination.setText(address.name)
+                handler.removeCallbacks(inputDestinationChecker)
             }
             isOrigin = null
             binding.rvAddress.visibility = View.GONE
@@ -148,43 +165,45 @@ class SearchingRouteActivity : BaseActivity() {
     var delay: Long = 1500 // 1.5 seconds after user stops typing
     var lastEditText: Long = 0
     var handler: Handler = Handler(Looper.myLooper()!!)
-    private val inputOriginChecker = object : Runnable {
-        override fun run() {
-            if (System.currentTimeMillis() > lastEditText + delay - 500) {
-                if(isOrigin == true) {
-                    bookingViewModel.getListAddress(binding.etOrigin.text.toString())
-                }
-            }else{
-                handler.removeCallbacks(this)
-            }
+    private val inputOriginChecker = Runnable {
+        if (System.currentTimeMillis() > lastEditText + delay - 500) {
+            isOrigin = true
+            bookingViewModel.getListAddress(binding.etOrigin.text.toString())
         }
     }
-    private val inputDestinationChecker = object : Runnable {
-        override fun run() {
-            if (System.currentTimeMillis() > lastEditText + delay - 500) {
-                if(isOrigin == false)
-                    bookingViewModel.getListAddress(binding.etDestination.text.toString())
-            }else{
-                handler.removeCallbacks(this)
-            }
+    private val inputDestinationChecker = Runnable {
+        if (System.currentTimeMillis() > lastEditText + delay - 500) {
+            isOrigin = false
+            bookingViewModel.getListAddress(binding.etDestination.text.toString())
         }
     }
 
     private fun registerViewChangeListener(){
-        binding.etOrigin.addTextChangedListener{
-            if(it?.length!! >= 4){
-                isOrigin = true
-                lastEditText = System.currentTimeMillis()
-                handler.postDelayed(inputOriginChecker,delay)
+        binding.etOrigin.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                handler.removeCallbacks(inputOriginChecker)
             }
-        }
-        binding.etDestination.addTextChangedListener{
-            if(it?.length!! >= 4){
-                isOrigin = false
-                lastEditText = System.currentTimeMillis()
-                handler.postDelayed(inputDestinationChecker,delay)
+            override fun afterTextChanged(p0: Editable?) {
+                if(p0.toString().length >= 4){
+                    lastEditText = System.currentTimeMillis()
+                    handler.postDelayed(inputOriginChecker,delay)
+                }
             }
-        }
+        })
+        binding.etDestination.addTextChangedListener(object : TextWatcher{
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    handler.removeCallbacks(inputDestinationChecker)
+                }
+                override fun afterTextChanged(p0: Editable?) {
+                    if(p0.toString().length >= 4){
+                        lastEditText = System.currentTimeMillis()
+                        handler.postDelayed(inputDestinationChecker,delay)
+                    }
+                }
+            }
+        )
 
         bookingViewModel.listAddress.observe(this) {
             when(it.status){

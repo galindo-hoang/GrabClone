@@ -38,11 +38,8 @@ class SignUpActivity : BaseActivity() {
     private fun registerViewChangeListener() {
         signUpViewModel.phoneNumber.observe(this){
             if(it != null) {
-                if(it.isNotEmpty() && !Constant.checkPhone(it)){
-                    signUpViewModel.isValidPhoneNumber.postValue(false)
-                }else {
-                    signUpViewModel.isValidPhoneNumber.postValue(true)
-                }
+                signUpViewModel.isValidPhoneNumber.value =
+                    !(it.isNotEmpty() && !Constant.checkPhone(it))
             }
         }
 

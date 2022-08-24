@@ -1,12 +1,8 @@
 package com.example.user.domain.usecase
 
-import android.util.Log
 import com.example.user.data.dto.UserDto
-import com.example.user.data.model.authentication.ErrorBodyValidateOrRegister
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.utils.Response
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
 
 class SignUpPhoneNumberUseCase @Inject constructor(
@@ -15,7 +11,7 @@ class SignUpPhoneNumberUseCase @Inject constructor(
     suspend fun invoke(userDto: UserDto): Response<Int?> {
         return try {
             val response = authenticationRepository.postRequestRegisterPhoneNumber(userDto)
-            when(response.code()){
+            when(response.code()) {
                 200 -> Response.success(response.body()?.otp?.toInt())
 //                500 -> {}
                 else -> {

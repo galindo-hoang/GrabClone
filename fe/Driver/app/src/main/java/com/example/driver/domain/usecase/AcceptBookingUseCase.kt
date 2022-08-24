@@ -19,7 +19,7 @@ class AcceptBookingUseCase @Inject constructor(
             when(response.code()){
                 200 -> { Response.success(response.body()!!) }
                 401 -> { Response.error(null,-2,response.message()) }
-                else -> Response.error(null,response.code(),"fail to connect db")
+                else -> Response.error(null,response.code(),response.message())
             }
         } catch (e:Exception) { Response.error(null,-1,e.message.toString())}
     }

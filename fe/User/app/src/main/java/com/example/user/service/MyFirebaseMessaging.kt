@@ -6,6 +6,7 @@ import android.util.Log
 import com.example.user.data.dto.RegisterFCMBody
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.domain.repository.BookingRepository
+import com.example.user.presentation.BaseApplication
 import com.example.user.utils.Constant
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -20,8 +21,9 @@ class MyFirebaseMessaging: FirebaseMessagingService() {
     lateinit var bookingRepository: BookingRepository
 
     override fun onNewToken(token: String) {
-        Log.e("Service TAG", "Refreshed token: $token")
         super.onNewToken(token)
+        BaseApplication.token = token
+        Log.e("Service TAG", "Refreshed token: $token")
         runBlocking(Dispatchers.IO) {
             try {
                 val userDto = authenticationRepository.getAccount()
@@ -99,5 +101,4 @@ class MyFirebaseMessaging: FirebaseMessagingService() {
             }
         }
     }
-
 }

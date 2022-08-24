@@ -52,12 +52,14 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
                     Status.LOADING -> this.showProgressDialog()
                     Status.SUCCESS -> {
                         setupServiceCurrentLocationUseCase.stop()
+                        stimulateViewModel.origin = receiveNewBooking.origin
+                        stimulateViewModel.destination = receiveNewBooking.destination
                         this.hideProgressDialog()
                         startActivity(Intent(this,StimulateActivity::class.java))
                     }
                     Status.ERROR -> {
                         this.hideProgressDialog()
-                        if(it.codeResponse == -2) this.showProgressDialog(it.message.toString())
+                        if(it.codeResponse == -2) this.showExpiredTokenDialog(it.message.toString())
                         else Toast.makeText(this,it.message.toString(),Toast.LENGTH_LONG).show()
                     }
                 }
@@ -87,7 +89,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
             if(password.isEmpty()) Toast.makeText(this,"Please write password",Toast.LENGTH_LONG).show()
             else {
                 baseViewModel.password = password
-                baseViewModel.login().observe(this) {
+                baseViewModel.login(BaseApplication.token).observe(this) {
                     when(it.status) {
                         Status.LOADING -> this.showProgressDialog()
                         Status.SUCCESS -> {

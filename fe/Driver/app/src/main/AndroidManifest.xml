@@ -24,7 +24,7 @@
             android:name=".presentation.login.LogInActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.splash.SplashActivity"
+            android:name=".presentation.main.StimulateActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.signup.ValidateRegisterActivity"
@@ -38,7 +38,11 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.main.StimulateActivity"
+            android:name=".presentation.signup.UpdateAccountActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".presentation.splash.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

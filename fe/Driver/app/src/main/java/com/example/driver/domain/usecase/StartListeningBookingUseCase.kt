@@ -1,5 +1,6 @@
 package com.example.driver.domain.usecase
 
+import android.util.Log
 import com.example.driver.data.dto.SubscribeBookingDto
 import com.example.driver.data.model.fcm.ResponseSubscribe
 import com.example.driver.domain.repository.AuthenticationRepository
@@ -14,9 +15,9 @@ class StartListeningBookingUseCase @Inject constructor(
     suspend fun invoke(): Response<ResponseSubscribe> {
         return try {
             val userDto = authenticationRepository.getAccount()
-            val response = bookingRepository.subscribeListenBooking(
-                SubscribeBookingDto("booking", userDto.username!!)
-            )
+            Log.e("--------",userDto.toString())
+            val response = bookingRepository.subscribeListenBooking(SubscribeBookingDto("booking", userDto.username!!))
+            Log.e("--------",response.toString())
             when(response.code()){
                 200 -> Response.success(response.body()!!)
                 401 -> Response.error(null,-2,response.message())

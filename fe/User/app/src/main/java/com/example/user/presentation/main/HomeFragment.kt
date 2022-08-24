@@ -30,25 +30,13 @@ class HomeFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
-//        setRecycleView()
-//        registerClickListener()
-//        registerViewChangeListener()
+        setRecycleView()
+        registerClickListener()
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
             Log.e("---",it.result)
         }
         return binding.root
     }
-
-
-    private fun registerViewChangeListener() {
-        binding.selector1.setOnClickListener {
-            startActivity(Intent(activity, SearchingActivity::class.java))
-        }
-        binding.selector2.setOnClickListener {
-            startActivity(Intent(activity,SearchingActivity::class.java))
-        }
-    }
-
     private fun registerClickListener() {
         binding.selector1.setOnClickListener {
             startActivity(Intent(activity,SearchingRouteActivity::class.java))

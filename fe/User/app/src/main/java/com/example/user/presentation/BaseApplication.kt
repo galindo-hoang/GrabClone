@@ -11,6 +11,9 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class BaseApplication: Application(),LifecycleObserver {
     private lateinit var inten: Intent
+    companion object {
+        var token = ""
+    }
     override fun onCreate() {
         super.onCreate()
 //        inten = Intent(applicationContext, BackgroundService::class.java)
