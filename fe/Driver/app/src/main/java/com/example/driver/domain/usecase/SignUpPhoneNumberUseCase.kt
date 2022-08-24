@@ -15,9 +15,12 @@ class SignUpPhoneNumberUseCase @Inject constructor(
     suspend fun invoke(userDto: UserDto): Response<Int?> {
         return try {
             val response = authenticationRepository.postRequestRegisterPhoneNumber(userDto)
-            Log.e("-----",response.body().toString())
+            Log.e("6",response.toString())
             return when(response.code()) {
-                200 -> Response.success(response.body()?.otp?.toInt())
+                200 -> {
+                    Log.e("6",response.body().toString())
+                    Response.success(response.body()?.otp?.toInt())
+                }
                 else -> Response.error(null,response.code(),response.message())
             }
         } catch (e:Exception) { Response.error(null,-1,e.message.toString())}

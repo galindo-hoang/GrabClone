@@ -15,11 +15,13 @@ class StartListeningBookingUseCase @Inject constructor(
     suspend fun invoke(): Response<ResponseSubscribe> {
         return try {
             val userDto = authenticationRepository.getAccount()
-            Log.e("--------",userDto.toString())
             val response = bookingRepository.subscribeListenBooking(SubscribeBookingDto("booking", userDto.username!!))
-            Log.e("--------",response.toString())
+            Log.e("8",response.toString())
             when(response.code()){
-                200 -> Response.success(response.body()!!)
+                200 -> {
+                    Log.e("8",response.body().toString())
+                    Response.success(response.body()!!)
+                }
                 401 -> Response.error(null,-2,response.message())
                 else -> Response.error(null,response.code(),"fail to connect db")
             }

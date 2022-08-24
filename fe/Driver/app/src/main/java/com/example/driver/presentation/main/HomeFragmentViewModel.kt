@@ -23,10 +23,8 @@ class HomeFragmentViewModel @Inject constructor(
     }
     fun stopListening() = liveData {
         emit(Response.loading(null))
-        var response: Response<ResponseUnSubscribe>
-        withContext(Dispatchers.IO) {
-            response = stopListeningBookingUseCase.invoke()
-        }
+        var response: Response<String>
+        withContext(Dispatchers.IO) { response = stopListeningBookingUseCase.invoke() }
         emit(response)
     }
 }

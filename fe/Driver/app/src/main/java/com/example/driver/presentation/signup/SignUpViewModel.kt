@@ -90,10 +90,7 @@ class SignUpViewModel @Inject constructor(
         var response: Response<BodyValidateOrRegister>
         withContext(Dispatchers.IO) {
             response = validateOtpUseCase.invoke(
-                ValidateOTP(
-                    onceTimePassword = _otp.value!!,
-                    phoneNumber = "+84" + _phoneNumber.value?.substring(1)
-                )
+                ValidateOTP( onceTimePassword = _otp.value!!, phoneNumber = "+84" + _phoneNumber.value?.substring(1))
             )
         }
         _checkOtp.value = response
