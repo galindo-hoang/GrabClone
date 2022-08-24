@@ -27,9 +27,11 @@ class BookingRepositoryImpl @Inject constructor(
     override suspend fun postRegisterFcmToken(registerFCMBody: RegisterFCMBody): Response<ResponseRegisterFcmToken> =
         bookingRemoteDataResource.registerFcmToken(registerFCMBody)
 
-    override suspend fun updateCurrentLocation (
-        updateLocation: UpdateLocation
-    ): Response<ResponseUpdateLocation> = bookingRemoteDataResource.sendCurrentLocation(updateLocation)
+    override suspend fun updateCurrentLocationBeforeAccept (updateLocation: UpdateLocation): Response<ResponseUpdateLocation> =
+        bookingRemoteDataResource.sendCurrentLocationBeforeAccept(updateLocation)
+
+    override suspend fun updateCurrentLocationAfterAccept(updateLocation: UpdateLocation): Response<ResponseUpdateLocation> =
+        bookingRemoteDataResource.sendCurrentLocationAfterAccept(updateLocation)
 
     override suspend fun sendAcceptBooking(
         acceptBooking: AcceptBooking

@@ -9,7 +9,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import com.example.driver.data.dto.LatLong
-import com.example.driver.domain.usecase.SendCurrentLocationUseCase
+import com.example.driver.domain.usecase.SendCurrentLocationBeforeAcceptUseCase
 import com.example.driver.utils.Constant
 import com.example.driver.utils.RequestPermissions
 import com.example.driver.utils.Status
@@ -21,7 +21,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class CurrentLocationService: Service() {
     @Inject
-    lateinit var sendCurrentLocationUseCase: SendCurrentLocationUseCase
+    lateinit var sendCurrentLocationBeforeAcceptUseCase: SendCurrentLocationBeforeAcceptUseCase
     override fun onBind(p0: Intent?): IBinder? = null
 
     private var currentLatLong: LatLong? = null
@@ -79,7 +79,7 @@ class CurrentLocationService: Service() {
             currentLatLong = LatLong(p0.lastLocation?.latitude ?: 0.0, p0.lastLocation?.longitude ?: 0.0)
             runBlocking(Dispatchers.IO) {
                 Log.e("current location",currentLatLong.toString())
-                val response = sendCurrentLocationUseCase.invoke(currentLatLong!!)
+                val response = sendCurrentLocationBeforeAcceptUseCase.invoke(currentLatLong!!)
                 if(response.status == Status.ERROR && response.codeResponse == -2){
                     val intent = Intent(Constant.REFRESH_TOKEN_EXPIRED_WHEN_SEND_LOCATION).apply {
                         this.putExtra(Constant.REFRESH_TOKEN_EXPIRED_WHEN_SEND_LOCATION_EXTRA_USERNAME,response.message)

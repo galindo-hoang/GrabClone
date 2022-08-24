@@ -9,14 +9,14 @@ import com.example.driver.domain.repository.BookingRepository
 import com.example.driver.utils.Response
 import javax.inject.Inject
 
-class SendCurrentLocationUseCase @Inject constructor(
+class SendCurrentLocationBeforeAcceptUseCase @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val bookingRepository: BookingRepository
 ) {
     suspend fun invoke(latLong: LatLong): Response<ResponseUpdateLocation> {
         return try {
             val userDto = authenticationRepository.getAccount()
-            val response = bookingRepository.updateCurrentLocation(UpdateLocation(latLong, userDto.username!!))
+            val response = bookingRepository.updateCurrentLocationBeforeAccept(UpdateLocation(latLong, userDto.username!!))
             Log.e("5",response.toString())
             when(response.code()){
                 200 -> {

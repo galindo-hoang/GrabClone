@@ -9,7 +9,8 @@ import com.example.driver.BuildConfig
 import com.example.driver.R
 import com.example.driver.data.dto.LatLong
 import com.example.driver.databinding.ActivityStimulateBinding
-import com.example.driver.domain.usecase.SendCurrentLocationUseCase
+import com.example.driver.domain.usecase.SendCurrentLocationAfterAcceptUseCase
+import com.example.driver.domain.usecase.SendCurrentLocationBeforeAcceptUseCase
 import com.example.driver.presentation.BaseActivity
 import com.example.driver.utils.Status
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -28,7 +29,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class StimulateActivity: BaseActivity() {
     @Inject
-    lateinit var sendCurrentLocationUseCase: SendCurrentLocationUseCase
+    lateinit var sendCurrentLocationAfterAcceptUseCase: SendCurrentLocationAfterAcceptUseCase
     private var marker: Marker? = null
     private var origin: LatLng? = null
     private var destination: LatLng? = null
@@ -138,7 +139,7 @@ class StimulateActivity: BaseActivity() {
                     )
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(listPoints!![it],15f))
                 }
-                sendCurrentLocationUseCase.invoke(LatLong(listPoints!![it].latitude, listPoints!![it].longitude))
+                sendCurrentLocationAfterAcceptUseCase.invoke(LatLong(listPoints!![it].latitude, listPoints!![it].longitude))
                 delay(1000)
                 withContext(Dispatchers.Main) {
                     marker?.remove()
