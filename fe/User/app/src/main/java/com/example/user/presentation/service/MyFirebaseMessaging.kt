@@ -1,17 +1,15 @@
-package com.example.user.service
+package com.example.user.presentation.service
 
 import android.content.Intent
 import android.os.Handler
 import android.util.Log
-import com.example.user.data.dto.CurrentLocationDriver
 import com.example.user.data.dto.RegisterFCMBody
 import com.example.user.domain.repository.AuthenticationRepository
 import com.example.user.domain.repository.BookingRepository
-import com.example.user.presentation.BaseApplication
+import com.example.user.presentation.base.BaseApplication
 import com.example.user.utils.Constant
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject

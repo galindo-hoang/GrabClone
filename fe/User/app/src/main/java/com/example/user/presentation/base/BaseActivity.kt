@@ -1,18 +1,15 @@
-package com.example.user.presentation
+package com.example.user.presentation.base
 
 import android.app.Dialog
 import android.content.*
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import com.example.user.R
 import com.example.user.databinding.DialogLoginBinding
 import com.example.user.presentation.login.LogInActivity
-import com.example.user.utils.Constant
 import com.example.user.utils.Status
 import javax.inject.Inject
 

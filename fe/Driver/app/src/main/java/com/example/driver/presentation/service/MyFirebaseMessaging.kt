@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
 import com.example.driver.data.dto.RegisterFCMBody
+import com.example.driver.data.model.booking.ReceiveNewBooking
 import com.example.driver.domain.repository.AuthenticationRepository
 import com.example.driver.domain.repository.BookingRepository
 import com.example.driver.presentation.BaseApplication
 import com.example.driver.utils.Constant
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -33,15 +35,19 @@ class MyFirebaseMessaging: FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        if (remoteMessage.data.isNotEmpty() && remoteMessage.data.containsKey("booking")) {
-            sendBroadcast(
-                Intent(Constant.HAVE_NEW_BOOKING).apply {
-                    this.putExtra(
-                        Constant.HAVE_NEW_BOOKING_EXTRA,
-                        remoteMessage.data["booking"]
-                    )
-                }
-            )
+        Log.e("---------",remoteMessage.data.toString())
+
+        remoteMessage.data.keys.forEach {
+            if(it.contains("booking-")) {
+                sendBroadcast(
+                    Intent(Constant.HAVE_NEW_BOOKING).apply {
+                        this.putExtra(
+                            Constant.HAVE_NEW_BOOKING_EXTRA,
+                            remoteMessage.data[it]
+                        )
+                    }
+                )
+            }
         }
     }
 

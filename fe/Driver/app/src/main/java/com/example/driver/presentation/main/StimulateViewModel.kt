@@ -25,7 +25,9 @@ class StimulateViewModel @Inject constructor(
 
     fun acceptBooking(id: Int) = liveData {
         emit(Response.loading(null))
-        emit(acceptBookingUseCase.invoke(id))
+        var response: Response<String>
+        withContext(Dispatchers.IO) { response = acceptBookingUseCase.invoke(id) }
+        emit(response)
     }
 
     fun doneDriving() = liveData {

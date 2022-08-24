@@ -1,12 +1,14 @@
 package com.example.driver.presentation.main
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.driver.databinding.FragmentHomeBinding
+import com.example.driver.presentation.BaseApplication
 import com.example.driver.utils.Response
 import com.example.driver.utils.Status
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +26,7 @@ class HomeFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.e("-----------",BaseApplication.token)
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
         this.mainActivity = activity as MainActivity
         registerClickListener()

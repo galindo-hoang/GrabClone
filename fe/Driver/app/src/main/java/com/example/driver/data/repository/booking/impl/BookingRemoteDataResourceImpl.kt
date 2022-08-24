@@ -39,7 +39,7 @@ class BookingRemoteDataResourceImpl @Inject constructor(
     override suspend fun sendCurrentLocationAfterAccept(updateLocation: UpdateLocation): Response<ResponseUpdateLocation> =
         fcmApi.sendCurrentLocationAfterAccept(updateLocation)
 
-    override suspend fun sendAcceptBooking(acceptBooking: AcceptBooking): Response<ResponseAcceptBooking> =
+    override suspend fun sendAcceptBooking(acceptBooking: AcceptBooking): Response<Void> =
         bookingApi.sendAcceptBooking(acceptBooking)
 
     override suspend fun getRoute(method: String, origin: String, destination: String): Response<Direction> =

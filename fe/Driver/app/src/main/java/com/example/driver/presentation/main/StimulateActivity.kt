@@ -140,7 +140,7 @@ class StimulateActivity: BaseActivity() {
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(listPoints!![it],15f))
                 }
                 sendCurrentLocationAfterAcceptUseCase.invoke(LatLong(listPoints!![it].latitude, listPoints!![it].longitude))
-                delay(1000)
+                delay(3000)
                 withContext(Dispatchers.Main) {
                     marker?.remove()
                 }

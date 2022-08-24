@@ -35,7 +35,7 @@ class BookingRepositoryImpl @Inject constructor(
 
     override suspend fun sendAcceptBooking(
         acceptBooking: AcceptBooking
-    ): Response<ResponseAcceptBooking> = bookingRemoteDataResource.sendAcceptBooking(acceptBooking)
+    ): Response<Void> = bookingRemoteDataResource.sendAcceptBooking(acceptBooking)
 
     override suspend fun getRouteNavigation (
         method: String, origin: String, destination: String
