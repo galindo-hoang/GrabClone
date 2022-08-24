@@ -32,6 +32,7 @@ export const bookingCarReducer=(state=initialState,action)=>
         draft.bookingForm=action.payload;
         break;
       case types.CREATE_BOOKING_CAR_WITHOUT_DRIVER:
+        console.log("without driver")
         draft.bookingForm.dropoffLocation=action.payload.dropoffLocation;
         draft.bookingForm.pickupLocation=action.payload.pickupLocation;
         draft.bookingForm.typeCar=action.payload.typeCar;

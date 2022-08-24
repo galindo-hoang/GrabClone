@@ -81,3 +81,22 @@ export interface typeArrayBooking{
   destination:featuresLocation,
   bookingForm: responseCreateBooking
 }
+
+export interface requestTop5Location{
+  phoneNumber?:string,
+  limit?:number
+}
+
+export interface responseTop5Location{
+  count?:number,
+  latitude?:number,
+  longitude?:number,
+}
+
+export interface convertResponseTop5Location {
+  count?:number,
+  address?:string,
+}
+
+
+
