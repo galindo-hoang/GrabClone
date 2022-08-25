@@ -76,9 +76,10 @@ class CurrentLocationService: Service() {
         @SuppressLint("LogNotTimber")
         override fun onLocationResult(p0: LocationResult) {
             super.onLocationResult(p0)
-            currentLatLong = LatLong(p0.lastLocation?.latitude ?: 0.0, p0.lastLocation?.longitude ?: 0.0)
+//            currentLatLong = LatLong(p0.lastLocation?.latitude ?: 0.0, p0.lastLocation?.longitude ?: 0.0)
+            currentLatLong = LatLong(10.7624371,106.6823388)
+            Log.e("current location",currentLatLong.toString())
             runBlocking(Dispatchers.IO) {
-                Log.e("current location",currentLatLong.toString())
                 val response = sendCurrentLocationBeforeAcceptUseCase.invoke(currentLatLong!!)
                 if(response.status == Status.ERROR && response.codeResponse == -2){
                     val intent = Intent(Constant.REFRESH_TOKEN_EXPIRED_WHEN_SEND_LOCATION).apply {

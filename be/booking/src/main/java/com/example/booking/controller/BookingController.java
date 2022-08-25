@@ -193,7 +193,7 @@ public class BookingController {
             // Create booking acceptance
             Integer rideId = rideRecordSaving.getId();
             Date startTime = rideRecordSaving.getStartTime();
-            BookingRecordDto bookingCreationAcceptance = BookingRecordDto.builder()
+            BookingRecordDto    bookingCreationAcceptance = BookingRecordDto.builder()
                     .bookingId(bookingRecordSaving.getId())
                     .pickupLocation(bookingRecordSaving.getPickupCoordinate())
                     .dropoffLocation(bookingRecordSaving.getDropoffCoordinate())
@@ -241,11 +241,11 @@ public class BookingController {
                                 put("booking", jsonBookingRecordDto);
                             }}).build();
 
-
+            notificationRequestClient.sendPnsToUser(notificationForUserBooking);
             // Return accepted response
-            return notificationRequestClient.sendPnsToUser(notificationForUserBooking);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error");
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -314,7 +314,7 @@ public class BookingController {
                     .body("The ride has been finished")
                     .data(new HashMap<>() {
                         {
-                            put("ride", jsonObject.toString());
+                            put("finish_ride", jsonObject.toString());
                         }
                     }).build();
 
@@ -332,16 +332,17 @@ public class BookingController {
                     .body("The ride has been finished")
                     .data(new HashMap<>() {
                         {
-                            put("ride", jsonObjectFinished.toString());
+                            put("finish_ride", jsonObjectFinished.toString());
                         }
                     }).build();
 
             notificationRequestClient.sendPnsToUser(notificationForPassenger);
 
             // Return success response
-            return notificationRequestClient.sendPnsToUser(notificationForPassenger);
+            notificationRequestClient.sendPnsToUser(notificationForPassenger);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error");
+            return ResponseEntity.badRequest().build();
         }
     }
 

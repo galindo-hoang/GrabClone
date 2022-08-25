@@ -184,7 +184,7 @@ const Map = (props:Props) => {
         //DRIVER UPDATE LOCATION
         if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_UPDATE_LOCATION)) {
           const driverCoordinate=JSON.parse(JSON.parse(payloadFCM.ride).driverLocation) as coordinate;
-
+          setIsDriverWelcomeGuests(true);
           setDriverCoordinate(driverCoordinate);
           //DRIVER WELCOME GUEST
           if(driverCoordinate.longitude===departureCoordinate.coordinate?.longitude && driverCoordinate.latitude===departureCoordinate.coordinate?.latitude){
@@ -207,7 +207,8 @@ const Map = (props:Props) => {
                 setPolyLine(res.data.features[0].geometry.coordinates[0]);
               })
             }
-            setLineUpFromDriverToDestination()
+            setLineUpFromDriverToDestination();
+            setStateBooking(StateBooking.DRIVERWELCOMEGUESTS)
           }
           if(isDriverWelcomeGuests===false){
             setStateBooking(StateBooking.UPDATE);
@@ -224,7 +225,7 @@ const Map = (props:Props) => {
         //FINISH
         if (payloadFCM.body.toString().includes(BODYSTATES.FINISH_SUCCESS)) {
           setDriverCoordinate({longitude: destinationCoordinate.coordinate?.longitude, latitude: destinationCoordinate.coordinate?.latitude} as coordinate);
-          setFinishSuccess(JSON.parse(payloadFCM.ride) as responseFinishedRide);
+          /*setFinishSuccess(JSON.parse(payloadFCM.ride) as responseFinishedRide);*/
           setStateBooking(StateBooking.FINISH);
           history.push(PATH.BOOKINGCAR);
         }
