@@ -43,9 +43,17 @@ class SignUpActivity : BaseActivity() {
         }
 
         signUpViewModel.otp.observe(this){
+
             Log.e("otp",it.toString())
-            if(it != -1) startActivity(Intent(this,ValidateRegisterActivity::class.java))
-            else Toast.makeText(this,"cant register account",Toast.LENGTH_LONG).show()
+            if(it == 0) this.showProgressDialog()
+            else if(it != -1) {
+                this.hideProgressDialog()
+                startActivity(Intent(this, ValidateRegisterActivity::class.java))
+            }
+            else {
+                this.hideProgressDialog()
+                Toast.makeText(this, "cant register account", Toast.LENGTH_LONG).show()
+            }
         }
     }
 }

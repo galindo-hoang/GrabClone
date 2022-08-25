@@ -15,9 +15,7 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        if(intent.hasExtra(Constant.CONGRATULATE)) {
-            Toast.makeText(this,"Your booking is finish",Toast.LENGTH_LONG).show()
-        }
+        if(intent.hasExtra(Constant.CONGRATULATE)) { Toast.makeText(this,"Your booking is finish",Toast.LENGTH_LONG).show() }
         setContentView(binding.root)
         loadFragment(HomeFragment())
         registerViewChangeListener()

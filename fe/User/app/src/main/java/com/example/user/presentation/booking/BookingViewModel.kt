@@ -31,15 +31,15 @@ class BookingViewModel @Inject constructor(
     private val bookingCarUseCase: BookingCarUseCase,
     private val getAddressFromTextUseCase: GetListAddressFromTextUseCase
 ): ViewModel() {
-    private val _listAddress = MutableLiveData<Response<AddressFromText>>()
+    lateinit var routesForRouting: Direction
+    private val _listAddress = MutableLiveData<Response<AddressFromText>?>()
     var origin: Address? = null
     var destination: Address? = null
-    private val _routes = MutableLiveData<Response<Direction>>()
+    // must using flow
+    private val _routes = MutableLiveData<Response<Direction>?>()
     var payment: Payment? = null
     var vehicle: Vehicle? = null
-//    var isBooking = false
     var distance: Int? = null
-
     val listAddress get() = _listAddress
     val routes get() = _routes
 
@@ -48,9 +48,10 @@ class BookingViewModel @Inject constructor(
     fun clear() {
         origin = null
         destination = null
+        _routes.postValue(null)
+        _listAddress.postValue(null)
         payment = null
         vehicle = null
-//        isBooking = false
         distance = null
     }
 

@@ -24,6 +24,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".presentation.booking.RoutingActivity"
+            android:exported="false" />
+        <activity
             android:name=".presentation.booking.SearchingRouteActivity"
             android:exported="false" />
         <activity
@@ -78,6 +81,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/map_api" />

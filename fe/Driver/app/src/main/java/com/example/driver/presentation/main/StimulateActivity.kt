@@ -28,6 +28,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class StimulateActivity: BaseActivity() {
+    private var jobUpdate: Job? = null
+
     @Inject
     lateinit var sendCurrentLocationAfterAcceptUseCase: SendCurrentLocationAfterAcceptUseCase
     private var marker: Marker? = null
@@ -52,6 +54,7 @@ class StimulateActivity: BaseActivity() {
                     Status.SUCCESS -> {
                         this.hideProgressDialog()
                         stimulateViewModel.afterDoneDriving = true
+                        runBlocking(Dispatchers.IO) { jobUpdate?.cancelAndJoin() }
                         finishAffinity()
                         startActivity(Intent(this,MainActivity::class.java))
                     }
@@ -123,7 +126,7 @@ class StimulateActivity: BaseActivity() {
     }
 
     private fun stimulation() {
-        CoroutineScope(Dispatchers.IO).launch {
+        jobUpdate = CoroutineScope(Dispatchers.IO).launch {
             repeat(listPoints!!.size) {
                 val drawable = getDrawable(R.drawable.navigation_puck_icon_24)
                 val bitmap = drawable!!.toBitmap(

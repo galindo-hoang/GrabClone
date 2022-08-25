@@ -1,7 +1,14 @@
 package com.example.user.presentation.booking
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.R
@@ -12,6 +19,7 @@ import com.example.user.presentation.base.BaseActivity
 import com.example.user.presentation.booking.adapter.PaymentAdapter
 import com.example.user.presentation.booking.adapter.VehicleAdapter
 import com.example.user.presentation.service.MyFirebaseMessaging
+import com.example.user.utils.Constant
 import com.example.user.utils.PaymentMethod
 import com.example.user.utils.Status
 import com.example.user.utils.TypeCar
@@ -34,7 +42,6 @@ class MethodBookingActivity : BaseActivity() {
         binding = ActivityMethodBookingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setRecyclerView()
-        registerViewChange()
         registerLickListener()
     }
 
@@ -50,8 +57,8 @@ class MethodBookingActivity : BaseActivity() {
                     }
                     Status.SUCCESS -> {
                         this.hideProgressDialog()
-                        finish()
                         MyFirebaseMessaging.isWaiting = true
+                        isFinding()
                     }
                 }
             }
@@ -59,10 +66,42 @@ class MethodBookingActivity : BaseActivity() {
         vehicleAdapter.setOnClickListener { it, _ -> bookingViewModel.vehicle = it }
         paymentAdapter.setOnClickListener { it, _ -> bookingViewModel.payment = it }
     }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+    var isCount: Int = 0
+    private var waitingDriverLooper = object : Runnable {
+            override fun run() {
+                if(isCount < 10){
+                    isCount += 1
+                    waitingHandler.postDelayed(this, 1000)
+                }else {
+                    waitingHandler.removeCallbacks(this)
+                    sendBroadcast(Intent(Constant.HAVE_DRIVER).apply { this.putExtra(Constant.HAVE_DRIVER_STRING, "NOT_HAVING") })
+                }
+            }
+        }
 
-    private fun registerViewChange() {
+    private val listeningDriver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            binding.loading.visibility = View.GONE
+            unregisterReceiver(this)
+            MyFirebaseMessaging.isWaiting = false
+            if(p1?.getStringExtra(Constant.HAVE_DRIVER_STRING) == "HAVING"){
+                waitingHandler.removeCallbacks(waitingDriverLooper)
+                Toast.makeText(this@MethodBookingActivity,"Having driver accept your booking",Toast.LENGTH_LONG).show()
+                bookingViewModel.routesForRouting = bookingViewModel.routes.value!!.data!!
+                finishAffinity()
+                startActivity(Intent(this@MethodBookingActivity,RoutingActivity::class.java))
+            } else Toast.makeText(this@MethodBookingActivity,"Don't have driver",Toast.LENGTH_LONG).show()
+        }
     }
-
+    private var waitingHandler: Handler = Handler(Looper.myLooper()!!)
+    private fun isFinding() {
+        binding.loading.visibility = View.VISIBLE
+        isCount = 0
+        registerReceiver(listeningDriver, IntentFilter(Constant.HAVE_DRIVER))
+        waitingHandler.post(waitingDriverLooper)
+    }
+////////////////////////////////////////////////////////////////////////////////////////////////////
     private fun setRecyclerView() {
         binding.rcvVehicle.adapter = vehicleAdapter
         binding.rcvVehicle.layoutManager = LinearLayoutManager(this)

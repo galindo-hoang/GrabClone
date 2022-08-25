@@ -46,7 +46,7 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
                 when(it.status) {
                     Status.LOADING -> this.showProgressDialog()
                     Status.SUCCESS -> {
-                        setupServiceCurrentLocationUseCase.stop()
+                        stopLooking()
                         stimulateViewModel.origin = receiveNewBooking.origin
                         stimulateViewModel.destination = receiveNewBooking.destination
                         this.hideProgressDialog()
@@ -66,15 +66,19 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
         this.mNewBookingDialog?.show()
     }
     fun startLooking() {
-        haveNewBooking = object : BroadcastReceiver() {
-            override fun onReceive(p0: Context?, p1: Intent?) {
-                this@BaseActivity.showNewBookingDialog(
-                    Gson().fromJson(p1!!.getStringExtra(Constant.HAVE_NEW_BOOKING_EXTRA), ReceiveNewBooking::class.java)
-                )
+        if(haveNewBooking == null) {
+            haveNewBooking = object : BroadcastReceiver() {
+                override fun onReceive(p0: Context?, p1: Intent?) {
+                    this@BaseActivity.showNewBookingDialog(
+                        Gson().fromJson(p1!!.getStringExtra(Constant.HAVE_NEW_BOOKING_EXTRA), ReceiveNewBooking::class.java)
+                    )
+                }
             }
+            setupServiceCurrentLocationUseCase.start(application)
+            registerReceiver(haveNewBooking,IntentFilter(Constant.HAVE_NEW_BOOKING))
+        }else {
+            Toast.makeText(this,"Is Listening passenger",Toast.LENGTH_LONG).show()
         }
-        setupServiceCurrentLocationUseCase.start(application)
-        registerReceiver(haveNewBooking,IntentFilter(Constant.HAVE_NEW_BOOKING))
     }
     fun stopLooking(){
         if(haveNewBooking != null) {

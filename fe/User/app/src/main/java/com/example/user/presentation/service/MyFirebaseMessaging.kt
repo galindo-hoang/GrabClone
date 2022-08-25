@@ -64,6 +64,7 @@ class MyFirebaseMessaging: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.e("-------",remoteMessage.data.toString())
         if(remoteMessage.data.isNotEmpty() && remoteMessage.data.containsKey("booking")) {
+            Log.e("==========","have")
             if(isWaiting){
                 sendBroadcast(Intent(Constant.HAVE_DRIVER).apply { this.putExtra(Constant.HAVE_DRIVER_STRING, "HAVING") })
                 isWaiting = false
