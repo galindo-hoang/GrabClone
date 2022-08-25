@@ -1,18 +1,15 @@
-package com.example.user.presentation
+package com.example.user.presentation.base
 
 import android.app.Dialog
 import android.content.*
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import com.example.user.R
 import com.example.user.databinding.DialogLoginBinding
 import com.example.user.presentation.login.LogInActivity
-import com.example.user.utils.Constant
 import com.example.user.utils.Status
 import javax.inject.Inject
 
@@ -81,22 +78,4 @@ open class BaseActivity @Inject constructor(): AppCompatActivity() {
     }
     fun hideProgressDialog() { mProgressDialog?.dismiss() }
     ////////////////////////////////////////////////////////////////////////////
-    private var updateLocationDriver: BroadcastReceiver? = null
-    fun registerLocationDriver(receiver: BroadcastReceiver) {
-        this.updateLocationDriver = receiver
-        registerReceiver(updateLocationDriver, IntentFilter(Constant.UPDATE_LOCATION_DRIVER))
-    }
-    fun unRegisterLocationDriver() {
-        if(updateLocationDriver != null) unregisterReceiver(updateLocationDriver)
-        updateLocationDriver = null
-    }
-    private var isFinishMoving: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            unRegisterLocationDriver()
-            unregisterReceiver(this)
-        }
-    }
-    fun registerFinishMoving() {
-        registerReceiver(isFinishMoving, IntentFilter(Constant.FINISH_MOVING_STRING))
-    }
 }

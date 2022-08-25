@@ -14,16 +14,20 @@ class DoneDrivingUseCase @Inject constructor(
     suspend fun invoke(): Response<String> {
         return try {
             val userDto = authenticationRepository.getAccount()
+            Log.e("-==============",userDto.toString())
             val response = bookingRepository.sendFinishRoute(FinishBooking(userDto.username!!))
             Log.e("2",response.toString())
             when (response.code()) {
                 200 -> {
-                    Log.e("2",response.body().toString())
-                    Response.success(response.body().toString())
+                    Log.e("2","response.body().toString()")
+                    Response.success("response.body().toString()")
                 }
                 401 -> Response.error(null,-2,response.message())
                 else -> Response.error(null,response.code(),response.message())
             }
-        } catch (e:Exception) { Response.error(null,-1,e.message.toString())}
+        } catch (e:Exception) {
+            Log.e("-==============",e.message.toString())
+            Response.error(null,-1,e.message.toString())
+        }
     }
 }

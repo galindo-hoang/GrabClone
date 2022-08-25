@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.user.data.dto.Login
 import com.example.user.data.dto.UserDto
 import com.example.user.domain.usecase.LoginUseCase
-import com.example.user.presentation.BaseApplication.Companion.token
+import com.example.user.presentation.base.BaseApplication.Companion.token
 import com.example.user.utils.Response
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "728070969789",
-    "firebase_url": "https://drugstore-bda06-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "project_id": "drugstore-bda06",
-    "storage_bucket": "drugstore-bda06.appspot.com"
+    "project_number": "1062432939073",
+    "firebase_url": "https://grabclone-19ktpm-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "grabclone-19ktpm",
+    "storage_bucket": "grabclone-19ktpm.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:728070969789:android:c64ba6523aa478f9361ad4",
+        "mobilesdk_app_id": "1:1062432939073:android:d7477f7e43ba54c540bac0",
         "android_client_info": {
-          "package_name": "com.example.datapersistence"
+          "package_name": "com.example.driver"
         }
       },
       "oauth_client": [
         {
-          "client_id": "728070969789-078v2p4nu3h47tt02140u4lilj1b59p6.apps.googleusercontent.com",
+          "client_id": "1062432939073-k4h1ah24bj7tpkeg7h7rg76dd8lq924q.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA-c9jc2Ju7zab-EooXjr_M9zXsItd6MVA"
+          "current_key": "AIzaSyCWYwlLEFobC_a37uAkGQUaNLCwoTLcf94"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "728070969789-078v2p4nu3h47tt02140u4lilj1b59p6.apps.googleusercontent.com",
+              "client_id": "1062432939073-k4h1ah24bj7tpkeg7h7rg76dd8lq924q.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -37,96 +37,27 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:728070969789:android:be98f0b7f9de2201361ad4",
-        "android_client_info": {
-          "package_name": "com.example.drugstore"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "728070969789-780468lskndp8p1dclrmm3hgore6am7e.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.drugstore",
-            "certificate_hash": "06ba3e12b0cf268b9d5372cde85494c53430d3ff"
-          }
-        },
-        {
-          "client_id": "728070969789-7ida0ogue5a47pcrb5vsuul4q7i44urg.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.drugstore",
-            "certificate_hash": "8c6917670b5d04169d728d2949066e749cce170e"
-          }
-        },
-        {
-          "client_id": "728070969789-h12m58f6a6cpi1ba5mu5j1kaq8k8vlsv.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.drugstore",
-            "certificate_hash": "5712ac0fe9b2773e42bdfbc3bf6c94cb8612a9e8"
-          }
-        },
-        {
-          "client_id": "728070969789-o6v69ck6jbd5juoh2h4spr35cc07hjfo.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.drugstore",
-            "certificate_hash": "4c639c9417e9a0b7767116cc2306cb065fc5d512"
-          }
-        },
-        {
-          "client_id": "728070969789-utmviv5jtvtc8spsv7ar8oesp0pnefva.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.drugstore",
-            "certificate_hash": "45b059aa23df666efa2e9b9453d55a3a204a26e6"
-          }
-        },
-        {
-          "client_id": "728070969789-078v2p4nu3h47tt02140u4lilj1b59p6.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA-c9jc2Ju7zab-EooXjr_M9zXsItd6MVA"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "728070969789-078v2p4nu3h47tt02140u4lilj1b59p6.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:728070969789:android:1df6190f028fb2e0361ad4",
+        "mobilesdk_app_id": "1:1062432939073:android:df5b0f281b473cc240bac0",
         "android_client_info": {
           "package_name": "com.example.user"
         }
       },
       "oauth_client": [
         {
-          "client_id": "728070969789-078v2p4nu3h47tt02140u4lilj1b59p6.apps.googleusercontent.com",
+          "client_id": "1062432939073-k4h1ah24bj7tpkeg7h7rg76dd8lq924q.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA-c9jc2Ju7zab-EooXjr_M9zXsItd6MVA"
+          "current_key": "AIzaSyCWYwlLEFobC_a37uAkGQUaNLCwoTLcf94"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "728070969789-078v2p4nu3h47tt02140u4lilj1b59p6.apps.googleusercontent.com",
+              "client_id": "1062432939073-k4h1ah24bj7tpkeg7h7rg76dd8lq924q.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

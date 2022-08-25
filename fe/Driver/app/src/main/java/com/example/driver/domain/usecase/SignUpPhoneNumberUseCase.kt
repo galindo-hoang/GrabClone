@@ -23,6 +23,9 @@ class SignUpPhoneNumberUseCase @Inject constructor(
                 }
                 else -> Response.error(null,response.code(),response.message())
             }
-        } catch (e:Exception) { Response.error(null,-1,e.message.toString())}
+        } catch (e:Exception) {
+            Log.e("6",e.message.toString())
+            Response.error(null,-1,e.message.toString())
+        }
     }
 }

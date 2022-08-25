@@ -51,6 +51,7 @@ class SignUpViewModel @Inject constructor(
 
     fun signUpPhoneNumber() {
         if(_phoneNumber.value.toString().isNotEmpty()){
+            _otp.value = 0
             var otp = -1
             runBlocking(Dispatchers.IO) {
                 val response = signUpPhoneNumberUseCase.invoke(
@@ -61,7 +62,7 @@ class SignUpViewModel @Inject constructor(
                 )
                 if(response.status == Status.SUCCESS) otp = response.data!!
             }
-            _otp.postValue(otp)
+            _otp.value = otp
         }
     }
 

@@ -15,7 +15,7 @@ interface BookingRemoteDataResource {
     suspend fun registerFcmToken(registerFCMBody: RegisterFCMBody): Response<ResponseRegisterFcmToken>
     suspend fun sendCurrentLocationBeforeAccept(updateLocation: UpdateLocation): Response<ResponseUpdateLocation>
     suspend fun sendCurrentLocationAfterAccept(updateLocation: UpdateLocation): Response<ResponseUpdateLocation>
-    suspend fun sendAcceptBooking(acceptBooking: AcceptBooking): Response<ResponseAcceptBooking>
+    suspend fun sendAcceptBooking(acceptBooking: AcceptBooking): Response<Void>
     suspend fun getRoute(method: String, origin: String, destination: String): Response<Direction>
-    suspend fun sendFinishRoute(finishBooking: FinishBooking): Response<String>
+    suspend fun sendFinishRoute(finishBooking: FinishBooking): Response<Void>
 }

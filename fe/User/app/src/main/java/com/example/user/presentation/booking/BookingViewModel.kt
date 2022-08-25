@@ -31,17 +31,29 @@ class BookingViewModel @Inject constructor(
     private val bookingCarUseCase: BookingCarUseCase,
     private val getAddressFromTextUseCase: GetListAddressFromTextUseCase
 ): ViewModel() {
-    private val _listAddress = MutableLiveData<Response<AddressFromText>>()
+    lateinit var routesForRouting: Direction
+    private val _listAddress = MutableLiveData<Response<AddressFromText>?>()
     var origin: Address? = null
     var destination: Address? = null
-    private val _routes = MutableLiveData<Response<Direction>>()
-    lateinit var payment: Payment
-    lateinit var vehicle: Vehicle
-    var isBooking = false
+    // must using flow
+    private val _routes = MutableLiveData<Response<Direction>?>()
+    var payment: Payment? = null
+    var vehicle: Vehicle? = null
     var distance: Int? = null
-
     val listAddress get() = _listAddress
     val routes get() = _routes
+
+
+
+    fun clear() {
+        origin = null
+        destination = null
+        _routes.postValue(null)
+        _listAddress.postValue(null)
+        payment = null
+        vehicle = null
+        distance = null
+    }
 
 
     fun searchingRoute() = viewModelScope.launch {
@@ -69,9 +81,9 @@ class BookingViewModel @Inject constructor(
                 BookingDto(
                     destination = LatLong(destination!!.position.latitude,destination!!.position.longitude),
                     origin = LatLong(origin!!.position.latitude,origin!!.position.longitude),
-                    paymentMethod = payment.method,
-                    price = vehicle.getPrice().toDouble(),
-                    typeCar = vehicle.typeCar
+                    paymentMethod = payment!!.method,
+                    price = vehicle!!.getPrice().toDouble(),
+                    typeCar = vehicle!!.typeCar
                 )
             )
         }
