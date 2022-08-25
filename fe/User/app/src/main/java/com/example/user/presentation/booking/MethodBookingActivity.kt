@@ -47,7 +47,7 @@ class MethodBookingActivity : BaseActivity() {
 
     private fun registerLickListener() {
         binding.btnSearchingCar.setOnClickListener {
-            bookingViewModel.searchingDriver().observe(this) {
+            bookingViewModel.bookingCar().observe(this) {
                 when(it.status){
                     Status.LOADING -> this.showProgressDialog()
                     Status.ERROR -> {
@@ -91,7 +91,21 @@ class MethodBookingActivity : BaseActivity() {
                 bookingViewModel.routesForRouting = bookingViewModel.routes.value!!.data!!
                 finishAffinity()
                 startActivity(Intent(this@MethodBookingActivity,RoutingActivity::class.java))
-            } else Toast.makeText(this@MethodBookingActivity,"Don't have driver",Toast.LENGTH_LONG).show()
+            } else {
+                bookingViewModel.cancelBookingCar().observe(this@MethodBookingActivity) {
+                    when(it.status) {
+                        Status.LOADING -> this@MethodBookingActivity.showProgressDialog()
+                        Status.ERROR -> {
+                            this@MethodBookingActivity.hideProgressDialog()
+                            Toast.makeText(this@MethodBookingActivity,it.message,Toast.LENGTH_LONG).show()
+                        }
+                        Status.SUCCESS -> {
+                            this@MethodBookingActivity.hideProgressDialog()
+                            Toast.makeText(this@MethodBookingActivity, "Don't have driver", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            }
         }
     }
     private var waitingHandler: Handler = Handler(Looper.myLooper()!!)

@@ -14,6 +14,7 @@ import com.example.user.data.model.place.Address
 import com.example.user.data.model.place.AddressFromText
 import com.example.user.data.model.route.Direction
 import com.example.user.domain.usecase.BookingCarUseCase
+import com.example.user.domain.usecase.CancelBookingCarUseCase
 import com.example.user.domain.usecase.GetListAddressFromTextUseCase
 import com.example.user.domain.usecase.GetRouteNavigationUseCase
 import com.example.user.utils.Response
@@ -29,6 +30,7 @@ import javax.inject.Singleton
 class BookingViewModel @Inject constructor(
     private val getRouteNavigationUseCase: GetRouteNavigationUseCase,
     private val bookingCarUseCase: BookingCarUseCase,
+    private val cancelBookingCarUseCase: CancelBookingCarUseCase,
     private val getAddressFromTextUseCase: GetListAddressFromTextUseCase
 ): ViewModel() {
     lateinit var routesForRouting: Direction
@@ -73,7 +75,7 @@ class BookingViewModel @Inject constructor(
         }
     }
 
-    fun searchingDriver() = liveData {
+    fun bookingCar() = liveData {
         emit(Response.loading(null))
         var response: Response<ResponseBooking>
         withContext(Dispatchers.IO) {
@@ -86,6 +88,15 @@ class BookingViewModel @Inject constructor(
                     typeCar = vehicle!!.typeCar
                 )
             )
+        }
+        emit(response)
+    }
+
+    fun cancelBookingCar() = liveData {
+        emit(Response.loading(null))
+        var response: Response<String>
+        withContext(Dispatchers.IO) {
+            response = cancelBookingCarUseCase.invoke()
         }
         emit(response)
     }

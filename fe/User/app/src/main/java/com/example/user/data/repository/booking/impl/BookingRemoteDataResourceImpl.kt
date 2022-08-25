@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.user.data.api.BookingApi
 import com.example.user.data.api.FCMApi
 import com.example.user.data.dto.BookingDto
+import com.example.user.data.dto.CancelBookingDto
 import com.example.user.data.dto.RegisterFCMBody
 import com.example.user.data.model.booking.ResponseBooking
 import com.example.user.data.model.fcm.ResponseRegisterFcmToken
@@ -18,6 +19,9 @@ class BookingRemoteDataResourceImpl @Inject constructor(
 ): BookingRemoteDataResource {
     override suspend fun bookingDriver(bookingDto: BookingDto): Response<ResponseBooking> =
         bookingApi.createBooking(bookingDto)
+
+    override suspend fun cancelBookingDriver(cancelBookingDto: CancelBookingDto): Response<Void> =
+        bookingApi.cancelBooking(cancelBookingDto)
 
     override suspend fun registerFcmToken(registerFCMBody: RegisterFCMBody): Response<ResponseRegisterFcmToken> =
         fcmApi.registerToken(registerFCMBody)

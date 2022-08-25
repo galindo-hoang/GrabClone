@@ -1,6 +1,7 @@
 package com.example.user.data.repository.booking
 
 import com.example.user.data.dto.BookingDto
+import com.example.user.data.dto.CancelBookingDto
 import com.example.user.data.dto.RegisterFCMBody
 import com.example.user.data.model.booking.ResponseBooking
 import com.example.user.data.model.fcm.ResponseRegisterFcmToken
@@ -14,6 +15,9 @@ class BookingRepositoryImpl @Inject constructor(
 ): BookingRepository {
     override suspend fun bookingDriver(bookingDto: BookingDto): Response<ResponseBooking> =
         bookingRemoteDataResource.bookingDriver(bookingDto)
+
+    override suspend fun cancelBookingDriver(cancelBookingDto: CancelBookingDto): Response<Void> =
+        bookingRemoteDataResource.cancelBookingDriver(cancelBookingDto)
 
     override suspend fun postRegisterFcmToken(registerFCMBody: RegisterFCMBody): Response<ResponseRegisterFcmToken> {
         return bookingRemoteDataResource.registerFcmToken(registerFCMBody)
