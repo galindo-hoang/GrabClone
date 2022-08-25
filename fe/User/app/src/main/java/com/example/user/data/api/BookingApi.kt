@@ -10,7 +10,7 @@ import retrofit2.http.POST
 
 interface BookingApi {
     @POST("/api/v1/booking/cancel_booking")
-    suspend fun cancelBooking(@Body cancelBookingDto: CancelBookingDto): Response<ResponseBooking>
+    suspend fun cancelBooking(@Body cancelBookingDto: CancelBookingDto): Response<Void>
     @POST("/api/v1/booking/create_booking")
     suspend fun createBooking(@Body bookingDto: BookingDto): Response<ResponseBooking>
 }

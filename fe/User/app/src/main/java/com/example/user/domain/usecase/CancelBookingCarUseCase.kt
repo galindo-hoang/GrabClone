@@ -13,15 +13,15 @@ class CancelBookingCarUseCase @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
     private val bookingRepository: BookingRepository
 ) {
-    suspend fun invoke(): Response<ResponseBooking> {
+    suspend fun invoke(): Response<String> {
         return try {
             val userDto = authenticationRepository.getAccount()
             val response = bookingRepository.cancelBookingDriver(CancelBookingDto(userDto.username!!))
             Log.e("8",response.toString())
              when(response.code()){
                 200 -> {
-                    Log.e("8",response.body().toString())
-                    Response.success(response.body()!!)
+                    Log.e("8","response.body().toString()")
+                    Response.success("response.body().toString()")
                 }
                 401 -> Response.error(null,-2,response.message())
                 else -> Response.error(null, response.code(), message = response.message())

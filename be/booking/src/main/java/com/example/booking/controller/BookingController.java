@@ -410,7 +410,8 @@ public class BookingController {
 
 
             // Return success response
-            return notificationRequestClient.sendPnsToUser(notificationForPassenger);
+            notificationRequestClient.sendPnsToUser(notificationForPassenger);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

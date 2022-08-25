@@ -94,7 +94,7 @@ class BookingViewModel @Inject constructor(
 
     fun cancelBookingCar() = liveData {
         emit(Response.loading(null))
-        var response: Response<ResponseBooking>
+        var response: Response<String>
         withContext(Dispatchers.IO) {
             response = cancelBookingCarUseCase.invoke()
         }

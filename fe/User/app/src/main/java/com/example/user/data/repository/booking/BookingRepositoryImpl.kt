@@ -16,7 +16,7 @@ class BookingRepositoryImpl @Inject constructor(
     override suspend fun bookingDriver(bookingDto: BookingDto): Response<ResponseBooking> =
         bookingRemoteDataResource.bookingDriver(bookingDto)
 
-    override suspend fun cancelBookingDriver(cancelBookingDto: CancelBookingDto): Response<ResponseBooking> =
+    override suspend fun cancelBookingDriver(cancelBookingDto: CancelBookingDto): Response<Void> =
         bookingRemoteDataResource.cancelBookingDriver(cancelBookingDto)
 
     override suspend fun postRegisterFcmToken(registerFCMBody: RegisterFCMBody): Response<ResponseRegisterFcmToken> {

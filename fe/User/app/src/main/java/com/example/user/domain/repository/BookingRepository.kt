@@ -9,6 +9,6 @@ import retrofit2.Response
 
 interface BookingRepository {
     suspend fun bookingDriver(bookingDto: BookingDto): Response<ResponseBooking>
-    suspend fun cancelBookingDriver(cancelBookingDto: CancelBookingDto): Response<ResponseBooking>
+    suspend fun cancelBookingDriver(cancelBookingDto: CancelBookingDto): Response<Void>
     suspend fun postRegisterFcmToken(registerFCMBody: RegisterFCMBody): Response<ResponseRegisterFcmToken>
 }
