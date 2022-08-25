@@ -1,8 +1,11 @@
 import axios from "axios"
 import {coordinate} from "../../@types/map";
+import {instance} from "../Interceptor/ApiService";
+import {requestTop5Location} from "../../@types/bookingcar";
 
 
-const GET_TOP_5_LOCATION_RECENT=""
+const GET_TOP_5_LOCATION_DEPARTURE_RECENT="http://localhost:8085/api/v1/booking/topDepartures"
+const GET_TOP_5_LOCATION_DESTINATION_RECENT="http://localhost:8085/api/v1/booking/topDestination"
 class BookingService {
   autoComplete(address: String) {
     return axios.get(`https://api.geoapify.com/v1/geocode/autocomplete?text=${address}&apiKey=ce49dd1f7cb14bce8674f53bb21ee1c7`)
@@ -11,8 +14,19 @@ class BookingService {
   convertCoordinateToAddress(coordinate: coordinate) {
     return axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${coordinate.latitude}&lon=${coordinate.longitude}&lang=fr&apiKey=ce49dd1f7cb14bce8674f53bb21ee1c7`)
   }
-  top5LocationRecent(){
-
+  top5LocationDepartureRecent(phoneNumber:string){
+    return instance.post(GET_TOP_5_LOCATION_DEPARTURE_RECENT,{limit:5,phoneNumber:phoneNumber} as requestTop5Location,{
+      headers:{
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      }
+    });
+  }
+  top5LocationDestinationRecent(phoneNumber:string){
+    return instance.post(GET_TOP_5_LOCATION_DESTINATION_RECENT,{limit:5,phoneNumber:phoneNumber} as requestTop5Location,{
+      headers:{
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      }
+    });
   }
   calcPrice(distance: number, typeCar: string) {
     let price = 0;

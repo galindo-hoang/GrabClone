@@ -33,6 +33,7 @@ import {TYPECAR} from "../../constants/typecar";
 import {useHistory} from "react-router-dom";
 import {PATH} from "../../constants/paths";
 import ProcessBookingService from "../../service/BookingCar/ProcessBookingService";
+import {reFreshPageFunction} from "./Map.thunks";
 const accessToken = "pk.eyJ1IjoicGhhbXRpZW5xdWFuIiwiYSI6ImNsNXFvb2h3ejB3NGMza28zYWx2enoyem4ifQ.v-O4lWtgCXbhJbPt5nPFIQ";
 
 
@@ -59,18 +60,17 @@ const ProcessMove = (props:any) => {
       style={{position: "absolute",left:'5px',top:'5px',maxWidth: "320px"}}
     >
       <Space size="small">
-      <button className="btn  btn-info btn-sm ml-3 d-inline" style={{position: "relative",width:'120px'}} onClick={() => setToggle(!toggle)}>{toggle?'Hiện thông tin':'Ẩn thông tin'}</button>
-      <button className="btn  btn-info btn-sm ml-1 d-inline" style={{position: "relative",width:'160px'}} onClick={drawer}>Hiện trạng thái đặt xe</button>
+        <button className="btn  btn-info btn-sm ml-3 d-inline" style={{position: "relative",width:'120px'}} onClick={() => setToggle(!toggle)}>{toggle?'Hiện thông tin':'Ẩn thông tin'}</button>
+        <button className="btn  btn-info btn-sm ml-1 d-inline" style={{position: "relative",width:'160px'}} onClick={drawer}>Hiện trạng thái đặt xe</button>
         {(StateBooking.ACCEPTED.toString().includes(stateBooking) ||StateBooking.UPDATE.toString().includes(stateBooking))?
-          <button className="btn  btn-info btn-sm ml-1 d-inline" style={{position: "relative", width: '120px'}}
-                  onClick={() => cancelDriver()}>Hủy chuyển xe</button>
+          ""
           :""
         }
       </Space>
       <animated.form style={fade} className="p-5 rounded-sm shadow text-center info-background ml-3" hidden={toggle}>
         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
           <Col className="gutter-row" span={24}>
-        <Title>Hướng dẫn di chuyển</Title>
+            <Title>Hướng dẫn di chuyển</Title>
             <hr/>
           </Col>
           <Scrollbars
@@ -89,11 +89,13 @@ const mapStateToProps = state => ({
   closeSideNav: state.app.closeSideNav,
   payloadFCM:state.app.payloadFCM||null,
   bookingCarForm:state.bookingCar,
+  refreshPageValue: state.map.refreshPageValue,
 })
 
 const mapDispatchToProps = {
   clearBookingCar,
-  clearFCM
+  clearFCM,
+  reFreshPageFunction
 }
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
@@ -112,7 +114,7 @@ const StateBooking={
 }
 const Map = (props:Props) => {
   const [isDriverWelcomeGuests,setIsDriverWelcomeGuests]=useState<boolean>(false);
-  const {closeSideNav,payloadFCM,bookingCarForm,clearBookingCar,clearFCM} = props;
+  let {closeSideNav,payloadFCM,bookingCarForm,clearBookingCar,clearFCM,refreshPageValue,reFreshPageFunction} = props;
   const [payloadFCMValue,setPayloadFCMValue]=useState<Object>(payloadFCM);
   const [viewCoordinate,setViewCoordinate]=useState<coordinate>({
     longitude:bookingCarForm?.departure.coordinate?.longitude as number,
@@ -159,16 +161,20 @@ const Map = (props:Props) => {
   });
   const history=useHistory();
   useEffect(()=>{
-     /* if (bookingCarForm.bookingForm.id === JSON.parse(payloadFCM.booking).bookingId) {*/
-        //DRIVER ACCEPTED
+    /* if (bookingCarForm.bookingForm.id === JSON.parse(payloadFCM.booking).bookingId) {*/
+    //DRIVER ACCEPTED
     if(payloadFCM!==null) {
       /*if (bookingCarForm.bookingForm.id === JSON.parse(JSON.parse(payloadFCM.booking).bookingId)) */{
         console.log(payloadFCM)
+        console.log(bookingCarForm.bookingForm)
         if(payloadFCM.body.toString().includes(BODYSTATES.HAD_DRIVER_IN_AREA)){
           setStateBooking(StateBooking.CREATED_SUCCESS)
         }
         if(bookingCarForm.bookingForm.id===null){
           setStateBooking(StateBooking.CREATED_FAIL)
+        }
+        if(bookingCarForm.bookingForm.id!==null){
+          setStateBooking(StateBooking.CREATED_SUCCESS)
         }
         //DRIVER ACCEPTED
         if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_ACCEPTED)) {
@@ -178,23 +184,31 @@ const Map = (props:Props) => {
         //DRIVER UPDATE LOCATION
         if (payloadFCM.body.toString().includes(BODYSTATES.DRIVER_UPDATE_LOCATION)) {
           const driverCoordinate=JSON.parse(JSON.parse(payloadFCM.ride).driverLocation) as coordinate;
-
+          setIsDriverWelcomeGuests(true);
           setDriverCoordinate(driverCoordinate);
           //DRIVER WELCOME GUEST
           if(driverCoordinate.longitude===departureCoordinate.coordinate?.longitude && driverCoordinate.latitude===departureCoordinate.coordinate?.latitude){
             setStateBooking(StateBooking.DRIVERWELCOMEGUESTS);
             if(isDriverWelcomeGuests===false) {
               setIsDriverWelcomeGuests(true);
+              const setLineUpFromDriverToDestination = async () => {
+                await MapService.getDistanceAndRoute(driverCoordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
+                  setProcessMove(res.data.features[0].properties.legs[0].steps.map(index => index.instruction.text))
+                  setPolyLine(res.data.features[0].geometry.coordinates[0]);
+                })
+              }
+              setLineUpFromDriverToDestination()
             }
           }
-         if(isDriverWelcomeGuests===true){
+          if(isDriverWelcomeGuests===true){
             const setLineUpFromDriverToDestination = async () => {
               await MapService.getDistanceAndRoute(driverCoordinate, destinationCoordinate.coordinate as coordinate).then((res) => {
                 setProcessMove(res.data.features[0].properties.legs[0].steps.map(index => index.instruction.text))
                 setPolyLine(res.data.features[0].geometry.coordinates[0]);
               })
             }
-            setLineUpFromDriverToDestination()
+            setLineUpFromDriverToDestination();
+            setStateBooking(StateBooking.DRIVERWELCOMEGUESTS)
           }
           if(isDriverWelcomeGuests===false){
             setStateBooking(StateBooking.UPDATE);
@@ -209,16 +223,14 @@ const Map = (props:Props) => {
           }
         }
         //FINISH
-         if (payloadFCM.body.toString().includes(BODYSTATES.FINISH_SUCCESS)) {
+        if (payloadFCM.body.toString().includes(BODYSTATES.FINISH_SUCCESS)) {
           setDriverCoordinate({longitude: destinationCoordinate.coordinate?.longitude, latitude: destinationCoordinate.coordinate?.latitude} as coordinate);
-          setFinishSuccess(JSON.parse(payloadFCM.ride) as responseFinishedRide);
+          /*setFinishSuccess(JSON.parse(payloadFCM.ride) as responseFinishedRide);*/
           setStateBooking(StateBooking.FINISH);
-          clearFCM();
           history.push(PATH.BOOKINGCAR);
-          console.log("hahah")
         }
         //DRIVER CANCEL
-         if (payloadFCM.body.toString().includes(BODYSTATES.CANCEL_DRIVER)) {
+        if (payloadFCM.body.toString().includes(BODYSTATES.CANCEL_DRIVER)) {
           setDriverCoordinate({longitude: undefined, latitude: undefined} as coordinate);
           setStateBooking(StateBooking.CANCELLEDBYDRIVER)
         }
@@ -229,9 +241,12 @@ const Map = (props:Props) => {
       if(bookingCarForm.bookingForm.id===null){
         setStateBooking(StateBooking.CREATED_FAIL)
       }
+      if(bookingCarForm.bookingForm.id!==null){
+        setStateBooking(StateBooking.CREATED_SUCCESS)
+      }
     }
     /*  }*/
-  },[payloadFCM])
+  },[payloadFCM]);
   useEffect(()=> {
     if(bookingCarForm.bookingForm.state!==undefined) {
       if (bookingCarForm.bookingForm.state.includes("No Drive")) {
@@ -246,7 +261,17 @@ const Map = (props:Props) => {
         })
     }
     setLineUp()
-  },[])
+  },[]);
+
+  //refreshPage
+  /*useEffect(()=>{
+    if(refreshPageValue===false){
+      clearFCM();
+      console.log("Cleaar")
+      reFreshPageFunction(true)
+    }
+
+  },[])*/
   useEffect(() => {
     let isMessage=true;
     if(isMessage===true) {
@@ -306,21 +331,21 @@ const Map = (props:Props) => {
 
       {
         StateBooking.FINISH.toString().includes(stateBooking) ? "" :
-        <Source type='geojson' id='source-geojson' data={geoJsonPolyLine}>
-          <Layer
-            id="lineLayer1"
-            type="line"
-            source="route"
-            layout={{
-              "line-join": "round",
-              "line-cap": "round"
-            }}
-            paint={{
-              "line-color": "red",
-              "line-width": 3
-            }}
-          />
-        </Source>
+          <Source type='geojson' id='source-geojson' data={geoJsonPolyLine}>
+            <Layer
+              id="lineLayer1"
+              type="line"
+              source="route"
+              layout={{
+                "line-join": "round",
+                "line-cap": "round"
+              }}
+              paint={{
+                "line-color": "red",
+                "line-width": 3
+              }}
+            />
+          </Source>
       }
 
       {showPopupDestination && (
@@ -352,15 +377,15 @@ const Map = (props:Props) => {
       {/*MARKER DRIVER*/}
       {
         (driverCoordinate?.latitude!==undefined&&driverCoordinate?.longitude!==undefined)?
-        <Marker
-          latitude={driverCoordinate?.latitude||undefined}
-          longitude={driverCoordinate?.longitude||undefined}>
-          <img
-            onClick={() => setShowPopupDestination(true)}
-            style={{height: 50, width: 50}}
-            src="https://library.kissclipart.com/20180925/rpe/kissclipart-map-car-icon-clipart-car-google-maps-navigation-c81a6a2d0ecb7a15.png"
-          />
-        </Marker>:""
+          <Marker
+            latitude={driverCoordinate?.latitude||undefined}
+            longitude={driverCoordinate?.longitude||undefined}>
+            <img
+              onClick={() => setShowPopupDestination(true)}
+              style={{height: 50, width: 50}}
+              src="https://library.kissclipart.com/20180925/rpe/kissclipart-map-car-icon-clipart-car-google-maps-navigation-c81a6a2d0ecb7a15.png"
+            />
+          </Marker>:""
       }
 
       {/*MARKER DESTINATION*/}

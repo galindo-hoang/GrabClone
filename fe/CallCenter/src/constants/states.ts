@@ -5,3 +5,4 @@ export const BODYSTATES = {
   FINISH_SUCCESS:"The ride has been finished",
   CANCEL_DRIVER:"The ride has been cancelled. Please wait for another driver"
 }
+

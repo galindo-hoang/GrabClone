@@ -161,7 +161,7 @@ public class PublishController {
                         subscriptionRequestDto.getTopicName(), subscriptionRequestDto.getUsername());
             }
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(topicNameRecord);
         } catch (Exception e) {
             log.error("Unsubscribe to topic: {} for userId: {} error", subscriptionRequestDto.getTopicName(),
                     subscriptionRequestDto.getUsername(), e);
