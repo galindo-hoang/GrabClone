@@ -2,21 +2,19 @@ package com.example.user.presentation.splash
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.user.R
-import com.example.user.presentation.BaseApplication
+import com.example.user.presentation.base.BaseApplication
 import com.example.user.presentation.login.LogInActivity
 import com.example.user.presentation.main.MainActivity
 import com.example.user.utils.Status
-import com.google.android.gms.tasks.Task
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import javax.inject.Inject
-import kotlin.coroutines.resumeWithException
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
@@ -29,6 +27,7 @@ class SplashActivity : AppCompatActivity() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if(task.isSuccessful) {
                 BaseApplication.token = task.result
+                Log.e("--------",BaseApplication.token)
                 splashViewModel.checkLogin().observe(this) {
                     when (it.status) {
                         Status.SUCCESS -> {

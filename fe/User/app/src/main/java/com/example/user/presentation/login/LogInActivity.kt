@@ -7,8 +7,9 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.example.user.R
 import com.example.user.databinding.ActivityLoginBinding
-import com.example.user.presentation.BaseActivity
+import com.example.user.presentation.base.BaseActivity
 import com.example.user.presentation.main.MainActivity
+import com.example.user.presentation.service.MyFirebaseMessaging
 import com.example.user.presentation.signup.SignUpActivity
 import com.example.user.utils.Status
 import dagger.hilt.android.AndroidEntryPoint

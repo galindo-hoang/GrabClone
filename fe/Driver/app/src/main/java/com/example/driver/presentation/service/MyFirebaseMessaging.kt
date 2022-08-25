@@ -36,7 +36,6 @@ class MyFirebaseMessaging: FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.e("---------",remoteMessage.data.toString())
-
         remoteMessage.data.keys.forEach {
             if(it.contains("booking-")) {
                 sendBroadcast(

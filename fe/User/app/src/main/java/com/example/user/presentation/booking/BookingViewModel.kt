@@ -37,7 +37,7 @@ class BookingViewModel @Inject constructor(
     private val _routes = MutableLiveData<Response<Direction>>()
     var payment: Payment? = null
     var vehicle: Vehicle? = null
-    var isBooking = false
+//    var isBooking = false
     var distance: Int? = null
 
     val listAddress get() = _listAddress
@@ -50,7 +50,7 @@ class BookingViewModel @Inject constructor(
         destination = null
         payment = null
         vehicle = null
-        isBooking = false
+//        isBooking = false
         distance = null
     }
 

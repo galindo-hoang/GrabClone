@@ -32,69 +32,66 @@ class MyFirebaseMessaging: FirebaseMessagingService() {
         }
     }
     companion object {
-        var countWaiting = 0
         var isWaiting = false
         var isMoving = false
-        lateinit var mainHandler: Handler
-        private val waitingDriver = object : Runnable {
-            override fun run() {
-                if(countWaiting < 20){
-                    countWaiting += 1
-                    mainHandler.postDelayed(this, 1000)
-                }else {
-                    stopListening()
-                }
-            }
-        }
 
-        fun startListening(){
-            countWaiting = 0
-            isWaiting = true
-            mainHandler.post(waitingDriver)
-        }
-
-        fun stopListening(){
-            isWaiting = false
-            mainHandler.removeCallbacks(waitingDriver)
-        }
-
+//        var countWaiting = 0
+//        lateinit var mainHandler: Handler
+//        private val waitingDriver = object : Runnable {
+//            override fun run() {
+//                if(countWaiting < 20){
+//                    countWaiting += 1
+//                    mainHandler.postDelayed(this, 1000)
+//                }else {
+//                    stopListening()
+//                    sendBroadcast(Intent(Constant.HAVE_DRIVER).apply { this.putExtra(Constant.HAVE_DRIVER_STRING, "NOT_HAVING") })
+//                }
+//            }
+//        }
+//
+//        fun startListening(){
+//            countWaiting = 0
+//            isWaiting = true
+//            mainHandler.post(waitingDriver)
+//        }
+//
+//        fun stopListening(){
+//            isWaiting = false
+//            mainHandler.removeCallbacks(waitingDriver)
+//        }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.e("-------",remoteMessage.data.toString())
         if(remoteMessage.data.isNotEmpty() && remoteMessage.data.containsKey("booking")) {
             if(isWaiting){
-                sendBroadcast(
-                    Intent(Constant.HAVE_DRIVER).apply {
-                        this.putExtra(
-                            Constant.HAVE_DRIVER_STRING,
-                            remoteMessage.data["booking"]
-                        )
-                    }
-                )
+                sendBroadcast(Intent(Constant.HAVE_DRIVER).apply { this.putExtra(Constant.HAVE_DRIVER_STRING, "HAVING") })
                 isWaiting = false
                 isMoving = true
+
             }
         }
         if(remoteMessage.data.isNotEmpty() && remoteMessage.data.containsKey("ride")) {
-            val stringRide = remoteMessage.data["ride"]?.replace("\\","")?.replace("\"{","{")?.replace("}\"","}")
-            Log.e("=======",stringRide.toString())
-            sendBroadcast(
-                Intent(Constant.UPDATE_LOCATION_DRIVER).apply {
-                    this.putExtra(Constant.UPDATE_LOCATION_DRIVER_STRING,stringRide)
-                }
-            )
+            if(isMoving){
+                val stringRide = remoteMessage.data["ride"]?.replace("\\","")?.replace("\"{","{")?.replace("}\"","}")
+                Log.e("=======",stringRide.toString())
+                sendBroadcast(
+                    Intent(Constant.UPDATE_LOCATION_DRIVER).apply {
+                        this.putExtra(Constant.UPDATE_LOCATION_DRIVER_STRING,stringRide)
+                    }
+                )
+            }
         }
         if(remoteMessage.data.isNotEmpty() && remoteMessage.data.containsKey("finish_ride")) {
-            sendBroadcast(
-                Intent(Constant.FINISH_MOVING).apply {
-                    this.putExtra(
-                        Constant.FINISH_MOVING_STRING,
-                        remoteMessage.data["ride"]
-                    )
-                }
-            )
-            isMoving = false
+            if(isMoving) {
+                Log.e("finish","hello")
+                sendBroadcast(
+                    Intent(Constant.FINISH_MOVING).apply {
+                        this.putExtra(Constant.FINISH_MOVING_STRING, "remoteMessage.data[\"ride\"]")
+                    }
+                )
+                isMoving = false
+            }
         }
     }
 }

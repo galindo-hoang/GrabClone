@@ -45,6 +45,6 @@ class BookingRemoteDataResourceImpl @Inject constructor(
     override suspend fun getRoute(method: String, origin: String, destination: String): Response<Direction> =
         directionApi.getRoutes("$origin|$destination", method, BuildConfig.API_ADRRESS)
 
-    override suspend fun sendFinishRoute(finishBooking: FinishBooking): Response<String> =
+    override suspend fun sendFinishRoute(finishBooking: FinishBooking): Response<Void> =
         bookingApi.finishBooking(finishBooking)
 }

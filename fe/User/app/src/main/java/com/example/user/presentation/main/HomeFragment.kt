@@ -9,12 +9,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.databinding.FragmentHomeBinding
-import com.example.user.presentation.BaseApplication
+import com.example.user.presentation.base.BaseApplication
 import com.example.user.presentation.booking.SearchingRouteActivity
 import com.example.user.presentation.main.adapter.BookingAdapter
 import com.example.user.presentation.main.adapter.PromptAdapter
 import com.example.user.presentation.main.adapter.VoucherAdapter
-import com.example.user.presentation.searching.SearchingActivity
+import com.example.user.presentation.service.MyFirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -30,7 +30,7 @@ class HomeFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.e("+",BaseApplication.token)
+        Log.e("+", BaseApplication.token)
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
         setRecycleView()
         registerClickListener()

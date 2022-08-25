@@ -43,7 +43,7 @@ class BookingRepositoryImpl @Inject constructor(
 
     override suspend fun sendFinishRoute (
         finishBooking: FinishBooking
-    ): Response<String> = bookingRemoteDataResource.sendFinishRoute(finishBooking)
+    ): Response<Void> = bookingRemoteDataResource.sendFinishRoute(finishBooking)
 
 }
 

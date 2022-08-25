@@ -14,7 +14,6 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.BuildConfig
 import com.example.user.R
@@ -23,9 +22,10 @@ import com.example.user.data.dto.LatLong
 import com.example.user.data.model.place.Address
 import com.example.user.databinding.ActivitySearchingRouteBinding
 import com.example.user.domain.usecase.GetRouteNavigationUseCase
-import com.example.user.presentation.BaseActivity
+import com.example.user.presentation.base.BaseActivity
 import com.example.user.presentation.booking.adapter.AddressAdapter
-import com.example.user.service.MyFirebaseMessaging
+import com.example.user.presentation.main.MainActivity
+import com.example.user.presentation.service.MyFirebaseMessaging
 import com.example.user.utils.Constant
 import com.example.user.utils.Status
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -35,8 +35,7 @@ import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
-import java.util.*
+import kotlinx.coroutines.Runnable
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -44,10 +43,15 @@ import kotlin.math.roundToInt
 @SuppressLint("UseCompatLoadingForDrawables")
 @AndroidEntryPoint
 class SearchingRouteActivity : BaseActivity() {
+
+    private lateinit var listeningLocationDriver: BroadcastReceiver
+    private lateinit var waitingDriver: Runnable
+
     @Inject
     lateinit var getRouteNavigationUseCase: GetRouteNavigationUseCase
     @Inject
     lateinit var bookingViewModel: BookingViewModel
+    private lateinit var mainHandler: Handler
     lateinit var origin: LatLng
     lateinit var destination: LatLng
     private val addressAdapter = AddressAdapter()
@@ -103,44 +107,52 @@ class SearchingRouteActivity : BaseActivity() {
         super.onStart()
         isBooking()
     }
-
+    var isCount: Int = 0
     private fun isBooking() {
-        if(bookingViewModel.isBooking){
-//            MyFirebaseMessaging.startListening()
-//            val listeningDriver = object : BroadcastReceiver() {
-//                override fun onReceive(p0: Context?, p1: Intent?) {
-//                    this@SearchingRouteActivity.registerFinishMoving()
-//                    this@SearchingRouteActivity.registerLocationDriver(updateDriverLocation)
-//                    unregisterReceiver(this)
-//                }
-//            }
-//            registerReceiver(listeningDriver, IntentFilter(Constant.HAVE_DRIVER))
-//            bookingViewModel.isBooking = false
+        if(MyFirebaseMessaging.isWaiting){
+            isCount = 0
+            mainHandler = Handler(Looper.myLooper()!!)
 
+            waitingDriver = object : Runnable {
+                override fun run() {
+                    if(isCount < 20){
+                        isCount += 1
+                        mainHandler.postDelayed(this, 1000)
+                    }else {
+                        mainHandler.removeCallbacks(this)
+                        sendBroadcast(Intent(Constant.HAVE_DRIVER).apply { this.putExtra(Constant.HAVE_DRIVER_STRING, "NOT_HAVING") })
+                    }
+                }
+            }
 
-            registerLocationDriver(updateDriverLocation)
-            registerFinishMoving()
-
+            val listeningDriver = object : BroadcastReceiver() {
+                override fun onReceive(p0: Context?, p1: Intent?) {
+                    unregisterReceiver(this)
+                    mainHandler.removeCallbacks(waitingDriver)
+                    if(p1?.getStringExtra(Constant.HAVE_DRIVER_STRING) == "HAVING"){
+                        Toast.makeText(this@SearchingRouteActivity,"Having driver accept your booking",Toast.LENGTH_LONG).show()
+                        registerFinishMoving()
+                        registerReceiver(updateDriverLocation,IntentFilter(Constant.UPDATE_LOCATION_DRIVER))
+                    } else Toast.makeText(this@SearchingRouteActivity,"Don't have driver",Toast.LENGTH_LONG).show()
+                }
+            }
+            registerReceiver(listeningDriver,IntentFilter(Constant.HAVE_DRIVER))
+            mainHandler.post(waitingDriver)
         }
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    private var updateLocationDriver: BroadcastReceiver? = null
-    private fun registerLocationDriver(receiver: BroadcastReceiver) {
-        this.updateLocationDriver = receiver
-        registerReceiver(updateLocationDriver, IntentFilter(Constant.UPDATE_LOCATION_DRIVER))
-    }
-    fun unRegisterLocationDriver() {
-        if(updateLocationDriver != null) unregisterReceiver(updateLocationDriver)
-        updateLocationDriver = null
-    }
     private var isFinishMoving: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
             bookingViewModel.clear()
-            unRegisterLocationDriver()
+            Toast.makeText(this@SearchingRouteActivity,"Done booking",Toast.LENGTH_LONG).show()
+            Log.e("---------------","done")
+            unregisterReceiver(updateDriverLocation)
             unregisterReceiver(this)
+            finishAffinity()
+            startActivity(Intent(this@SearchingRouteActivity,MainActivity::class.java).apply {
+                this.putExtra(Constant.CONGRATULATE,"CONGRATULATE")
+            })
         }
     }
     private fun registerFinishMoving() {
@@ -162,17 +174,15 @@ class SearchingRouteActivity : BaseActivity() {
                 getDrawable(R.drawable.navigation_puck_icon_24)
             ) ?.let { it1 -> BitmapDescriptorFactory.fromBitmap(it1) }
             Log.e("*******",currentLocationDriver.toString())
+            val location =
+                LatLng(currentLocationDriver!!.driverLocation.latitude, currentLocationDriver.driverLocation.longitude)
             marker = map.addMarker(
                 MarkerOptions().apply {
-                    this.position(
-                        LatLng(
-                            currentLocationDriver!!.driverLocation.latitude,
-                            currentLocationDriver!!.driverLocation.longitude
-                        )
-                    )
+                    this.position(location)
                     this.icon(bitmapDescriptor)
                 }
             )
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(location,15f))
         }
     }
 

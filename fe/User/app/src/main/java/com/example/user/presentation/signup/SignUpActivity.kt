@@ -3,12 +3,11 @@ package com.example.user.presentation.signup
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.example.user.R
 import com.example.user.databinding.ActivitySignUpBinding
-import com.example.user.presentation.BaseActivity
+import com.example.user.presentation.base.BaseActivity
 import com.example.user.presentation.login.LogInActivity
 import com.example.user.utils.Constant
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,8 +44,15 @@ class SignUpActivity : BaseActivity() {
 
         signUpViewModel.otp.observe(this){
             Log.e("otp",it.toString())
-            if(it != -1) startActivity(Intent(this,ValidateRegisterActivity::class.java))
-            else Toast.makeText(this,"cant register account",Toast.LENGTH_LONG).show()
+            if(it == 0) this.showProgressDialog()
+            else if(it != -1) {
+                this.hideProgressDialog()
+                startActivity(Intent(this, ValidateRegisterActivity::class.java))
+            }
+            else {
+                this.hideProgressDialog()
+                Toast.makeText(this, "cant register account", Toast.LENGTH_LONG).show()
+            }
         }
     }
 }

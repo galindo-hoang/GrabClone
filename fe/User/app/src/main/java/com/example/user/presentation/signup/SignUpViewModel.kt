@@ -1,6 +1,5 @@
 package com.example.user.presentation.signup
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
@@ -13,9 +12,10 @@ import com.example.user.domain.usecase.SignUpSaveAccountUseCase
 import com.example.user.domain.usecase.ValidateOtpUseCase
 import com.example.user.utils.Response
 import com.example.user.utils.Status
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.flow
-import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -50,6 +50,7 @@ class SignUpViewModel @Inject constructor(
 
     fun signUpPhoneNumber() {
         if(_phoneNumber.value.toString().isNotEmpty()){
+            _otp.value = 0
             var otp = -1
             runBlocking(Dispatchers.IO) {
                 val response = signUpPhoneNumberUseCase.invoke(
@@ -60,7 +61,7 @@ class SignUpViewModel @Inject constructor(
                 )
                 if (response.status == Status.SUCCESS) otp = response.data!!
             }
-            _otp.postValue(otp)
+            _otp.value = otp
         }
     }
 

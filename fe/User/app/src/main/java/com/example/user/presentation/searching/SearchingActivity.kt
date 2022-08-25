@@ -11,7 +11,7 @@ import android.provider.Settings
 import android.widget.Toast
 import com.example.user.R
 import com.example.user.databinding.ActivitySearchingBinding
-import com.example.user.presentation.BaseActivity
+import com.example.user.presentation.base.BaseActivity
 import com.example.user.utils.Constant.REQUEST_CURRENT_LOCATION
 import com.example.user.utils.RequestPermissions
 import com.google.android.gms.location.*

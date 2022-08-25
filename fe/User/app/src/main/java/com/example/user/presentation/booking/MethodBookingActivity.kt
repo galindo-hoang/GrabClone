@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.user.R
-import com.example.user.data.api.AuthenticationApi
 import com.example.user.data.dto.Payment
 import com.example.user.data.dto.Vehicle
 import com.example.user.databinding.ActivityMethodBookingBinding
-import com.example.user.presentation.BaseActivity
+import com.example.user.presentation.base.BaseActivity
 import com.example.user.presentation.booking.adapter.PaymentAdapter
 import com.example.user.presentation.booking.adapter.VehicleAdapter
+import com.example.user.presentation.service.MyFirebaseMessaging
 import com.example.user.utils.PaymentMethod
 import com.example.user.utils.Status
 import com.example.user.utils.TypeCar
@@ -50,8 +50,8 @@ class MethodBookingActivity : BaseActivity() {
                     }
                     Status.SUCCESS -> {
                         this.hideProgressDialog()
-                        bookingViewModel.isBooking = true
                         finish()
+                        MyFirebaseMessaging.isWaiting = true
                     }
                 }
             }
