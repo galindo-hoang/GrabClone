@@ -18,10 +18,7 @@ class SignUpPhoneNumberUseCase @Inject constructor(
                     Log.e("5",response.body().toString())
                     Response.success(response.body()?.otp?.toInt())
                 }
-//                500 -> {}
                 else -> {
-//                    val type = object : TypeToken<ErrorBodyValidateOrRegister>() {}.type
-//                    Log.e("Error",Gson().fromJson(response.errorBody()!!.charStream(), type))
                     Response.error(null,response.code(),response.message())
                 }
             }

@@ -41,7 +41,6 @@ class RoutingActivity : BaseActivity() {
         binding = ActivityRoutingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupGoogleMap()
-//        setupUI()
         registerReceiver(isFinishMoving, IntentFilter(Constant.FINISH_MOVING))
         registerReceiver(updateDriverLocation,IntentFilter(Constant.UPDATE_LOCATION_DRIVER))
     }

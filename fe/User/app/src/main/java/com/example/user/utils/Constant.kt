@@ -98,11 +98,11 @@ object Constant {
             BodyAccessToken::class.java
         )
 
-    fun getErrorBody(){
+//    fun getErrorBody(){
 //            val type = object : TypeToken<ResponseValidateRegister>() {}.type
 //            var errorResponse: ResponseValidateRegister? = Gson().fromJson(b.errorBody()!!.charStream(), type)
 //            Log.e("-----", errorResponse.toString())
-    }
+//    }
 
     fun convertTimeLongToDateTime(time: Long): Date = Date(time * 1000)
     fun getCurrentDate() = Date()

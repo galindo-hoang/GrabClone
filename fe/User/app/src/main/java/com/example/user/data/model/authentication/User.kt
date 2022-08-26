@@ -10,11 +10,6 @@ import com.google.gson.annotations.SerializedName
 data class User(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0,
-//    val accountNonExpired: Boolean? = null,
-//    val accountNonLocked: Boolean? = null,
-//    val credentialsNonExpired: Boolean? = null,
-//    val enabled: Boolean? = null,
-
     var password: String?,
     var username: String?,
     @SerializedName("phonenumber")

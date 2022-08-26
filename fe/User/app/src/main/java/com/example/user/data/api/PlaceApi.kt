@@ -6,21 +6,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface PlaceApi {
-//    @GET("/maps/api/directions/json")
-//    suspend fun getRoutes(
-//        @Query("origin") origin: String,
-//        @Query("destination") destination: String,
-//        @Query("mode") mode: String,
-//        @Query("key") key: String,
-//    ): Response<RouteNavigation>
-//    @GET("/maps/api/place/details/json")
-//    suspend fun getAddressFromPlaceId(
-//        @Query("placeid") placeid: String,
-//        @Query("key") key: String,
-//    ): Response<PlaceClient>
-
-
-
     @GET("/v1/geocode/autocomplete")
     suspend fun getAddressFromText(
         @Query("text") text: String,
