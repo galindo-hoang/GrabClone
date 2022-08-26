@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.user.data.api.BookingApi
+import com.example.user.data.dto.BookingDto
 import com.example.user.databinding.FragmentHomeBinding
 import com.example.user.presentation.base.BaseApplication
 import com.example.user.presentation.booking.SearchingRouteActivity
@@ -16,7 +18,11 @@ import com.example.user.presentation.main.adapter.PromptAdapter
 import com.example.user.presentation.main.adapter.VoucherAdapter
 import com.example.user.presentation.service.MyFirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment: Fragment() {
@@ -24,19 +30,17 @@ class HomeFragment: Fragment() {
     private lateinit var bookingAdapter: BookingAdapter
     private lateinit var promptAdapter: PromptAdapter
     private lateinit var voucherAdapter: VoucherAdapter
+    @Inject
+    lateinit var bookingApi: BookingApi
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.e("+", BaseApplication.token)
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
         setRecycleView()
         registerClickListener()
-        FirebaseMessaging.getInstance().token.addOnCompleteListener {
-            Log.e("---",it.result)
-        }
         return binding.root
     }
     private fun registerClickListener() {

@@ -83,9 +83,9 @@ class BookingViewModel @Inject constructor(
                 BookingDto(
                     destination = LatLong(destination!!.position.latitude,destination!!.position.longitude),
                     origin = LatLong(origin!!.position.latitude,origin!!.position.longitude),
-                    paymentMethod = payment!!.method,
+                    paymentMethod = payment!!.method.toString(),
                     price = vehicle!!.getPrice().toDouble(),
-                    typeCar = vehicle!!.typeCar
+                    typeCar = vehicle!!.typeCar.toString()
                 )
             )
         }
