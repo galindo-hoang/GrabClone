@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<layout>-->
-<!--    <data>-->
-<!--        <variable-->
-<!--            name="viewModel"-->
-<!--            type="com.example.driver.presentation.main.ProfileViewModel" />-->
-<!--    </data>-->
-<!--</layout>-->
-
-
-
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -90,7 +79,7 @@
                 android:id="@+id/tv_user_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="phạm tiến quân"
+                android:text=""
                 android:textColor="@color/black"
                 android:textStyle="bold"
                 android:textSize="20sp"/>
@@ -108,7 +97,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="+8419127526"
+                android:text=""
                 android:textSize="15sp"
                 android:textColor="@color/gray"/>
         </LinearLayout>

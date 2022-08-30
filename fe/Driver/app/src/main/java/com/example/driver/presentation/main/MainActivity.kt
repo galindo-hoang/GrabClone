@@ -17,10 +17,6 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        if(stimulateViewModel.afterDoneDriving) {
-            this.startLooking()
-            stimulateViewModel.afterDoneDriving = false
-        }
         loadFragment(HomeFragment())
         registerViewChangeListener()
         registerClickListener()
