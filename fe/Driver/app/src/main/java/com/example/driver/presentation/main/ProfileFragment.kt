@@ -31,8 +31,27 @@ class ProfileFragment: Fragment() {
         mainActivity = activity as MainActivity
         binding = FragmentProfileBinding.inflate(layoutInflater,container,false)
         registerClickListener()
+        registerViewChange()
         return binding.root
     }
+
+    private fun registerViewChange() {
+        profileFragmentViewModel.getUser().observe(viewLifecycleOwner) {
+            when(it.status) {
+                Status.LOADING -> mainActivity.showProgressDialog()
+                Status.ERROR -> {
+                    mainActivity.hideProgressDialog()
+                    Toast.makeText(mainActivity,it.message,Toast.LENGTH_LONG).show()
+                }
+                Status.SUCCESS -> {
+                    mainActivity.hideProgressDialog()
+                    binding.tvUserName.text = it.data!!.username
+                    binding.tvPhoneNumber.text = it.data.phoneNumber
+                }
+            }
+        }
+    }
+
     private fun registerClickListener() {
         binding.btnLogOut.setOnClickListener {
             profileFragmentViewModel.logout().observe(viewLifecycleOwner){

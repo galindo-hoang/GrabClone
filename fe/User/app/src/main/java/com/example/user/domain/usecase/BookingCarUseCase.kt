@@ -17,6 +17,7 @@ class BookingCarUseCase @Inject constructor(
             val userDto = authenticationRepository.getAccount()
             bookingDto.phoneNumber = userDto.phoneNumber.toString()
             bookingDto.username = userDto.username.toString()
+            Log.e("==",bookingDto.toString())
             val response = bookingRepository.bookingDriver(bookingDto)
             Log.e("1",response.toString())
              when(response.code()){

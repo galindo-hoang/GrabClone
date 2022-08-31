@@ -11,9 +11,6 @@ interface TokenDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveToken(tokenAuthentication: TokenAuthentication)
 
-//    @Update
-//    suspend fun updateToken(tokenAuthentication: TokenAuthentication)
-
     @Query("select * from TokenAuthentication where username = :userName")
     suspend fun fetchTokenByUserName(userName: String): TokenAuthentication?
 

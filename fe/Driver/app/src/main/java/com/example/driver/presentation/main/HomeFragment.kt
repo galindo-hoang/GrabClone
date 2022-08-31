@@ -1,5 +1,6 @@
 package com.example.driver.presentation.main
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -26,26 +27,33 @@ class HomeFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.e("-----------",BaseApplication.token)
         binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
         this.mainActivity = activity as MainActivity
+        if(mainActivity.stimulateViewModel.afterDoneDriving) {
+            mainActivity.startLooking()
+            binding.btnToggle.isChecked = true
+            mainActivity.stimulateViewModel.afterDoneDriving = false
+        }
         registerClickListener()
-        registerViewChangeListener()
         return binding.root
     }
 
-
-    private fun registerViewChangeListener() {}
-
     private fun registerClickListener() {
-        binding.btnStartListening.setOnClickListener {
-            homeFragmentViewModel.startListening().observe(viewLifecycleOwner){
-                common(it) { this.mainActivity.startLooking() }
-            }
-        }
-        binding.btnStopListening.setOnClickListener {
-            homeFragmentViewModel.stopListening().observe(viewLifecycleOwner) {
-                common(it) { this.mainActivity.stopLooking() }
+        binding.btnToggle.setOnClickListener {
+            if(binding.btnToggle.isChecked) {
+                homeFragmentViewModel.startListening().observe(viewLifecycleOwner) {
+                    common(it) {
+                        this.mainActivity.startLooking()
+                        binding.tv.text = "Listening booking ..."
+                    }
+                }
+            }else {
+                homeFragmentViewModel.stopListening().observe(viewLifecycleOwner) {
+                    common(it) {
+                        this.mainActivity.stopLooking()
+                        binding.tv.text = "Stop listening"
+                    }
+                }
             }
         }
     }
@@ -54,6 +62,7 @@ class HomeFragment: Fragment() {
         when(response.status){
             Status.LOADING -> this.mainActivity.showProgressDialog()
             Status.ERROR -> {
+                binding.btnToggle.isChecked = !binding.btnToggle.isChecked
                 this.mainActivity.hideProgressDialog()
                 if(response.codeResponse == -2) this.mainActivity.showExpiredTokenDialog(response.message.toString())
                 else Toast.makeText(activity,response.message.toString(),Toast.LENGTH_LONG).show()

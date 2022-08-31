@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.example.driver.R
 import com.example.driver.domain.usecase.SetupServiceCurrentLocationUseCase
@@ -27,6 +28,7 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if(task.isSuccessful) {
+                Log.e("fcmToken",task.result)
                 BaseApplication.token = task.result
                 splashViewModel.checkLogin().observe(this) {
                     when (it.status) {

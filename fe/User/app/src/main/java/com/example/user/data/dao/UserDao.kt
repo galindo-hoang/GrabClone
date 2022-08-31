@@ -11,8 +11,6 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveUser(user: User)
 
-//    @Update
-//    suspend fun updateUser(user: User)
     @Query("select * from User")
     suspend fun fetchAllUser(): List<User>
 
