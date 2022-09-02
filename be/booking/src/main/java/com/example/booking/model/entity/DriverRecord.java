@@ -31,6 +31,9 @@ public class DriverRecord {
     private MapCoordinate location;
 
     @Column
+    private String geoHash;
+
+    @Column
     private Float starEvaluate;
 
     @Column

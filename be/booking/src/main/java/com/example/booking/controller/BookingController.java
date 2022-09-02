@@ -1,5 +1,6 @@
 package com.example.booking.controller;
 
+import ch.hsr.geohash.GeoHash;
 import com.example.booking.model.domain.*;
 import com.example.booking.model.dto.*;
 import com.example.booking.model.entity.BookingRecord;
@@ -81,12 +82,21 @@ public class BookingController {
             BookingRecord bookingRecordSaving = bookingService.save(bookingRecord);
             bookingRecordMap.put(bookingRecordSaving.getId(), bookingRecordSaving);
 
-            //Get all driver is subscribed
+            //Get all driver is subscribed by distance matrix api
+
+            /*
             List<DriverRecord> driverRecords = driverStoreService.driverRecordList();
             List<DriverRecord> driverRecordsInArea = driverRecords.stream().filter(driverRecord ->
                     driverRecord.getLocation() != null &&
                             distanceApiService.getDistance(bookingDto.getPickupLocation()
                                     , driverRecord.getLocation()) < 4000).collect(Collectors.toList());
+             */
+
+            //Get all driver is subscribed by geo hash
+            GeoHash geohash = GeoHash. withCharacterPrecision(bookingDto.getPickupLocation().getLatitude(),
+                    bookingDto.getPickupLocation().getLongitude(), 12);
+            String geohashString = geohash.toBase32().substring(0, 5); //5 characters for around 5km of precision
+            List<DriverRecord> driverRecordsInArea = driverStoreService.findNearByGeohash(geohashString);
             if (driverRecordsInArea.size() != 0) {
                 //Subscribe drivers
                 for (DriverRecord driverRecord : driverRecordsInArea) {
@@ -251,7 +261,10 @@ public class BookingController {
 
     @PostMapping("/update_location")
     public ResponseEntity<DriverRecord> updateLocation(@RequestBody DriverLocationDto driverLocationDto) {
-        return ResponseEntity.ok(driverStoreService.updateLocationService(driverLocationDto));
+        GeoHash geoHash=GeoHash.withCharacterPrecision(driverLocationDto.getLocation().getLatitude(),
+                driverLocationDto.getLocation().getLongitude(),12);
+        String geohashString = geoHash.toBase32();
+        return ResponseEntity.ok(driverStoreService.updateLocationService(driverLocationDto,geohashString));
     }
 
     @PostMapping("/update_driver_location")
@@ -546,4 +559,15 @@ public class BookingController {
         }
     }
 
+    @GetMapping("/test/{geoHash}")
+    public ResponseEntity<List<DriverRecord>> getDriver(@PathVariable String geoHash) {
+        try {
+            // Get Booking Record according bookingId
+            List<DriverRecord> drivers = driverStoreService.findNearByGeohash(geoHash);
+            System.out.println(drivers);
+            return new ResponseEntity<>(drivers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }
